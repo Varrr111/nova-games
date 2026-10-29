@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#070d18">
+<title>Nova Order · Ремонт</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Exo+2:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#070d18; --bg2:#0c1628; --panel:rgba(16,28,48,.78); --line:rgba(96,170,255,.22);
+  --ink:#e2ecf8; --mute:#8aa0be; --acc:#4fd1e8; --acc2:#5aa8ff; --good:#5be3a6; --bad:#ff6b6b; --warn:#ffc35a;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:"Exo 2",system-ui,sans-serif;overflow-x:hidden;
+  background:radial-gradient(1200px 700px at 70% -10%,#13284a 0,transparent 60%),
+             radial-gradient(900px 600px at -10% 110%,#0e2a3a 0,transparent 55%),var(--bg)}
+#stars{position:fixed;inset:0;z-index:0;pointer-events:none}
+.wrap{position:relative;z-index:1;max-width:560px;margin:0 auto;padding:max(14px,env(safe-area-inset-top)) 16px 28px}
+.top{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.logo{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;
+  background:linear-gradient(145deg,#173058,#0b1730);border:1px solid var(--line);box-shadow:0 0 24px rgba(79,209,232,.18)}
+.kicker{font-size:11px;letter-spacing:.28em;color:var(--acc2);font-weight:700}
+.title{font-family:"Russo One",sans-serif;font-size:22px;line-height:1.1;margin-top:3px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:20px;backdrop-filter:blur(10px);
+  box-shadow:0 20px 50px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.04)}
+.task{padding:14px 16px;display:flex;justify-content:space-between;gap:10px;align-items:center}
+.task b{font-size:17px}
+.task small{display:block;color:var(--mute);font-size:13px;margin-top:2px}
+.hud{display:flex;gap:10px;margin:12px 0}
+.hud .card{flex:1;padding:10px 12px;text-align:center}
+.hud .v{font-family:"Russo One";font-size:22px}
+.hud .l{font-size:11px;color:var(--mute);letter-spacing:.14em;text-transform:uppercase}
+.timebar{height:6px;border-radius:6px;background:rgba(255,255,255,.07);overflow:hidden;margin-top:6px}
+.timebar i{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--acc),var(--acc2));transition:width .25s linear}
+.stage{padding:14px;position:relative}
+.hint{color:var(--mute);font-size:14px;text-align:center;margin:10px 4px 2px}
+.btn{appearance:none;border:0;border-radius:14px;padding:14px 18px;font:700 16px "Exo 2";color:#06121f;cursor:pointer;
+  background:linear-gradient(135deg,var(--acc),var(--acc2));box-shadow:0 8px 24px rgba(79,209,232,.3);width:100%}
+.btn.ghost{background:rgba(255,255,255,.06);color:var(--ink);box-shadow:none;border:1px solid var(--line)}
+.overlay{position:fixed;inset:0;z-index:10;display:none;place-items:center;padding:20px;
+  background:rgba(4,8,16,.72);backdrop-filter:blur(6px)}
+.overlay.on{display:grid}
+.result{max-width:420px;width:100%;padding:26px 22px;text-align:center}
+.result .big{font-family:"Russo One";font-size:28px;margin:12px 0 6px}
+.result p{color:var(--mute);margin-bottom:18px;line-height:1.45}
+.ring{width:96px;height:96px;margin:0 auto;border-radius:50%;display:grid;place-items:center;
+  background:radial-gradient(circle,rgba(91,227,166,.25),transparent 70%)}
+.demo{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.demo button{padding:14px 10px;font-size:14px}
+/* ── трубопровод ── */
+#pipes{width:100%;aspect-ratio:1;display:block;touch-action:manipulation;user-select:none}
+.tile{cursor:pointer}
+.tile .rot{transition:transform .22s cubic-bezier(.3,1.4,.5,1);transform-box:fill-box;transform-origin:center}
+.pipe-bg{stroke:#24364f;stroke-width:16;stroke-linecap:round;fill:none}
+.pipe{stroke:#3a5272;stroke-width:9;stroke-linecap:round;fill:none;transition:stroke .25s}
+.full .pipe{stroke:var(--acc);filter:drop-shadow(0 0 6px rgba(79,209,232,.8))}
+.full .flow{stroke:#c9fbff;stroke-width:3;stroke-dasharray:4 10;animation:flow .6s linear infinite;fill:none;stroke-linecap:round}
+@keyframes flow{to{stroke-dashoffset:-14}}
+.cell{fill:rgba(255,255,255,.025);stroke:rgba(120,180,255,.08)}
+.port{fill:#0c1a2e;stroke:var(--acc2);stroke-width:2}
+.shake{animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+</style>
+</head>
+<body>
+<canvas id="stars"></canvas>
+<div class="wrap">
+  <div class="top">
+    <div class="logo"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#4fd1e8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0-5.6 5.6L3 18l3 3 6.1-6.1a4 4 0 0 0 5.6-5.6l-2.5 2.5-2.1-.7-.7-2.1z"/></svg></div>
+    <div><div class="kicker">NOVA ORDER · ТЕХОБСЛУЖИВАНИЕ</div><div class="title" id="gTitle">Ремонт завода</div></div>
+  </div>
+  <div class="card task"><div><b id="tLabel">Демо-режим</b><small id="tSub">выберите мини-игру</small></div>
+    <div style="text-align:right"><small style="color:var(--mute)">страна</small><b id="tCountry">—</b></div></div>
+  <div class="hud" id="hud" style="display:none">
+    <div class="card"><div class="v" id="hTime">90</div><div class="l">секунд</div><div class="timebar"><i id="hBar"></i></div></div>
+    <div class="card"><div class="v" id="hMoves">0</div><div class="l" id="hMovesL">ходов</div></div>
+  </div>
+  <div class="card stage" id="stage"></div>
+  <div class="hint" id="hint"></div>
+  <div class="demo" id="demo"></div>
+</div>
+<div class="overlay" id="ov"><div class="card result" id="ovBox"></div></div>
+
+<script>
+// ═══════════ фон: звёзды ═══════════
+(()=>{const c=document.getElementById('stars'),x=c.getContext('2d');let s=[];
+ function rs(){c.width=innerWidth*devicePixelRatio;c.height=innerHeight*devicePixelRatio;
+  s=Array.from({length:140},()=>({x:Math.random()*c.width,y:Math.random()*c.height,r:Math.random()*1.4+.2,p:Math.random()*6}))}
+ rs();addEventListener('resize',rs);
+ (function f(t){x.clearRect(0,0,c.width,c.height);for(const a of s){const o=.35+.65*Math.abs(Math.sin(t/1400+a.p));
+  x.globalAlpha=o;x.fillStyle='#cfe6ff';x.beginPath();x.arc(a.x,a.y,a.r*devicePixelRatio,0,7);x.fill()}requestAnimationFrame(f)})(0)})();
+
+// ═══════════ задание из ссылки ═══════════
+const GAMES={pipes:{t:'Трубопровод',d:'Поворачивайте трубы касанием и соедините вход с выходом'},
+  wires:{t:'Распредщиток',d:'Соедините провода одного цвета'},
+  simon:{t:'Пульт оператора',d:'Запомните и повторите последовательность сигналов'},
+  pressure:{t:'Давление в котле',d:'Удерживайте стрелку в зелёной зоне'}};
+const $=id=>document.getElementById(id);
+let TASK=null,HOOK=(location.hash||'').slice(1);
+try{const p=new URLSearchParams(location.search).get('t');
+  if(p){TASK=JSON.parse(decodeURIComponent(escape(atob(p.replace(/-/g,'+').replace(/_/g,'/')))))}}catch(e){TASK=null}
+if(HOOK&&!/^https:\/\/(discord|discordapp)\.com\/api\/webhooks\//.test(decodeURIComponent(HOOK)))HOOK='';
+
+// ═══════════ таймер / итог ═══════════
+let timer=null,tLeft=0,tTotal=0,onTimeout=null,GEN=0;
+function startTimer(sec,cb){clearInterval(timer);tLeft=tTotal=sec;onTimeout=cb;$('hud').style.display='flex';draw();
+  timer=setInterval(()=>{tLeft-=.25;draw();if(tLeft<=0){clearInterval(timer);onTimeout&&onTimeout()}},250);
+  function draw(){$('hTime').textContent=Math.max(0,Math.ceil(tLeft));$('hBar').style.width=Math.max(0,tLeft/tTotal*100)+'%';
+   $('hBar').style.background=tLeft/tTotal<.25?'linear-gradient(90deg,#ff6b6b,#ffc35a)':''}}
+function stopTimer(){clearInterval(timer)}
+function overlay(html){$('ovBox').innerHTML=html;$('ov').classList.add('on')}
+function closeOv(){$('ov').classList.remove('on')}
+const ICON_OK='<div class="ring"><svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#5be3a6" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>';
+const ICON_BAD='<div class="ring" style="background:radial-gradient(circle,rgba(255,107,107,.22),transparent 70%)"><svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#ff6b6b" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>';
+
+async function win(stats){
+  stopTimer();
+  if(!TASK){overlay(`${ICON_OK}<div class="big">Починено!</div><p>Демо-режим: в игре это вернуло бы заводу 100% состояния.</p><button class="btn" onclick="closeOv();boot()">Ещё раз</button>`);return}
+  overlay(`${ICON_OK}<div class="big">Починено!</div><p id="sendSt">Отправляю отчёт в штаб…</p>`);
+  let ok=false;
+  try{const fd=new FormData();
+    fd.append('payload_json',JSON.stringify({username:'Мастерская Nova Order',content:'REPAIR '+JSON.stringify({t:TASK,r:stats})}));
+    const r=await fetch(decodeURIComponent(HOOK),{method:'POST',body:fd});ok=r.ok}catch(e){ok=false}
+  $('sendSt').innerHTML=ok?`<b>${TASK.l}</b> снова работает на 100%.<br>Можно вернуться в Discord.`
+    :'Не удалось связаться с ботом. Проверьте интернет и нажмите «Повторить».'+
+     '<br><br><button class="btn" onclick="win('+JSON.stringify(stats).replace(/"/g,'&quot;')+')">Повторить отправку</button>';
+}
+function lose(text){stopTimer();
+  overlay(`${ICON_BAD}<div class="big">Не вышло</div><p>${text}</p><button class="btn" onclick="closeOv();boot()">Попробовать снова</button>`)}
+
+// ═══════════ ТРУБОПРОВОД ═══════════
+// направления: 0 — верх, 1 — право, 2 — низ, 3 — лево; плитка = набор открытых сторон при повороте 0
+const DIRS=[[-1,0],[0,1],[1,0],[0,-1]];
+const SHAPES={I:[0,2],L:[0,1],T:[0,1,3]};
+function pipesGame(){
+  const N=5,MOVES_EXTRA=8,TIME=90;
+  let grid,inR,outR,moves=0,minMoves=0,done=false;
+  function openings(c){return SHAPES[c.s].map(d=>(d+c.r)%4)}
+  function gen(){
+    for(let attempt=0;attempt<200;attempt++){
+      inR=Math.floor(Math.random()*N);outR=Math.floor(Math.random()*N);
+      // случайный путь без самопересечений слева направо
+      const path=[[inR,0]],seen=new Set([inR+',0']);
+      function dfs(r,c){if(c===N-1&&r===outR)return true;
+        const opts=[[r-1,c],[r+1,c],[r,c+1],[r,c+1]].sort(()=>Math.random()-.5);
+        for(const [nr,nc] of opts){if(nr<0||nr>=N||nc<0||nc>=N||seen.has(nr+','+nc))continue;
+          seen.add(nr+','+nc);path.push([nr,nc]);if(path.length<=N*N*.7&&dfs(nr,nc))return true;path.pop();seen.delete(nr+','+nc)}
+        return false}
+      if(!dfs(inR,0)||path.length<N+2)continue;
+      grid=Array.from({length:N},()=>Array.from({length:N},()=>({s:['I','L','T','L'][Math.floor(Math.random()*4)],r:0,sol:null})));
+      for(let i=0;i<path.length;i++){
+        const [r,c]=path[i];
+        const a=i===0?3:dirTo(path[i-1],path[i],true), b=i===path.length-1?1:dirTo(path[i],path[i+1]);
+        const need=[a,b].sort();
+        const s=((a+2)%4===b||(b+2)%4===a)?'I':'L';
+        for(let rot=0;rot<4;rot++){const o=SHAPES[s].map(d=>(d+rot)%4).sort();if(o[0]===need[0]&&o[1]===need[1]){grid[r][c]={s,r:0,sol:rot};break}}
+      }
+      // перемешать повороты, посчитать минимум ходов
+      minMoves=0;
+      for(const row of grid)for(const c of row){c.r=Math.floor(Math.random()*4);
+        if(c.sol!==null){const per=c.s==='I'?2:4;let d=((c.sol-c.r)%per+per)%per;if(d===0){c.r=(c.r+1)%4;d=per-1}minMoves+=d}}
+      return true}
+  }
+  function dirTo(a,b,incoming){const d=DIRS.findIndex(([dr,dc])=>a[0]+dr===b[0]&&a[1]+dc===b[1]);return incoming?(d+2)%4:d}
+  function flow(){ // какие клетки заполнены водой
+    const full=new Set();const q=[];
+    if(openings(grid[inR][0]).includes(3)){full.add(inR+',0');q.push([inR,0])}
+    while(q.length){const [r,c]=q.shift();for(const d of openings(grid[r][c])){const [dr,dc]=DIRS[d],nr=r+dr,nc=c+dc;
+      if(nr<0||nr>=N||nc<0||nc>=N||full.has(nr+','+nc))continue;
+      if(openings(grid[nr][nc]).includes((d+2)%4)){full.add(nr+','+nc);q.push([nr,nc])}}}
+    const ok=full.has(outR+','+(N-1))&&openings(grid[outR][N-1]).includes(1);
+    return {full,ok}}
+  const S=100,PAD=26,W=N*S+PAD*2;
+  function render(){
+    const {full,ok}=flow();
+    let h=`<svg id="pipes" viewBox="0 0 ${W} ${W}">`;
+    h+=`<defs><linearGradient id="pg" x1="0" x2="1"><stop offset="0" stop-color="#4fd1e8"/><stop offset="1" stop-color="#5aa8ff"/></linearGradient></defs>`;
+    // вход/выход
+    const iy=PAD+inR*S+S/2,oy=PAD+outR*S+S/2;
+    h+=`<path d="M0 ${iy} H${PAD+4}" stroke="#4fd1e8" stroke-width="12" stroke-linecap="round"/>`;
+    h+=`<path d="M${W-PAD-4} ${oy} H${W}" stroke="${ok?'#4fd1e8':'#3a5272'}" stroke-width="12" stroke-linecap="round"/>`;
+    for(let r=0;r<N;r++)for(let c=0;c<N;c++){
+      const g=grid[r][c],x=PAD+c*S,y=PAD+r*S,isF=full.has(r+','+c);
+      const segs=SHAPES[g.s].map(d=>{const [dr,dc]=DIRS[d];return `M${S/2} ${S/2} L${S/2+dc*S/2} ${S/2+dr*S/2}`}).join(' ');
+      h+=`<g class="tile ${isF?'full':''}" data-r="${r}" data-c="${c}" transform="translate(${x} ${y})">
+        <rect class="cell" x="3" y="3" width="${S-6}" height="${S-6}" rx="14"/>
+        <g class="rot" style="transform:rotate(${g.r*90}deg)">
+          <rect width="${S}" height="${S}" fill="none" stroke="none"/>
+          <path class="pipe-bg" d="${segs}"/><path class="pipe" d="${segs}"/>${isF?`<path class="flow" d="${segs}"/>`:''}
+          <circle cx="${S/2}" cy="${S/2}" r="9" fill="${isF?'#4fd1e8':'#2b4060'}"/>
+        </g></g>`}
+    h+=`<circle class="port" cx="${PAD/2}" cy="${iy}" r="9"/><circle class="port" cx="${W-PAD/2}" cy="${oy}" r="9" style="stroke:${ok?'#5be3a6':'#5aa8ff'}"/>`;
+    h+='</svg>';
+    $('stage').innerHTML=h;
+    $('hMoves').textContent=moves+' / '+(minMoves+MOVES_EXTRA);
+    document.querySelectorAll('#pipes .tile').forEach(el=>el.addEventListener('pointerdown',ev=>{ev.preventDefault();tap(+el.dataset.r,+el.dataset.c)}));
+    if(ok&&!done){done=true;setTimeout(()=>win({game:'pipes',moves,time:Math.round(tTotal-tLeft)}),650)}
+  }
+  function tap(r,c){if(done)return;grid[r][c].r=(grid[r][c].r+1)%4;moves++;
+    // плавный поворот: сначала повернуть текущий узел, затем перерисовать
+    const el=document.querySelector(`#pipes .tile[data-r="${r}"][data-c="${c}"] .rot`);
+    if(el)el.style.transform=`rotate(${grid[r][c].r*90+(grid[r][c].r===0?360:0)}deg)`;
+    setTimeout(()=>{render();if(!done&&moves>=minMoves+MOVES_EXTRA)lose('Закончились ходы — трубы перекрутили. Попробуйте точнее.')},230)}
+  gen();$('hMovesL').textContent='ходов';$('hint').textContent='Касание — поворот трубы. Соедините вход слева с выходом справа.';
+  render();startTimer(TIME,()=>{if(!done){done=true;lose('Время вышло — давление упало. Попробуйте ещё раз.')}});
+}
+
+// ═══════════ РАСПРЕДЩИТОК (тянуть провода к клеммам того же цвета) ═══════════
+function wiresGame(){
+  const COLORS=[['#ff5d6c','красный'],['#ffc35a','жёлтый'],['#4fd1e8','бирюзовый'],['#7d8cff','синий'],['#5be3a6','зелёный']];
+  const N=5,TIME=30,W=500,H=520,LX=70,RX=430,TOP=70,STEP=(H-TOP*2)/(N-1);
+  const left=[...Array(N).keys()].sort(()=>Math.random()-.5), right=[...Array(N).keys()].sort(()=>Math.random()-.5);
+  const done=new Map();let drag=null,fin=false;
+  $('hMovesL').textContent='соединено';
+  $('hint').textContent='Проведите пальцем от провода слева к клемме того же цвета справа.';
+  function y(i){return TOP+i*STEP}
+  function render(cur){
+    let h=`<svg id="wires" viewBox="0 0 ${W} ${H}" style="width:100%;display:block;touch-action:none;user-select:none">`;
+    h+=`<rect x="20" y="20" width="${W-40}" height="${H-40}" rx="22" fill="#0b1626" stroke="rgba(96,170,255,.22)"/>`;
+    for(let k=0;k<4;k++)h+=`<circle cx="${40+k*0}" cy="40" r="0"/>`;
+    // винты по углам
+    for(const [cx,cy] of [[42,42],[W-42,42],[42,H-42],[W-42,H-42]])h+=`<circle cx="${cx}" cy="${cy}" r="7" fill="#1b2b44"/><path d="M${cx-4} ${cy}h8" stroke="#45607f" stroke-width="2"/>`;
+    for(const [li,ri] of done){const c=COLORS[left[li]][0];
+      h+=`<path d="M${LX} ${y(li)} C ${W/2} ${y(li)}, ${W/2} ${y(ri)}, ${RX} ${y(ri)}" stroke="${c}" stroke-width="14" fill="none" stroke-linecap="round" style="filter:drop-shadow(0 0 8px ${c})"/>`}
+    if(cur){const c=COLORS[left[cur.li]][0];
+      h+=`<path d="M${LX} ${y(cur.li)} L ${cur.x} ${cur.y}" stroke="${c}" stroke-width="14" stroke-linecap="round" opacity=".9"/>`}
+    for(let i=0;i<N;i++){const c=COLORS[left[i]][0];
+      h+=`<rect x="20" y="${y(i)-14}" width="${LX-20}" height="28" rx="6" fill="${c}"/>`+
+         `<circle cx="${LX}" cy="${y(i)}" r="16" fill="#0b1626" stroke="${c}" stroke-width="5" data-l="${i}"/>`}
+    for(let i=0;i<N;i++){const c=COLORS[right[i]][0],on=[...done.values()].includes(i);
+      h+=`<rect x="${RX}" y="${y(i)-14}" width="${W-20-RX}" height="28" rx="6" fill="${c}" opacity="${on?1:.55}"/>`+
+         `<circle cx="${RX}" cy="${y(i)}" r="16" fill="${on?c:'#0b1626'}" stroke="${c}" stroke-width="5"/>`}
+    h+='</svg>';$('stage').innerHTML=h;$('hMoves').textContent=done.size+' / '+N;
+    const svg=$('wires');
+    const pt=e=>{const r=svg.getBoundingClientRect();return {x:(e.clientX-r.left)/r.width*W,y:(e.clientY-r.top)/r.height*H}};
+    svg.onpointerdown=e=>{if(fin)return;const p=pt(e);const li=[...Array(N).keys()].find(i=>Math.hypot(p.x-LX,p.y-y(i))<34);
+      if(li===undefined||done.has(li))return;drag={li,...p};svg.setPointerCapture(e.pointerId);render(drag)};
+    svg.onpointermove=e=>{if(!drag)return;Object.assign(drag,pt(e));render(drag)};
+    svg.onpointerup=e=>{if(!drag)return;const p=pt(e);const ri=[...Array(N).keys()].find(i=>Math.hypot(p.x-RX,p.y-y(i))<40);
+      if(ri!==undefined&&right[ri]===left[drag.li]&&![...done.values()].includes(ri)){done.set(drag.li,ri)}
+      else if(ri!==undefined){$('stage').classList.add('shake');setTimeout(()=>$('stage').classList.remove('shake'),350);tLeft=Math.max(0,tLeft-3)}
+      drag=null;render();
+      if(done.size===N&&!fin){fin=true;setTimeout(()=>win({game:'wires',time:Math.round(tTotal-tLeft)}),500)}};
+  }
+  render();startTimer(TIME,()=>{if(!fin){fin=true;lose('Время вышло — щиток обесточен. Попробуйте ещё раз.')}});
+}
+
+// ═══════════ ПУЛЬТ ОПЕРАТОРА (повторить последовательность) ═══════════
+function simonGame(){
+  const MY=GEN;
+  const PADS=[['#ff5d6c','▲'],['#ffc35a','●'],['#4fd1e8','■'],['#7d8cff','◆']];
+  const ROUNDS=5;let seq=[],pos=0,round=0,busy=true,fin=false;let ac=null;
+  $('hMovesL').textContent='раунд';$('hint').textContent='Смотрите, какие кнопки загораются, и нажмите их в том же порядке.';
+  function beep(i){try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator(),g=ac.createGain();
+    o.frequency.value=[330,392,494,587][i];o.type='triangle';g.gain.setValueAtTime(.18,ac.currentTime);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+.35);
+    o.connect(g).connect(ac.destination);o.start();o.stop(ac.currentTime+.36)}catch(e){}}
+  $('stage').innerHTML=`<div id="simon" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;aspect-ratio:1;padding:6px">
+    ${PADS.map(([c,s],i)=>`<button data-i="${i}" style="border:0;border-radius:26px;font:800 54px 'Exo 2';color:#06121f;cursor:pointer;
+      background:${c};opacity:.32;transition:opacity .12s,transform .12s,box-shadow .12s;touch-action:manipulation">${s}</button>`).join('')}</div>
+    <div id="sStatus" style="text-align:center;margin-top:12px;font-weight:700;color:var(--acc)">Смотрите…</div>`;
+  const pads=[...document.querySelectorAll('#simon button')];
+  function flash(i,ms=420){pads[i].style.opacity=1;pads[i].style.transform='scale(.96)';pads[i].style.boxShadow=`0 0 40px ${PADS[i][0]}`;beep(i);
+    setTimeout(()=>{pads[i].style.opacity=.32;pads[i].style.transform='';pads[i].style.boxShadow=''},ms)}
+  function next(){if(GEN!==MY)return;round++;pos=0;busy=true;$('hMoves').textContent=round+' / '+ROUNDS;$('sStatus').textContent='Смотрите…';
+    seq.push(Math.floor(Math.random()*4));if(round===1)seq.push(Math.floor(Math.random()*4),Math.floor(Math.random()*4));
+    seq.forEach((v,k)=>setTimeout(()=>{if(GEN===MY)flash(v)},600+k*620));
+    setTimeout(()=>{busy=false;$('sStatus').textContent='Ваш ход'},600+seq.length*620)}
+  pads.forEach(p=>p.addEventListener('pointerdown',e=>{e.preventDefault();if(busy||fin)return;const i=+p.dataset.i;flash(i,220);
+    if(i!==seq[pos]){fin=true;setTimeout(()=>lose('Неверный сигнал — система аварийно остановлена.'),300);return}
+    pos++;if(pos===seq.length){busy=true;if(round===ROUNDS){fin=true;setTimeout(()=>win({game:'simon',time:Math.round(tTotal-tLeft)}),500)}else setTimeout(next,700)}}));
+  startTimer(75,()=>{if(!fin){fin=true;lose('Время вышло. Попробуйте ещё раз.')}});
+  setTimeout(next,400);
+}
+
+// ═══════════ ДАВЛЕНИЕ В КОТЛЕ (удерживать стрелку в зелёной зоне) ═══════════
+function pressureGame(){
+  const MY=GEN;
+  const TIME=45,ZONE=[58,74];let p=40,v=0,hold=0,prog=0,fin=false,raf;
+  $('hMovesL').textContent='стабилизация';$('hint').textContent='Держите «Подкачать» или «Сбросить», чтобы стрелка оставалась в зелёной зоне, пока шкала не заполнится.';
+  $('stage').innerHTML=`<svg viewBox="0 0 400 285" style="width:100%;display:block">
+      <defs><linearGradient id="arc" x1="0" x2="1"><stop offset="0" stop-color="#5aa8ff"/><stop offset=".55" stop-color="#5be3a6"/><stop offset="1" stop-color="#ff5d6c"/></linearGradient></defs>
+      <path d="M50 220 A150 150 0 0 1 350 220" stroke="#16243a" stroke-width="30" fill="none" stroke-linecap="round"/>
+      <path id="zone" fill="none" stroke="#5be3a6" stroke-width="30" stroke-linecap="butt" opacity=".9" style="filter:drop-shadow(0 0 10px #5be3a6)"/>
+      ${[...Array(11).keys()].map(i=>{const a=Math.PI*(1-i/10),x1=200+128*Math.cos(a),y1=220-128*Math.sin(a),x2=200+112*Math.cos(a),y2=220-112*Math.sin(a);
+        return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#45607f" stroke-width="3"/>`}).join('')}
+      <g id="needle"><path d="M196 220 L200 92 L204 220 Z" fill="#e2ecf8"/></g>
+      <circle cx="200" cy="220" r="16" fill="#0c1a2e" stroke="#4fd1e8" stroke-width="4"/>
+      <text id="pv" x="200" y="278" text-anchor="middle" font-family="Russo One" font-size="30" fill="#e2ecf8">40</text>
+    </svg>
+    <div class="timebar" style="height:12px;margin:6px 4px 14px"><i id="prog" style="width:0;background:linear-gradient(90deg,#5be3a6,#4fd1e8)"></i></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <button class="btn ghost" id="bDown" style="padding:22px 10px;font-size:18px;touch-action:none">▼ Сбросить</button>
+      <button class="btn" id="bUp" style="padding:22px 10px;font-size:18px;touch-action:none">▲ Подкачать</button></div>`;
+  const pol=(val,r)=>{const a=Math.PI*(1-val/100);return [200+r*Math.cos(a),220-r*Math.sin(a)]};
+  const [zx1,zy1]=pol(ZONE[0],150),[zx2,zy2]=pol(ZONE[1],150);
+  $('zone').setAttribute('d',`M${zx1} ${zy1} A150 150 0 0 1 ${zx2} ${zy2}`);
+  const bind=(id,d)=>{const b=$(id);b.onpointerdown=e=>{e.preventDefault();hold=d;b.setPointerCapture(e.pointerId)};b.onpointerup=b.onpointercancel=()=>{hold=0}};
+  bind('bUp',1);bind('bDown',-1);
+  let last=performance.now(),drift=0;
+  (function tick(t){if(GEN!==MY)return;const dt=Math.min(.05,(t-last)/1000);last=t;
+    drift+=(Math.random()-.5)*2.4*dt*60;drift*=.97;                // турбулентность котла
+    v+=(hold*38+drift*6-v*1.6)*dt; p=Math.max(0,Math.min(100,p+v*dt*2.2));
+    const inZone=p>=ZONE[0]&&p<=ZONE[1];
+    prog=Math.max(0,Math.min(100,prog+(inZone?14:-9)*dt));
+    $('needle').setAttribute('transform',`rotate(${(p-50)*1.8} 200 220)`);$('pv').textContent=Math.round(p);
+    $('pv').setAttribute('fill',inZone?'#5be3a6':p>ZONE[1]?'#ff5d6c':'#e2ecf8');$('prog').style.width=prog+'%';
+    $('hMoves').textContent=Math.round(prog)+'%';
+    if(p>=99&&!fin){fin=true;lose('Перегрев! Сработал аварийный клапан.');return}
+    if(prog>=100&&!fin){fin=true;setTimeout(()=>win({game:'pressure',time:Math.round(tTotal-tLeft)}),300);return}
+    if(!fin)raf=requestAnimationFrame(tick)})(last);
+  startTimer(TIME,()=>{if(!fin){fin=true;cancelAnimationFrame(raf);lose('Не удалось стабилизировать котёл вовремя.')}});
+}
+
+// ═══════════ запуск ═══════════
+const RUN={pipes:pipesGame,wires:wiresGame,simon:simonGame,pressure:pressureGame};
+function boot(game){
+  GEN++;closeOv();
+  const g=game||(TASK&&TASK.g)||window._demoGame||'pipes';window._demoGame=g;
+  $('gTitle').textContent=GAMES[g].t;
+  if(TASK){$('tLabel').textContent=TASK.l;$('tSub').textContent=GAMES[g].d;$('tCountry').textContent=TASK.c;$('demo').innerHTML=''}
+  else{$('tLabel').textContent='Демо · '+GAMES[g].t;$('tSub').textContent=GAMES[g].d;
+    $('demo').innerHTML=Object.entries(GAMES).map(([k,v])=>`<button class="btn ${k===g?'':'ghost'}" onclick="boot('${k}')">${v.t}</button>`).join('')}
+  if(TASK&&TASK.e*1000<Date.now()){stopTimer();$('stage').innerHTML='';lose('Ссылка устарела. Откройте ремонт заново в Discord: <b>!ремонт</b>.');return}
+  (RUN[g]||RUN.pipes)();
+}
+boot();
+</script>
+</body>
+</html>
