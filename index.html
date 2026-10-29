@@ -100,13 +100,16 @@ const GAMES={pipes:{t:'Трубопровод',d:'Поворачивайте т�
   pressure:{t:'Давление в котле',d:'Удерживайте стрелку в зелёной зоне'}};
 const $=id=>document.getElementById(id);
 let TASK=null,HOOK=(location.hash||'').slice(1);
+const SHOT=new URLSearchParams(location.search).get('shot');   // витрина для скриншотов
 try{const p=new URLSearchParams(location.search).get('t');
   if(p){TASK=JSON.parse(decodeURIComponent(escape(atob(p.replace(/-/g,'+').replace(/_/g,'/')))))}}catch(e){TASK=null}
 if(HOOK&&!/^https:\/\/(discord|discordapp)\.com\/api\/webhooks\//.test(decodeURIComponent(HOOK)))HOOK='';
 
 // ═══════════ таймер / итог ═══════════
 let timer=null,tLeft=0,tTotal=0,onTimeout=null,GEN=0;
-function startTimer(sec,cb){clearInterval(timer);tLeft=tTotal=sec;onTimeout=cb;$('hud').style.display='flex';draw();
+function startTimer(sec,cb){clearInterval(timer);tLeft=tTotal=sec;onTimeout=cb;$('hud').style.display='flex';
+  if(SHOT){tLeft=Math.round(sec*.62);draw();return}
+  draw();
   timer=setInterval(()=>{tLeft-=.25;draw();if(tLeft<=0){clearInterval(timer);onTimeout&&onTimeout()}},250);
   function draw(){$('hTime').textContent=Math.max(0,Math.ceil(tLeft));$('hBar').style.width=Math.max(0,tLeft/tTotal*100)+'%';
    $('hBar').style.background=tLeft/tTotal<.25?'linear-gradient(90deg,#ff6b6b,#ffc35a)':''}}
@@ -138,7 +141,7 @@ const DIRS=[[-1,0],[0,1],[1,0],[0,-1]];
 const SHAPES={I:[0,2],L:[0,1],T:[0,1,3]};
 function pipesGame(){
   const N=5,MOVES_EXTRA=8,TIME=90;
-  let grid,inR,outR,moves=0,minMoves=0,done=false;
+  let grid,inR,outR,moves=0,minMoves=0,done=false,PATH=[];
   function openings(c){return SHAPES[c.s].map(d=>(d+c.r)%4)}
   function gen(){
     for(let attempt=0;attempt<200;attempt++){
@@ -151,6 +154,7 @@ function pipesGame(){
           seen.add(nr+','+nc);path.push([nr,nc]);if(path.length<=N*N*.7&&dfs(nr,nc))return true;path.pop();seen.delete(nr+','+nc)}
         return false}
       if(!dfs(inR,0)||path.length<N+2)continue;
+      PATH=path.slice();
       grid=Array.from({length:N},()=>Array.from({length:N},()=>({s:['I','L','T','L'][Math.floor(Math.random()*4)],r:0,sol:null})));
       for(let i=0;i<path.length;i++){
         const [r,c]=path[i];
@@ -205,7 +209,8 @@ function pipesGame(){
     const el=document.querySelector(`#pipes .tile[data-r="${r}"][data-c="${c}"] .rot`);
     if(el)el.style.transform=`rotate(${grid[r][c].r*90+(grid[r][c].r===0?360:0)}deg)`;
     setTimeout(()=>{render();if(!done&&moves>=minMoves+MOVES_EXTRA)lose('Закончились ходы — трубы перекрутили. Попробуйте точнее.')},230)}
-  gen();$('hMovesL').textContent='ходов';$('hint').textContent='Касание — поворот трубы. Соедините вход слева с выходом справа.';
+  gen();if(SHOT){PATH.slice(0,-2).forEach(([r,c])=>{grid[r][c].r=grid[r][c].sol});moves=11}
+  $('hMovesL').textContent='ходов';$('hint').textContent='Касание — поворот трубы. Соедините вход слева с выходом справа.';
   render();startTimer(TIME,()=>{if(!done){done=true;lose('Время вышло — давление упало. Попробуйте ещё раз.')}});
 }
 
@@ -246,7 +251,9 @@ function wiresGame(){
       drag=null;render();
       if(done.size===N&&!fin){fin=true;setTimeout(()=>win({game:'wires',time:Math.round(tTotal-tLeft)}),500)}};
   }
-  render();startTimer(TIME,()=>{if(!fin){fin=true;lose('Время вышло — щиток обесточен. Попробуйте ещё раз.')}});
+  if(SHOT){for(let li=0;li<3;li++)done.set(li,right.indexOf(left[li]))}
+  render();if(SHOT){const r=right.indexOf(left[3]);render({li:3,x:LX+(RX-LX)*.62,y:y(3)+(y(r)-y(3))*.62})}
+  startTimer(TIME,()=>{if(!fin){fin=true;lose('Время вышло — щиток обесточен. Попробуйте ещё раз.')}});
 }
 
 // ═══════════ ПУЛЬТ ОПЕРАТОРА (повторить последовательность) ═══════════
@@ -273,6 +280,7 @@ function simonGame(){
     if(i!==seq[pos]){fin=true;setTimeout(()=>lose('Неверный сигнал — система аварийно остановлена.'),300);return}
     pos++;if(pos===seq.length){busy=true;if(round===ROUNDS){fin=true;setTimeout(()=>win({game:'simon',time:Math.round(tTotal-tLeft)}),500)}else setTimeout(next,700)}}));
   startTimer(75,()=>{if(!fin){fin=true;lose('Время вышло. Попробуйте ещё раз.')}});
+  if(SHOT){round=3;$('hMoves').textContent='3 / 5';$('sStatus').textContent='Смотрите…';setTimeout(()=>{pads[2].style.opacity=1;pads[2].style.transform='scale(.96)';pads[2].style.boxShadow='0 0 50px '+PADS[2][0]},50);return}
   setTimeout(next,400);
 }
 
@@ -301,11 +309,12 @@ function pressureGame(){
   const bind=(id,d)=>{const b=$(id);b.onpointerdown=e=>{e.preventDefault();hold=d;b.setPointerCapture(e.pointerId)};b.onpointerup=b.onpointercancel=()=>{hold=0}};
   bind('bUp',1);bind('bDown',-1);
   let last=performance.now(),drift=0;
-  (function tick(t){if(GEN!==MY)return;const dt=Math.min(.05,(t-last)/1000);last=t;
+  if(SHOT){p=65;prog=72}
+  (function tick(t){if(GEN!==MY)return;if(SHOT){v=0;drift=0;hold=0}const dt=Math.min(.05,(t-last)/1000);last=t;
     drift+=(Math.random()-.5)*2.4*dt*60;drift*=.97;                // турбулентность котла
-    v+=(hold*38+drift*6-v*1.6)*dt; p=Math.max(0,Math.min(100,p+v*dt*2.2));
+    v+=(hold*38+drift*6-v*1.6)*dt; if(!SHOT)p=Math.max(0,Math.min(100,p+v*dt*2.2));
     const inZone=p>=ZONE[0]&&p<=ZONE[1];
-    prog=Math.max(0,Math.min(100,prog+(inZone?14:-9)*dt));
+    if(!SHOT)prog=Math.max(0,Math.min(100,prog+(inZone?14:-9)*dt));
     $('needle').setAttribute('transform',`rotate(${(p-50)*1.8} 200 220)`);$('pv').textContent=Math.round(p);
     $('pv').setAttribute('fill',inZone?'#5be3a6':p>ZONE[1]?'#ff5d6c':'#e2ecf8');$('prog').style.width=prog+'%';
     $('hMoves').textContent=Math.round(prog)+'%';
@@ -319,11 +328,13 @@ function pressureGame(){
 const RUN={pipes:pipesGame,wires:wiresGame,simon:simonGame,pressure:pressureGame};
 function boot(game){
   GEN++;closeOv();
-  const g=game||(TASK&&TASK.g)||window._demoGame||'pipes';window._demoGame=g;
+  const g=game||(TASK&&TASK.g)||SHOT||window._demoGame||'pipes';window._demoGame=g;
   $('gTitle').textContent=GAMES[g].t;
   if(TASK){$('tLabel').textContent=TASK.l;$('tSub').textContent=GAMES[g].d;$('tCountry').textContent=TASK.c;$('demo').innerHTML=''}
   else{$('tLabel').textContent='Демо · '+GAMES[g].t;$('tSub').textContent=GAMES[g].d;
     $('demo').innerHTML=Object.entries(GAMES).map(([k,v])=>`<button class="btn ${k===g?'':'ghost'}" onclick="boot('${k}')">${v.t}</button>`).join('')}
+  if(SHOT){const L={pipes:'НПЗ ×6',wires:'Сухопутный завод ×3',simon:'Крупный завод ×4',pressure:'АЭС ×2'};
+    $('tLabel').textContent=L[g];$('tCountry').textContent='Германия';$('demo').innerHTML=''}
   if(TASK&&TASK.e*1000<Date.now()){stopTimer();$('stage').innerHTML='';lose('Ссылка устарела. Откройте ремонт заново в Discord: <b>!ремонт</b>.');return}
   (RUN[g]||RUN.pipes)();
 }
