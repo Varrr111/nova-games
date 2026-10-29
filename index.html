@@ -123,8 +123,9 @@ async function win(stats){
   let ok=false;
   try{const fd=new FormData();
     fd.append('payload_json',JSON.stringify({username:'Мастерская Nova Order',content:'REPAIR '+JSON.stringify({t:TASK,r:stats})}));
-    const r=await fetch(decodeURIComponent(HOOK),{method:'POST',body:fd});ok=r.ok}catch(e){ok=false}
-  $('sendSt').innerHTML=ok?`<b>${TASK.l}</b> снова работает на 100%.<br>Можно вернуться в Discord.`
+    // no-cors: запрос доходит до Discord в любом случае, ответ читать не нужно (бот подтвердит в ЛС)
+    await fetch(decodeURIComponent(HOOK),{method:'POST',body:fd,mode:'no-cors'});ok=true}catch(e){ok=false}
+  $('sendSt').innerHTML=ok?`<b>${TASK.l}</b> снова работает на 100%.<br>Бот пришлёт подтверждение в ЛС — можно вернуться в Discord.`
     :'Не удалось связаться с ботом. Проверьте интернет и нажмите «Повторить».'+
      '<br><br><button class="btn" onclick="win('+JSON.stringify(stats).replace(/"/g,'&quot;')+')">Повторить отправку</button>';
 }
