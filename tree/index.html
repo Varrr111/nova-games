@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Nova Order · Дерево достижений</title>
 <meta name="theme-color" content="#090f1a">
-<link rel="icon" href="brand/emblem.png">
+<link rel="icon" href="brand/avatar.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -22,8 +22,8 @@
 
   /* ── фон: звёзды + планета ── */
   #stars{position:fixed;inset:0;width:100%;height:100%}
-  #planet{position:fixed;right:-140px;top:-120px;width:min(560px,70vw);opacity:.38;pointer-events:none;
-    filter:drop-shadow(0 0 60px rgba(90,170,255,.25));animation:float 18s ease-in-out infinite}
+  #planet{position:fixed;right:-6vw;top:50%;width:min(860px,95vw);margin-top:min(-430px,-47.5vw);opacity:.34;pointer-events:none;
+    mix-blend-mode:screen;animation:float 18s ease-in-out infinite}
   @keyframes float{50%{transform:translateY(14px) rotate(1.5deg)}}
   #vignette{position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 55%,transparent 45%,rgba(3,6,12,.75) 100%)}
 
@@ -74,7 +74,7 @@
   header{position:fixed;left:16px;top:16px;padding:16px 20px 16px 18px;display:flex;gap:14px;align-items:center;
     max-width:min(560px,calc(100vw - 32px));animation:slideDown .8s var(--ease) both}
   @keyframes slideDown{from{opacity:0;transform:translateY(-24px)}}
-  header img{width:46px;height:46px;filter:drop-shadow(0 0 10px rgba(120,186,255,.5))}
+  header img{width:46px;height:46px;border-radius:50%;box-shadow:0 0 0 2px rgba(120,186,255,.35),0 0 18px rgba(120,186,255,.45)}
   .kick{font-size:11px;font-weight:700;letter-spacing:.16em;color:var(--accent)}
   h1{margin:2px 0 1px;font-size:22px;font-weight:800;line-height:1.15}
   .sub{font-size:13px;color:var(--muted)}
@@ -162,12 +162,12 @@
 </head>
 <body>
 <canvas id="stars"></canvas>
-<img id="planet" src="brand/planet.png" alt="">
+<img id="planet" src="brand/avatar_bg.png" alt="">
 <div id="viewport"><div id="world"><svg id="links"></svg></div></div>
 <div id="vignette"></div>
 
 <header class="glass">
-  <img src="brand/emblem.png" alt="">
+  <img src="brand/avatar.png" alt="">
   <div style="min-width:0;flex:1">
     <div class="kick">NOVA ORDER · ЛЕТОПИСЬ ВАЙПА</div>
     <h1 id="title">Дерево достижений</h1>
