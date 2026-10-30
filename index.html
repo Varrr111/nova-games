@@ -5,99 +5,241 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#070d18">
 <title>Nova Order · Ремонт</title>
+<link rel="icon" href="tree/brand/avatar.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Exo+2:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#070d18; --bg2:#0c1628; --panel:rgba(16,28,48,.78); --line:rgba(96,170,255,.22);
+  --bg:#070d18; --glass:rgba(13,23,40,.74); --glass2:rgba(18,31,52,.92); --line:rgba(96,170,255,.22); --line2:rgba(120,190,255,.38);
   --ink:#e2ecf8; --mute:#8aa0be; --acc:#4fd1e8; --acc2:#5aa8ff; --good:#5be3a6; --bad:#ff6b6b; --warn:#ffc35a;
+  --ease:cubic-bezier(.22,1,.36,1);
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
-body{background:var(--bg);color:var(--ink);font-family:"Exo 2",system-ui,sans-serif;overflow-x:hidden;
-  background:radial-gradient(1200px 700px at 70% -10%,#13284a 0,transparent 60%),
-             radial-gradient(900px 600px at -10% 110%,#0e2a3a 0,transparent 55%),var(--bg)}
-#stars{position:fixed;inset:0;z-index:0;pointer-events:none}
-.wrap{position:relative;z-index:1;max-width:560px;margin:0 auto;padding:max(14px,env(safe-area-inset-top)) 16px 28px}
-.top{display:flex;align-items:center;gap:12px;margin-bottom:14px}
-.logo{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;
-  background:linear-gradient(145deg,#173058,#0b1730);border:1px solid var(--line);box-shadow:0 0 24px rgba(79,209,232,.18)}
-.kicker{font-size:11px;letter-spacing:.28em;color:var(--acc2);font-weight:700}
-.title{font-family:"Russo One",sans-serif;font-size:22px;line-height:1.1;margin-top:3px}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:20px;backdrop-filter:blur(10px);
-  box-shadow:0 20px 50px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.04)}
-.task{padding:14px 16px;display:flex;justify-content:space-between;gap:10px;align-items:center}
-.task b{font-size:17px}
-.task small{display:block;color:var(--mute);font-size:13px;margin-top:2px}
+body{background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,sans-serif;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit}
+
+/* ── фон: живой космос + планета ── */
+#stars{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+#planet{position:fixed;left:50%;top:-4%;width:min(900px,150vw);aspect-ratio:888/475;translate:-50% 0;opacity:.32;z-index:0;
+  pointer-events:none;mix-blend-mode:screen;animation:float 18s ease-in-out infinite}
+@keyframes float{50%{transform:translateY(14px) rotate(1.2deg)}}
+#planet img{position:absolute;inset:0;width:100%;height:100%}
+#planet .glint{filter:brightness(2.4) saturate(1.4);mix-blend-mode:screen;
+  -webkit-mask-image:linear-gradient(105deg,transparent 42%,#000 50%,transparent 58%);mask-image:linear-gradient(105deg,transparent 42%,#000 50%,transparent 58%);
+  -webkit-mask-size:320% 100%;mask-size:320% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;animation:glint 11s ease-in-out infinite}
+@keyframes glint{0%,18%{-webkit-mask-position:110% 0;mask-position:110% 0}70%,100%{-webkit-mask-position:-10% 0;mask-position:-10% 0}}
+#planet .atmo{position:absolute;left:50.63%;top:73.68%;width:29.3%;aspect-ratio:1;translate:-50% -50%;border-radius:50%;
+  box-shadow:0 0 50px 10px rgba(110,205,255,.38),inset 6px 6px 24px rgba(150,225,255,.35);animation:breathe 6.5s ease-in-out infinite;
+  -webkit-mask-image:linear-gradient(to bottom,#000 55%,transparent 80%);mask-image:linear-gradient(to bottom,#000 55%,transparent 80%)}
+@keyframes breathe{50%{box-shadow:0 0 80px 22px rgba(110,205,255,.6),inset 8px 8px 30px rgba(170,235,255,.55)}}
+#planet .moon{position:absolute;width:1.25%;aspect-ratio:1;border-radius:50%;translate:-50% -50%;
+  background:radial-gradient(circle at 35% 35%,#fff,#bfe8ff 45%,#4a90c0 100%);box-shadow:0 0 14px 4px rgba(150,220,255,.8)}
+#vignette{position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse at 50% 45%,transparent 50%,rgba(3,6,12,.7) 100%)}
+
+/* ── каркас ── */
+.wrap{position:relative;z-index:1;max-width:560px;margin:0 auto;padding:max(16px,env(safe-area-inset-top)) 16px max(28px,env(safe-area-inset-bottom))}
+.card{background:var(--glass);border:1px solid var(--line);border-radius:20px;backdrop-filter:blur(14px) saturate(1.3);-webkit-backdrop-filter:blur(14px) saturate(1.3);
+  box-shadow:0 20px 50px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.05)}
+.in{opacity:0;animation:rise .7s var(--ease) forwards;animation-delay:var(--d,0s)}
+@keyframes rise{from{opacity:0;transform:translateY(18px) scale(.98)}to{opacity:1;transform:none}}
+
+.top{display:flex;align-items:center;gap:13px;margin-bottom:14px}
+.top img{width:48px;height:48px;border-radius:50%;box-shadow:0 0 0 2px rgba(120,186,255,.35),0 0 22px rgba(120,186,255,.45)}
+.kicker{font-size:11px;letter-spacing:.24em;color:var(--acc2);font-weight:700}
+.title{font-family:"Russo One",sans-serif;font-size:24px;line-height:1.1;margin-top:3px;
+  background:linear-gradient(90deg,#fff,#bfe6ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+
+.task{padding:15px 16px;display:flex;justify-content:space-between;gap:12px;align-items:center}
+.task .ico{width:44px;height:44px;flex:none;border-radius:13px;display:grid;place-items:center;
+  background:linear-gradient(145deg,rgba(79,209,232,.22),rgba(90,168,255,.08));border:1px solid var(--line2)}
+.task .ico svg{width:24px;height:24px;stroke:var(--acc);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.task b{font-size:16.5px;font-weight:800}
+.task small{display:block;color:var(--mute);font-size:13px;margin-top:3px;line-height:1.35}
+.chipc{flex:none;text-align:right}
+.chipc span{display:inline-block;padding:6px 11px;border-radius:10px;background:rgba(79,209,232,.1);border:1px solid var(--line2);font-weight:700;font-size:13.5px}
+.chipc small{font-size:11px;letter-spacing:.14em;text-transform:uppercase;margin-bottom:4px}
+
+/* ── HUD: кольцо-таймер + прогресс ── */
 .hud{display:flex;gap:10px;margin:12px 0}
-.hud .card{flex:1;padding:10px 12px;text-align:center}
-.hud .v{font-family:"Russo One";font-size:22px}
-.hud .l{font-size:11px;color:var(--mute);letter-spacing:.14em;text-transform:uppercase}
-.timebar{height:6px;border-radius:6px;background:rgba(255,255,255,.07);overflow:hidden;margin-top:6px}
-.timebar i{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--acc),var(--acc2));transition:width .25s linear}
-.stage{padding:14px;position:relative}
-.hint{color:var(--mute);font-size:14px;text-align:center;margin:10px 4px 2px}
-.btn{appearance:none;border:0;border-radius:14px;padding:14px 18px;font:700 16px "Exo 2";color:#06121f;cursor:pointer;
-  background:linear-gradient(135deg,var(--acc),var(--acc2));box-shadow:0 8px 24px rgba(79,209,232,.3);width:100%}
+.hud .card{flex:1;padding:12px 14px;display:flex;align-items:center;gap:12px}
+.ringt{position:relative;width:58px;height:58px;flex:none}
+.ringt svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ringt circle{fill:none;stroke-width:6}
+.ringt .bg{stroke:rgba(255,255,255,.07)}
+.ringt .fg{stroke:url(#tg);stroke-linecap:round;stroke-dasharray:163.4;transition:stroke-dashoffset .25s linear;filter:drop-shadow(0 0 5px rgba(79,209,232,.7))}
+.ringt.low .fg{stroke:#ff6b6b;filter:drop-shadow(0 0 6px rgba(255,107,107,.9))}
+.ringt.low{animation:beat .9s ease-in-out infinite}
+@keyframes beat{50%{transform:scale(1.06)}}
+.ringt b{position:absolute;inset:0;display:grid;place-items:center;font-family:"Russo One";font-size:19px}
+.hud .v{font-family:"Russo One";font-size:22px;line-height:1}
+.hud .l{font-size:11px;color:var(--mute);letter-spacing:.14em;text-transform:uppercase;margin-top:5px}
+.timebar{height:6px;border-radius:6px;background:rgba(255,255,255,.07);overflow:hidden;margin-top:7px}
+.timebar i{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--acc),var(--acc2));transition:width .25s linear;
+  box-shadow:0 0 10px rgba(79,209,232,.6)}
+#hBar{display:none}
+
+/* ── поле игры: бегущая светящаяся рамка ── */
+.stage{padding:14px;position:relative;isolation:isolate}
+.stage::before{content:"";position:absolute;inset:-1px;border-radius:21px;padding:1.5px;z-index:-1;
+  background:conic-gradient(from var(--a),transparent 0 70%,rgba(79,209,232,.9) 80%,rgba(90,168,255,.9) 88%,transparent 95%);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;
+  animation:orbit 5s linear infinite}
+@property --a{syntax:"<angle>";initial-value:0deg;inherits:false}
+@keyframes orbit{to{--a:360deg}}
+.hint{color:var(--mute);font-size:14px;text-align:center;margin:12px 6px 2px;line-height:1.45}
+
+.btn{appearance:none;border:0;border-radius:14px;padding:14px 18px;font:800 16px Inter,sans-serif;color:#06121f;cursor:pointer;width:100%;
+  background:linear-gradient(135deg,var(--acc),var(--acc2));box-shadow:0 8px 24px rgba(79,209,232,.32),inset 0 1px 0 rgba(255,255,255,.4);
+  transition:transform .18s var(--ease),box-shadow .18s,filter .18s;display:flex;align-items:center;justify-content:center;gap:9px}
+.btn:hover{transform:translateY(-2px);filter:brightness(1.07)}
+.btn:active{transform:scale(.97)}
 .btn.ghost{background:rgba(255,255,255,.06);color:var(--ink);box-shadow:none;border:1px solid var(--line)}
-.overlay{position:fixed;inset:0;z-index:10;display:none;place-items:center;padding:20px;
-  background:rgba(4,8,16,.72);backdrop-filter:blur(6px)}
-.overlay.on{display:grid}
-.result{max-width:420px;width:100%;padding:26px 22px;text-align:center}
-.result .big{font-family:"Russo One";font-size:28px;margin:12px 0 6px}
-.result p{color:var(--mute);margin-bottom:18px;line-height:1.45}
-.ring{width:96px;height:96px;margin:0 auto;border-radius:50%;display:grid;place-items:center;
-  background:radial-gradient(circle,rgba(91,227,166,.25),transparent 70%)}
-.demo{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
-.demo button{padding:14px 10px;font-size:14px}
+.btn svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+
+/* ── демо: выбор игры ── */
+.demo{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.demo button{padding:13px 10px;font-size:14px}
+
+/* ── итог ── */
+.overlay{position:fixed;inset:0;z-index:10;display:grid;place-items:center;padding:20px;background:rgba(4,8,16,.7);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);opacity:0;pointer-events:none;transition:opacity .35s}
+.overlay.on{opacity:1;pointer-events:auto}
+.result{max-width:420px;width:100%;padding:28px 22px 22px;text-align:center;transform:scale(.9) translateY(14px);transition:transform .5s var(--ease)}
+.overlay.on .result{transform:none}
+.result .big{font-family:"Russo One";font-size:30px;margin:14px 0 6px}
+.result p{color:var(--mute);margin-bottom:18px;line-height:1.5}
+.result p b{color:var(--ink)}
+.ring{width:104px;height:104px;margin:0 auto;border-radius:50%;display:grid;place-items:center;position:relative;
+  background:radial-gradient(circle,rgba(91,227,166,.28),transparent 70%)}
+.ring::after{content:"";position:absolute;inset:6px;border-radius:50%;border:2px solid rgba(91,227,166,.5);animation:burst 1.4s var(--ease) infinite}
+@keyframes burst{from{transform:scale(.7);opacity:1}to{transform:scale(1.35);opacity:0}}
+.ring path{stroke-dasharray:30;stroke-dashoffset:30;animation:tick .6s var(--ease) .15s forwards}
+@keyframes tick{to{stroke-dashoffset:0}}
+.ring.bad{background:radial-gradient(circle,rgba(255,107,107,.26),transparent 70%);animation:shake .5s .1s}
+.ring.bad::after{border-color:rgba(255,107,107,.5)}
+#confetti{position:fixed;inset:0;width:100%;height:100%;z-index:11;pointer-events:none}
+
 /* ── трубопровод ── */
 #pipes{width:100%;aspect-ratio:1;display:block;touch-action:manipulation;user-select:none}
 .tile{cursor:pointer}
-.tile .rot{transition:transform .22s cubic-bezier(.3,1.4,.5,1);transform-box:fill-box;transform-origin:center}
-.pipe-bg{stroke:#24364f;stroke-width:16;stroke-linecap:round;fill:none}
-.pipe{stroke:#3a5272;stroke-width:9;stroke-linecap:round;fill:none;transition:stroke .25s}
-.full .pipe{stroke:var(--acc);filter:drop-shadow(0 0 6px rgba(79,209,232,.8))}
-.full .flow{stroke:#c9fbff;stroke-width:3;stroke-dasharray:4 10;animation:flow .6s linear infinite;fill:none;stroke-linecap:round}
+.tile .rot{transition:transform .26s cubic-bezier(.3,1.5,.5,1);transform-box:fill-box;transform-origin:center}
+.tile:active .cell{fill:rgba(79,209,232,.12)}
+.pipe-bg{stroke:#1d2d44;stroke-width:18;stroke-linecap:round;fill:none}
+.pipe{stroke:#3a5272;stroke-width:10;stroke-linecap:round;fill:none;transition:stroke .3s}
+.full .pipe{stroke:#4fd1e8;filter:drop-shadow(0 0 7px rgba(79,209,232,.85))}
+.full .flow{stroke:#d9fdff;stroke-width:3;stroke-dasharray:3 11;animation:flow .55s linear infinite;fill:none;stroke-linecap:round}
 @keyframes flow{to{stroke-dashoffset:-14}}
-.cell{fill:rgba(255,255,255,.025);stroke:rgba(120,180,255,.08)}
-.port{fill:#0c1a2e;stroke:var(--acc2);stroke-width:2}
+.cell{fill:url(#cellg);stroke:rgba(120,180,255,.1);transition:fill .2s}
+.full .cell{stroke:rgba(79,209,232,.35)}
+.port{fill:#0c1a2e;stroke:var(--acc2);stroke-width:3}
+.port.pulse{animation:portp 1.6s ease-in-out infinite}
+@keyframes portp{50%{stroke-width:6;filter:drop-shadow(0 0 8px var(--acc))}}
 .shake{animation:shake .35s}
-@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+@keyframes shake{25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+
+/* ── пульт ── */
+#simon{display:grid;grid-template-columns:1fr 1fr;gap:14px;aspect-ratio:1;padding:6px;position:relative}
+#simon button{border:0;border-radius:28px;cursor:pointer;position:relative;overflow:hidden;touch-action:manipulation;display:grid;place-items:center;
+  background:radial-gradient(circle at 30% 25%,rgba(255,255,255,.45),transparent 45%),var(--c);opacity:.3;
+  box-shadow:inset 0 -10px 22px rgba(0,0,0,.35),inset 0 2px 0 rgba(255,255,255,.35);transition:opacity .12s,transform .12s,box-shadow .12s}
+#simon button svg{width:38%;height:38%;fill:rgba(6,18,31,.75)}
+.hub{position:absolute;left:50%;top:50%;width:26%;aspect-ratio:1;translate:-50% -50%;border-radius:50%;display:grid;place-items:center;
+  background:radial-gradient(circle at 35% 30%,#1d3354,#0a1424);border:2px solid var(--line2);box-shadow:0 0 30px rgba(0,0,0,.6);pointer-events:none}
+.hub b{font-family:"Russo One";font-size:22px}
+.hub small{font-size:10px;color:var(--mute);letter-spacing:.14em;margin-top:-18px}
+#sStatus{text-align:center;margin-top:12px;font-weight:800;color:var(--acc);letter-spacing:.04em}
+
+/* ── котёл ── */
+.pbtns{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.pbtns .btn{padding:20px 10px;font-size:17px;touch-action:none}
+
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 </style>
 </head>
 <body>
 <canvas id="stars"></canvas>
+<div id="planet"><div class="atmo"></div><img src="tree/brand/planet_anim.png" alt=""><img class="glint" src="tree/brand/planet_anim.png" alt=""><div class="moon"></div></div>
+<div id="vignette"></div>
+<svg width="0" height="0" style="position:absolute"><defs><linearGradient id="tg" x1="0" x2="1"><stop offset="0" stop-color="#4fd1e8"/><stop offset="1" stop-color="#5aa8ff"/></linearGradient></defs></svg>
+
 <div class="wrap">
-  <div class="top">
-    <div class="logo"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#4fd1e8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0-5.6 5.6L3 18l3 3 6.1-6.1a4 4 0 0 0 5.6-5.6l-2.5 2.5-2.1-.7-.7-2.1z"/></svg></div>
+  <div class="top in">
+    <img src="tree/brand/avatar.png" alt="">
     <div><div class="kicker">NOVA ORDER · ТЕХОБСЛУЖИВАНИЕ</div><div class="title" id="gTitle">Ремонт завода</div></div>
   </div>
-  <div class="card task"><div><b id="tLabel">Демо-режим</b><small id="tSub">выберите мини-игру</small></div>
-    <div style="text-align:right"><small style="color:var(--mute)">страна</small><b id="tCountry">—</b></div></div>
-  <div class="hud" id="hud" style="display:none">
-    <div class="card"><div class="v" id="hTime">90</div><div class="l">секунд</div><div class="timebar"><i id="hBar"></i></div></div>
-    <div class="card"><div class="v" id="hMoves">0</div><div class="l" id="hMovesL">ходов</div></div>
+  <div class="card task in" style="--d:.08s">
+    <div class="ico" id="tIco"></div>
+    <div style="flex:1;min-width:0"><b id="tLabel">Демо-режим</b><small id="tSub">выберите мини-игру</small></div>
+    <div class="chipc"><small style="color:var(--mute)">страна</small><span id="tCountry">—</span></div>
   </div>
-  <div class="card stage" id="stage"></div>
-  <div class="hint" id="hint"></div>
-  <div class="demo" id="demo"></div>
+  <div class="hud in" id="hud" style="display:none;--d:.16s">
+    <div class="card">
+      <div class="ringt" id="ringT"><svg viewBox="0 0 60 60"><circle class="bg" cx="30" cy="30" r="26"/><circle class="fg" id="ringFg" cx="30" cy="30" r="26"/></svg><b id="hTime">90</b></div>
+      <div><div class="l" style="margin:0">осталось</div><div style="font-weight:700;margin-top:3px">секунд</div><div style="display:none"><i id="hBar"></i></div></div>
+    </div>
+    <div class="card" style="flex-direction:column;align-items:flex-start;justify-content:center;gap:0">
+      <div class="v" id="hMoves">0</div><div class="l" id="hMovesL">ходов</div>
+    </div>
+  </div>
+  <div class="card stage in" id="stage" style="--d:.24s"></div>
+  <div class="hint in" id="hint" style="--d:.32s"></div>
+  <div class="demo in" id="demo" style="--d:.38s"></div>
 </div>
 <div class="overlay" id="ov"><div class="card result" id="ovBox"></div></div>
+<canvas id="confetti"></canvas>
 
 <script>
-// ═══════════ фон: звёзды ═══════════
-(()=>{const c=document.getElementById('stars'),x=c.getContext('2d');let s=[];
- function rs(){c.width=innerWidth*devicePixelRatio;c.height=innerHeight*devicePixelRatio;
-  s=Array.from({length:140},()=>({x:Math.random()*c.width,y:Math.random()*c.height,r:Math.random()*1.4+.2,p:Math.random()*6}))}
- rs();addEventListener('resize',rs);
- (function f(t){x.clearRect(0,0,c.width,c.height);for(const a of s){const o=.35+.65*Math.abs(Math.sin(t/1400+a.p));
-  x.globalAlpha=o;x.fillStyle='#cfe6ff';x.beginPath();x.arc(a.x,a.y,a.r*devicePixelRatio,0,7);x.fill()}requestAnimationFrame(f)})(0)})();
+// ═══════════ фон: живой космос (как у дерева достижений) ═══════════
+(()=>{
+  const c=document.getElementById('stars'),g=c.getContext('2d'),still=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let W,H,D,layers=[],nebulae=[],meteors=[],nextMeteor=1800,mx=0,my=0;
+  const LAYERS=[{n:200,r:[.25,.8],v:.006,par:.015,a:.55},{n:90,r:[.5,1.2],v:.014,par:.04,a:.75},{n:30,r:[1,1.9],v:.03,par:.09,a:.95}];
+  const rnd=(a,b)=>a+Math.random()*(b-a);
+  function resize(){D=Math.min(2,devicePixelRatio||1);W=c.width=innerWidth*D;H=c.height=innerHeight*D;
+    layers=LAYERS.map(L=>({...L,s:Array.from({length:Math.round(L.n*Math.max(.6,innerWidth*innerHeight/1.3e6))},()=>({x:Math.random()*W,y:Math.random()*H,
+      r:rnd(...L.r)*D,p:Math.random()*7,f:rnd(.5,1.6),hue:Math.random()<.18?'rgba(150,225,255,':Math.random()<.1?'rgba(255,226,190,':'rgba(215,232,255,',
+      cross:L.par>.05&&Math.random()<.35}))}));
+    nebulae=[['#1f6b8a',.5,.62,.55],['#2a4fa8',.18,.3,.45],['#145c6e',.82,.78,.4],['#3a2f7a',.3,.9,.35]].map(([col,x,y,r],i)=>({col,x,y,r,ph:i*1.7}))}
+  resize();addEventListener('resize',resize);
+  addEventListener('pointermove',e=>{mx=e.clientX/innerWidth-.5;my=e.clientY/innerHeight-.5});
+  const PL={cx:50.63,cy:73.68,r:14.64,a:41,b:7.2,tilt:18.2*Math.PI/180,asp:888/475},moonEl=document.querySelector('#planet .moon');
+  function moon(t){const f=(still?1.2:t/26000*2*Math.PI)%(2*Math.PI),ct=Math.cos(PL.tilt),st=Math.sin(PL.tilt);
+    const ex=PL.a*Math.cos(f),ey=PL.b*Math.sin(f),dx=ex*ct-ey*st,dy=ex*st+ey*ct,front=Math.sin(f)>0,dist=Math.hypot(dx,dy);
+    const hide=front?1:Math.min(1,Math.max(0,(dist-PL.r*.92)/(PL.r*.16)));
+    moonEl.style.left=(PL.cx+dx)+'%';moonEl.style.top=(PL.cy+dy*PL.asp)+'%';moonEl.style.opacity=hide*(front?1:.75);moonEl.style.scale=front?1+.25*Math.sin(f):.8}
+  let last=performance.now();
+  (function frame(t){const dt=Math.min(50,t-last);last=t;
+    const bg=g.createLinearGradient(0,0,W*.3,H);bg.addColorStop(0,'#0b1626');bg.addColorStop(1,'#070c16');g.fillStyle=bg;g.fillRect(0,0,W,H);
+    g.globalCompositeOperation='lighter';
+    for(const n of nebulae){const x=(n.x+Math.sin(t/26000+n.ph)*.05)*W,y=(n.y+Math.cos(t/31000+n.ph)*.04)*H,r=n.r*Math.max(W,H);
+      const gr=g.createRadialGradient(x,y,0,x,y,r);gr.addColorStop(0,n.col+'38');gr.addColorStop(.5,n.col+'14');gr.addColorStop(1,n.col+'00');g.fillStyle=gr;g.fillRect(0,0,W,H)}
+    for(const L of layers){const ox=-mx*L.par*260*D,oy=-my*L.par*260*D;
+      for(const s of L.s){if(!still){s.x-=L.v*dt*D;s.y+=L.v*dt*D*.25}
+        const x=((s.x+ox)%W+W)%W,y=((s.y+oy)%H+H)%H,tw=.55+.45*Math.sin(t/1000*s.f+s.p),a=L.a*tw;
+        g.fillStyle=s.hue+a+')';g.beginPath();g.arc(x,y,s.r,0,6.283);g.fill();
+        if(s.cross&&tw>.75){const len=s.r*5*tw;g.strokeStyle=`rgba(220,240,255,${(tw-.75)*4*L.a*.55})`;g.lineWidth=D*.8;
+          g.beginPath();g.moveTo(x-len,y);g.lineTo(x+len,y);g.moveTo(x,y-len);g.lineTo(x,y+len);g.stroke()}}}
+    if(!still&&(nextMeteor-=dt)<=0){nextMeteor=rnd(2500,6500);const ang=rnd(.35,.6),sp=rnd(1.1,1.8)*D;
+      meteors.push({x:rnd(W*.2,W*1.1),y:rnd(-H*.1,H*.45),vx:-Math.cos(ang)*sp,vy:Math.sin(ang)*sp,life:0,max:rnd(900,1400)})}
+    meteors=meteors.filter(m=>m.life<m.max);
+    for(const m of meteors){m.life+=dt;m.x+=m.vx*dt;m.y+=m.vy*dt;const k=m.life/m.max,a=Math.sin(Math.PI*k),len=160*D,nx=m.vx/Math.hypot(m.vx,m.vy),ny=m.vy/Math.hypot(m.vx,m.vy);
+      const gr=g.createLinearGradient(m.x,m.y,m.x-nx*len,m.y-ny*len);gr.addColorStop(0,`rgba(230,246,255,${a})`);gr.addColorStop(.25,`rgba(140,215,255,${a*.5})`);gr.addColorStop(1,'rgba(120,186,255,0)');
+      g.strokeStyle=gr;g.lineWidth=2*D;g.lineCap='round';g.beginPath();g.moveTo(m.x,m.y);g.lineTo(m.x-nx*len,m.y-ny*len);g.stroke()}
+    g.globalCompositeOperation='source-over';moon(t);requestAnimationFrame(frame)})(last);
+})();
 
 // ═══════════ задание из ссылки ═══════════
 const GAMES={pipes:{t:'Трубопровод',d:'Поворачивайте трубы касанием и соедините вход с выходом'},
   wires:{t:'Распредщиток',d:'Соедините провода одного цвета'},
   simon:{t:'Пульт оператора',d:'Запомните и повторите последовательность сигналов'},
   pressure:{t:'Давление в котле',d:'Удерживайте стрелку в зелёной зоне'}};
+const GICO={
+  pipes:'<svg viewBox="0 0 24 24"><path d="M3 8h7a4 4 0 0 1 4 4v9"/><path d="M3 14h4a1 1 0 0 1 1 1v6"/><path d="M14 3v3M19 8h2"/></svg>',
+  wires:'<svg viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>',
+  simon:'<svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg>',
+  pressure:'<svg viewBox="0 0 24 24"><path d="M4 16a8 8 0 1 1 16 0"/><path d="M12 16l4-5"/><circle cx="12" cy="16" r="1.5"/></svg>'};
 const $=id=>document.getElementById(id);
 let TASK=null,HOOK=(location.hash||'').slice(1);
 const SHOT=new URLSearchParams(location.search).get('shot');   // витрина для скриншотов
@@ -107,21 +249,32 @@ if(HOOK&&!/^https:\/\/(discord|discordapp)\.com\/api\/webhooks\//.test(decodeURI
 
 // ═══════════ таймер / итог ═══════════
 let timer=null,tLeft=0,tTotal=0,onTimeout=null,GEN=0;
+const RING_LEN=163.4;
 function startTimer(sec,cb){clearInterval(timer);tLeft=tTotal=sec;onTimeout=cb;$('hud').style.display='flex';
   if(SHOT){tLeft=Math.round(sec*.62);draw();return}
   draw();
   timer=setInterval(()=>{tLeft-=.25;draw();if(tLeft<=0){clearInterval(timer);onTimeout&&onTimeout()}},250);
-  function draw(){$('hTime').textContent=Math.max(0,Math.ceil(tLeft));$('hBar').style.width=Math.max(0,tLeft/tTotal*100)+'%';
-   $('hBar').style.background=tLeft/tTotal<.25?'linear-gradient(90deg,#ff6b6b,#ffc35a)':''}}
-function stopTimer(){clearInterval(timer)}
+  function draw(){const k=Math.max(0,tLeft/tTotal);$('hTime').textContent=Math.max(0,Math.ceil(tLeft));$('hBar').style.width=k*100+'%';
+   $('ringFg').style.strokeDashoffset=RING_LEN*(1-k);$('ringT').classList.toggle('low',k<.25)}}
+function stopTimer(){clearInterval(timer);$('ringT').classList.remove('low')}
 function overlay(html){$('ovBox').innerHTML=html;$('ov').classList.add('on')}
 function closeOv(){$('ov').classList.remove('on')}
-const ICON_OK='<div class="ring"><svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#5be3a6" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>';
-const ICON_BAD='<div class="ring" style="background:radial-gradient(circle,rgba(255,107,107,.22),transparent 70%)"><svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#ff6b6b" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>';
+const ICON_OK='<div class="ring"><svg width="58" height="58" viewBox="0 0 24 24" fill="none" stroke="#5be3a6" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>';
+const ICON_BAD='<div class="ring bad"><svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#ff6b6b" stroke-width="2.6" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>';
+const IC_RETRY='<svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>';
+
+// конфетти при победе
+function confetti(){const c=$('confetti'),g=c.getContext('2d'),D=Math.min(2,devicePixelRatio||1);c.width=innerWidth*D;c.height=innerHeight*D;
+  const cols=['#4fd1e8','#5aa8ff','#5be3a6','#ffc35a','#e2ecf8'],P=Array.from({length:140},()=>({x:c.width/2,y:c.height*.42,
+    vx:(Math.random()-.5)*16*D,vy:(-Math.random()*15-4)*D,r:(Math.random()*5+3)*D,a:Math.random()*6,va:(Math.random()-.5)*.3,col:cols[Math.random()*5|0]}));
+  const t0=performance.now();
+  (function f(t){const k=(t-t0)/2200;g.clearRect(0,0,c.width,c.height);if(k>1)return;
+    for(const p of P){p.vy+=.42*D;p.vx*=.99;p.x+=p.vx;p.y+=p.vy;p.a+=p.va;g.save();g.globalAlpha=1-k;g.translate(p.x,p.y);g.rotate(p.a);
+      g.fillStyle=p.col;g.fillRect(-p.r,-p.r*.45,p.r*2,p.r*.9);g.restore()}requestAnimationFrame(f)})(t0)}
 
 async function win(stats){
-  stopTimer();
-  if(!TASK){overlay(`${ICON_OK}<div class="big">Починено!</div><p>Демо-режим: в игре это вернуло бы заводу 100% состояния.</p><button class="btn" onclick="closeOv();boot()">Ещё раз</button>`);return}
+  stopTimer();confetti();
+  if(!TASK){overlay(`${ICON_OK}<div class="big">Починено!</div><p>Демо-режим: в игре это вернуло бы заводу 100% состояния.</p><button class="btn" onclick="closeOv();boot()">${IC_RETRY}Ещё раз</button>`);return}
   overlay(`${ICON_OK}<div class="big">Починено!</div><p id="sendSt">Отправляю отчёт в штаб…</p>`);
   let ok=false;
   try{const fd=new FormData();
@@ -130,10 +283,10 @@ async function win(stats){
     await fetch(decodeURIComponent(HOOK),{method:'POST',body:fd,mode:'no-cors'});ok=true}catch(e){ok=false}
   $('sendSt').innerHTML=ok?`<b>${TASK.l}</b> снова работает на 100%.<br>Бот пришлёт подтверждение в ЛС — можно вернуться в Discord.`
     :'Не удалось связаться с ботом. Проверьте интернет и нажмите «Повторить».'+
-     '<br><br><button class="btn" onclick="win('+JSON.stringify(stats).replace(/"/g,'&quot;')+')">Повторить отправку</button>';
+     '<br><br><button class="btn" onclick="win('+JSON.stringify(stats).replace(/"/g,'&quot;')+')">'+IC_RETRY+'Повторить отправку</button>';
 }
 function lose(text){stopTimer();
-  overlay(`${ICON_BAD}<div class="big">Не вышло</div><p>${text}</p><button class="btn" onclick="closeOv();boot()">Попробовать снова</button>`)}
+  overlay(`${ICON_BAD}<div class="big">Не вышло</div><p>${text}</p><button class="btn" onclick="closeOv();boot()">${IC_RETRY}Попробовать снова</button>`)}
 
 // ═══════════ ТРУБОПРОВОД ═══════════
 // направления: 0 — верх, 1 — право, 2 — низ, 3 — лево; плитка = набор открытых сторон при повороте 0
@@ -182,22 +335,24 @@ function pipesGame(){
   function render(){
     const {full,ok}=flow();
     let h=`<svg id="pipes" viewBox="0 0 ${W} ${W}">`;
-    h+=`<defs><linearGradient id="pg" x1="0" x2="1"><stop offset="0" stop-color="#4fd1e8"/><stop offset="1" stop-color="#5aa8ff"/></linearGradient></defs>`;
+    h+=`<defs><linearGradient id="pg" x1="0" x2="1"><stop offset="0" stop-color="#4fd1e8"/><stop offset="1" stop-color="#5aa8ff"/></linearGradient>
+      <linearGradient id="cellg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="rgba(255,255,255,.06)"/><stop offset="1" stop-color="rgba(255,255,255,.015)"/></linearGradient></defs>`;
     // вход/выход
     const iy=PAD+inR*S+S/2,oy=PAD+outR*S+S/2;
-    h+=`<path d="M0 ${iy} H${PAD+4}" stroke="#4fd1e8" stroke-width="12" stroke-linecap="round"/>`;
-    h+=`<path d="M${W-PAD-4} ${oy} H${W}" stroke="${ok?'#4fd1e8':'#3a5272'}" stroke-width="12" stroke-linecap="round"/>`;
+    h+=`<path d="M0 ${iy} H${PAD+4}" stroke="#4fd1e8" stroke-width="12" stroke-linecap="round" style="filter:drop-shadow(0 0 6px #4fd1e8)"/>`;
+    h+=`<path d="M${W-PAD-4} ${oy} H${W}" stroke="${ok?'#5be3a6':'#3a5272'}" stroke-width="12" stroke-linecap="round" ${ok?'style="filter:drop-shadow(0 0 8px #5be3a6)"':''}/>`;
     for(let r=0;r<N;r++)for(let c=0;c<N;c++){
       const g=grid[r][c],x=PAD+c*S,y=PAD+r*S,isF=full.has(r+','+c);
       const segs=SHAPES[g.s].map(d=>{const [dr,dc]=DIRS[d];return `M${S/2} ${S/2} L${S/2+dc*S/2} ${S/2+dr*S/2}`}).join(' ');
       h+=`<g class="tile ${isF?'full':''}" data-r="${r}" data-c="${c}" transform="translate(${x} ${y})">
-        <rect class="cell" x="3" y="3" width="${S-6}" height="${S-6}" rx="14"/>
+        <rect class="cell" x="4" y="4" width="${S-8}" height="${S-8}" rx="16"/>
         <g class="rot" style="transform:rotate(${g.r*90}deg)">
           <rect width="${S}" height="${S}" fill="none" stroke="none"/>
           <path class="pipe-bg" d="${segs}"/><path class="pipe" d="${segs}"/>${isF?`<path class="flow" d="${segs}"/>`:''}
-          <circle cx="${S/2}" cy="${S/2}" r="9" fill="${isF?'#4fd1e8':'#2b4060'}"/>
+          <circle cx="${S/2}" cy="${S/2}" r="10" fill="${isF?'#4fd1e8':'#2b4060'}" ${isF?'style="filter:drop-shadow(0 0 6px #4fd1e8)"':''}/>
+          <circle cx="${S/2}" cy="${S/2}" r="4" fill="${isF?'#e8fdff':'#1a2a40'}"/>
         </g></g>`}
-    h+=`<circle class="port" cx="${PAD/2}" cy="${iy}" r="9"/><circle class="port" cx="${W-PAD/2}" cy="${oy}" r="9" style="stroke:${ok?'#5be3a6':'#5aa8ff'}"/>`;
+    h+=`<circle class="port pulse" cx="${PAD/2}" cy="${iy}" r="9"/><circle class="port ${ok?'':'pulse'}" cx="${W-PAD/2}" cy="${oy}" r="9" style="stroke:${ok?'#5be3a6':'#5aa8ff'}"/>`;
     h+='</svg>';
     $('stage').innerHTML=h;
     $('hMoves').textContent=moves+' / '+(minMoves+MOVES_EXTRA);
@@ -219,36 +374,44 @@ function wiresGame(){
   const COLORS=[['#ff5d6c','красный'],['#ffc35a','жёлтый'],['#4fd1e8','бирюзовый'],['#7d8cff','синий'],['#5be3a6','зелёный']];
   const N=5,TIME=30,W=500,H=520,LX=70,RX=430,TOP=70,STEP=(H-TOP*2)/(N-1);
   const left=[...Array(N).keys()].sort(()=>Math.random()-.5), right=[...Array(N).keys()].sort(()=>Math.random()-.5);
-  const done=new Map();let drag=null,fin=false;
+  const done=new Map();let drag=null,fin=false,spark=null;
   $('hMovesL').textContent='соединено';
   $('hint').textContent='Проведите пальцем от провода слева к клемме того же цвета справа.';
   function y(i){return TOP+i*STEP}
   function render(cur){
     let h=`<svg id="wires" viewBox="0 0 ${W} ${H}" style="width:100%;display:block;touch-action:none;user-select:none">`;
-    h+=`<rect x="20" y="20" width="${W-40}" height="${H-40}" rx="22" fill="#0b1626" stroke="rgba(96,170,255,.22)"/>`;
-    for(let k=0;k<4;k++)h+=`<circle cx="${40+k*0}" cy="40" r="0"/>`;
+    h+=`<defs><linearGradient id="panel" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#13233a"/><stop offset=".5" stop-color="#0b1626"/><stop offset="1" stop-color="#101e33"/></linearGradient>
+      <pattern id="grill" width="10" height="10" patternUnits="userSpaceOnUse"><circle cx="5" cy="5" r="1.2" fill="rgba(120,180,255,.07)"/></pattern></defs>`;
+    h+=`<rect x="20" y="20" width="${W-40}" height="${H-40}" rx="24" fill="url(#panel)" stroke="rgba(96,170,255,.28)" stroke-width="2"/>`;
+    h+=`<rect x="110" y="40" width="${W-220}" height="${H-80}" rx="14" fill="url(#grill)"/>`;
     // винты по углам
-    for(const [cx,cy] of [[42,42],[W-42,42],[42,H-42],[W-42,H-42]])h+=`<circle cx="${cx}" cy="${cy}" r="7" fill="#1b2b44"/><path d="M${cx-4} ${cy}h8" stroke="#45607f" stroke-width="2"/>`;
+    for(const [cx,cy] of [[42,42],[W-42,42],[42,H-42],[W-42,H-42]])h+=`<circle cx="${cx}" cy="${cy}" r="8" fill="#1b2b44" stroke="#2c4363"/><path d="M${cx-4} ${cy-4}l8 8" stroke="#5a7699" stroke-width="2"/>`;
     for(const [li,ri] of done){const c=COLORS[left[li]][0];
-      h+=`<path d="M${LX} ${y(li)} C ${W/2} ${y(li)}, ${W/2} ${y(ri)}, ${RX} ${y(ri)}" stroke="${c}" stroke-width="14" fill="none" stroke-linecap="round" style="filter:drop-shadow(0 0 8px ${c})"/>`}
+      h+=`<path d="M${LX} ${y(li)} C ${W/2} ${y(li)}, ${W/2} ${y(ri)}, ${RX} ${y(ri)}" stroke="#05090f" stroke-width="20" fill="none" stroke-linecap="round" opacity=".55"/>`+
+         `<path d="M${LX} ${y(li)} C ${W/2} ${y(li)}, ${W/2} ${y(ri)}, ${RX} ${y(ri)}" stroke="${c}" stroke-width="14" fill="none" stroke-linecap="round" style="filter:drop-shadow(0 0 8px ${c})"/>`+
+         `<path d="M${LX} ${y(li)} C ${W/2} ${y(li)}, ${W/2} ${y(ri)}, ${RX} ${y(ri)}" stroke="rgba(255,255,255,.45)" stroke-width="3" fill="none" stroke-linecap="round" stroke-dasharray="2 14"><animate attributeName="stroke-dashoffset" from="0" to="-32" dur=".8s" repeatCount="indefinite"/></path>`}
     if(cur){const c=COLORS[left[cur.li]][0];
-      h+=`<path d="M${LX} ${y(cur.li)} L ${cur.x} ${cur.y}" stroke="${c}" stroke-width="14" stroke-linecap="round" opacity=".9"/>`}
-    for(let i=0;i<N;i++){const c=COLORS[left[i]][0];
-      h+=`<rect x="20" y="${y(i)-14}" width="${LX-20}" height="28" rx="6" fill="${c}"/>`+
-         `<circle cx="${LX}" cy="${y(i)}" r="16" fill="#0b1626" stroke="${c}" stroke-width="5" data-l="${i}"/>`}
+      h+=`<path d="M${LX} ${y(cur.li)} L ${cur.x} ${cur.y}" stroke="${c}" stroke-width="14" stroke-linecap="round" opacity=".9" style="filter:drop-shadow(0 0 10px ${c})"/>`+
+         `<circle cx="${cur.x}" cy="${cur.y}" r="11" fill="${c}"/>`}
+    for(let i=0;i<N;i++){const c=COLORS[left[i]][0],on=done.has(i);
+      h+=`<rect x="20" y="${y(i)-14}" width="${LX-20}" height="28" rx="7" fill="${c}"/><rect x="20" y="${y(i)-14}" width="${LX-20}" height="9" rx="5" fill="rgba(255,255,255,.25)"/>`+
+         `<circle cx="${LX}" cy="${y(i)}" r="17" fill="#0b1626" stroke="${c}" stroke-width="5" data-l="${i}"/>`+
+         `<circle cx="${LX}" cy="${y(i)}" r="5" fill="${on?'#e8fdff':c}" opacity="${on?1:.6}"/>`}
     for(let i=0;i<N;i++){const c=COLORS[right[i]][0],on=[...done.values()].includes(i);
-      h+=`<rect x="${RX}" y="${y(i)-14}" width="${W-20-RX}" height="28" rx="6" fill="${c}" opacity="${on?1:.55}"/>`+
-         `<circle cx="${RX}" cy="${y(i)}" r="16" fill="${on?c:'#0b1626'}" stroke="${c}" stroke-width="5"/>`}
+      h+=`<rect x="${RX}" y="${y(i)-14}" width="${W-20-RX}" height="28" rx="7" fill="${c}" opacity="${on?1:.5}"/>`+
+         `<circle cx="${RX}" cy="${y(i)}" r="17" fill="${on?c:'#0b1626'}" stroke="${c}" stroke-width="5" ${on?`style="filter:drop-shadow(0 0 10px ${c})"`:''}/>`+
+         `<circle cx="${W-36}" cy="${y(i)-22}" r="4" fill="${on?'#5be3a6':'#26364d'}" ${on?'style="filter:drop-shadow(0 0 5px #5be3a6)"':''}/>`}
+    if(spark){const s=spark;for(let k=0;k<10;k++){const a=k/10*6.283;h+=`<line x1="${s.x}" y1="${s.y}" x2="${s.x+Math.cos(a)*30}" y2="${s.y+Math.sin(a)*30}" stroke="${s.c}" stroke-width="3" stroke-linecap="round" opacity=".9"><animate attributeName="opacity" from="1" to="0" dur=".45s" fill="freeze"/></line>`}}
     h+='</svg>';$('stage').innerHTML=h;$('hMoves').textContent=done.size+' / '+N;
     const svg=$('wires');
     const pt=e=>{const r=svg.getBoundingClientRect();return {x:(e.clientX-r.left)/r.width*W,y:(e.clientY-r.top)/r.height*H}};
     svg.onpointerdown=e=>{if(fin)return;const p=pt(e);const li=[...Array(N).keys()].find(i=>Math.hypot(p.x-LX,p.y-y(i))<34);
-      if(li===undefined||done.has(li))return;drag={li,...p};svg.setPointerCapture(e.pointerId);render(drag)};
+      if(li===undefined||done.has(li))return;drag={li,...p};svg.setPointerCapture(e.pointerId);spark=null;render(drag)};
     svg.onpointermove=e=>{if(!drag)return;Object.assign(drag,pt(e));render(drag)};
     svg.onpointerup=e=>{if(!drag)return;const p=pt(e);const ri=[...Array(N).keys()].find(i=>Math.hypot(p.x-RX,p.y-y(i))<40);
-      if(ri!==undefined&&right[ri]===left[drag.li]&&![...done.values()].includes(ri)){done.set(drag.li,ri)}
+      if(ri!==undefined&&right[ri]===left[drag.li]&&![...done.values()].includes(ri)){done.set(drag.li,ri);spark={x:RX,y:y(ri),c:COLORS[right[ri]][0]}}
       else if(ri!==undefined){$('stage').classList.add('shake');setTimeout(()=>$('stage').classList.remove('shake'),350);tLeft=Math.max(0,tLeft-3)}
-      drag=null;render();
+      drag=null;render();spark=null;
       if(done.size===N&&!fin){fin=true;setTimeout(()=>win({game:'wires',time:Math.round(tTotal-tLeft)}),500)}};
   }
   if(SHOT){for(let li=0;li<3;li++)done.set(li,right.indexOf(left[li]))}
@@ -259,20 +422,22 @@ function wiresGame(){
 // ═══════════ ПУЛЬТ ОПЕРАТОРА (повторить последовательность) ═══════════
 function simonGame(){
   const MY=GEN;
-  const PADS=[['#ff5d6c','▲'],['#ffc35a','●'],['#4fd1e8','■'],['#7d8cff','◆']];
+  const SVGS=['<svg viewBox="0 0 24 24"><path d="M12 3 22 20H2z"/></svg>','<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg>',
+    '<svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="2"/></svg>','<svg viewBox="0 0 24 24"><path d="M12 2 22 12 12 22 2 12z"/></svg>'];
+  const PADS=[['#ff5d6c'],['#ffc35a'],['#4fd1e8'],['#7d8cff']];
   const ROUNDS=5;let seq=[],pos=0,round=0,busy=true,fin=false;let ac=null;
   $('hMovesL').textContent='раунд';$('hint').textContent='Смотрите, какие кнопки загораются, и нажмите их в том же порядке.';
   function beep(i){try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator(),g=ac.createGain();
     o.frequency.value=[330,392,494,587][i];o.type='triangle';g.gain.setValueAtTime(.18,ac.currentTime);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+.35);
     o.connect(g).connect(ac.destination);o.start();o.stop(ac.currentTime+.36)}catch(e){}}
-  $('stage').innerHTML=`<div id="simon" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;aspect-ratio:1;padding:6px">
-    ${PADS.map(([c,s],i)=>`<button data-i="${i}" style="border:0;border-radius:26px;font:800 54px 'Exo 2';color:#06121f;cursor:pointer;
-      background:${c};opacity:.32;transition:opacity .12s,transform .12s,box-shadow .12s;touch-action:manipulation">${s}</button>`).join('')}</div>
-    <div id="sStatus" style="text-align:center;margin-top:12px;font-weight:700;color:var(--acc)">Смотрите…</div>`;
+  $('stage').innerHTML=`<div id="simon">
+    ${PADS.map(([c],i)=>`<button data-i="${i}" style="--c:${c}">${SVGS[i]}</button>`).join('')}
+    <div class="hub"><div style="text-align:center"><b id="sRound">1</b><br><small>из ${ROUNDS}</small></div></div></div>
+    <div id="sStatus">Смотрите…</div>`;
   const pads=[...document.querySelectorAll('#simon button')];
-  function flash(i,ms=420){pads[i].style.opacity=1;pads[i].style.transform='scale(.96)';pads[i].style.boxShadow=`0 0 40px ${PADS[i][0]}`;beep(i);
-    setTimeout(()=>{pads[i].style.opacity=.32;pads[i].style.transform='';pads[i].style.boxShadow=''},ms)}
-  function next(){if(GEN!==MY)return;round++;pos=0;busy=true;$('hMoves').textContent=round+' / '+ROUNDS;$('sStatus').textContent='Смотрите…';
+  function flash(i,ms=420){pads[i].style.opacity=1;pads[i].style.transform='scale(.96)';pads[i].style.boxShadow=`0 0 44px ${PADS[i][0]},inset 0 -10px 22px rgba(0,0,0,.25)`;beep(i);
+    setTimeout(()=>{pads[i].style.opacity=.3;pads[i].style.transform='';pads[i].style.boxShadow=''},ms)}
+  function next(){if(GEN!==MY)return;round++;pos=0;busy=true;$('hMoves').textContent=round+' / '+ROUNDS;$('sRound').textContent=round;$('sStatus').textContent='Смотрите…';
     seq.push(Math.floor(Math.random()*4));if(round===1)seq.push(Math.floor(Math.random()*4),Math.floor(Math.random()*4));
     seq.forEach((v,k)=>setTimeout(()=>{if(GEN===MY)flash(v)},600+k*620));
     setTimeout(()=>{busy=false;$('sStatus').textContent='Ваш ход'},600+seq.length*620)}
@@ -280,7 +445,7 @@ function simonGame(){
     if(i!==seq[pos]){fin=true;setTimeout(()=>lose('Неверный сигнал — система аварийно остановлена.'),300);return}
     pos++;if(pos===seq.length){busy=true;if(round===ROUNDS){fin=true;setTimeout(()=>win({game:'simon',time:Math.round(tTotal-tLeft)}),500)}else setTimeout(next,700)}}));
   startTimer(75,()=>{if(!fin){fin=true;lose('Время вышло. Попробуйте ещё раз.')}});
-  if(SHOT){round=3;$('hMoves').textContent='3 / 5';$('sStatus').textContent='Смотрите…';setTimeout(()=>{pads[2].style.opacity=1;pads[2].style.transform='scale(.96)';pads[2].style.boxShadow='0 0 50px '+PADS[2][0]},50);return}
+  if(SHOT){round=3;$('hMoves').textContent='3 / 5';$('sRound').textContent=3;$('sStatus').textContent='Смотрите…';setTimeout(()=>{pads[2].style.opacity=1;pads[2].style.transform='scale(.96)';pads[2].style.boxShadow='0 0 50px '+PADS[2][0]},50);return}
   setTimeout(next,400);
 }
 
@@ -289,20 +454,26 @@ function pressureGame(){
   const MY=GEN;
   const TIME=45,ZONE=[58,74];let p=40,v=0,hold=0,prog=0,fin=false,raf;
   $('hMovesL').textContent='стабилизация';$('hint').textContent='Держите «Подкачать» или «Сбросить», чтобы стрелка оставалась в зелёной зоне, пока шкала не заполнится.';
-  $('stage').innerHTML=`<svg viewBox="0 0 400 285" style="width:100%;display:block">
-      <defs><linearGradient id="arc" x1="0" x2="1"><stop offset="0" stop-color="#5aa8ff"/><stop offset=".55" stop-color="#5be3a6"/><stop offset="1" stop-color="#ff5d6c"/></linearGradient></defs>
+  $('stage').innerHTML=`<svg viewBox="0 0 400 290" style="width:100%;display:block">
+      <defs><linearGradient id="arc" x1="0" x2="1"><stop offset="0" stop-color="#5aa8ff"/><stop offset=".55" stop-color="#5be3a6"/><stop offset="1" stop-color="#ff5d6c"/></linearGradient>
+        <linearGradient id="chrome" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5d7799"/><stop offset=".5" stop-color="#1b2b44"/><stop offset="1" stop-color="#3c5578"/></linearGradient>
+        <radialGradient id="face" cx="50%" cy="80%" r="70%"><stop offset="0" stop-color="#132440"/><stop offset="1" stop-color="#08111f"/></radialGradient></defs>
+      <path d="M28 222 A172 172 0 0 1 372 222" stroke="url(#chrome)" stroke-width="10" fill="none" stroke-linecap="round"/>
+      <path d="M42 222 A158 158 0 0 1 358 222 Z" fill="url(#face)"/>
       <path d="M50 220 A150 150 0 0 1 350 220" stroke="#16243a" stroke-width="30" fill="none" stroke-linecap="round"/>
-      <path id="zone" fill="none" stroke="#5be3a6" stroke-width="30" stroke-linecap="butt" opacity=".9" style="filter:drop-shadow(0 0 10px #5be3a6)"/>
-      ${[...Array(11).keys()].map(i=>{const a=Math.PI*(1-i/10),x1=200+128*Math.cos(a),y1=220-128*Math.sin(a),x2=200+112*Math.cos(a),y2=220-112*Math.sin(a);
-        return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#45607f" stroke-width="3"/>`}).join('')}
-      <g id="needle"><path d="M196 220 L200 92 L204 220 Z" fill="#e2ecf8"/></g>
-      <circle cx="200" cy="220" r="16" fill="#0c1a2e" stroke="#4fd1e8" stroke-width="4"/>
-      <text id="pv" x="200" y="278" text-anchor="middle" font-family="Russo One" font-size="30" fill="#e2ecf8">40</text>
+      <path d="M50 220 A150 150 0 0 1 350 220" stroke="url(#arc)" stroke-width="4" fill="none" opacity=".55"/>
+      <path id="zone" fill="none" stroke="#5be3a6" stroke-width="30" stroke-linecap="butt" opacity=".9" style="filter:drop-shadow(0 0 12px #5be3a6)"/>
+      ${[...Array(21).keys()].map(i=>{const a=Math.PI*(1-i/20),big=i%2===0,r1=128,r2=big?110:118,x1=200+r1*Math.cos(a),y1=220-r1*Math.sin(a),x2=200+r2*Math.cos(a),y2=220-r2*Math.sin(a);
+        const lbl=big?`<text x="${200+96*Math.cos(a)}" y="${224-96*Math.sin(a)}" text-anchor="middle" font-family="Inter" font-weight="700" font-size="11" fill="#6f87a8">${i*5}</text>`:'';
+        return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${big?'#6f87a8':'#3a5272'}" stroke-width="${big?3:2}"/>`+lbl}).join('')}
+      <g id="needle" style="filter:drop-shadow(0 3px 4px rgba(0,0,0,.7))"><path d="M195 222 L200 86 L205 222 Z" fill="#e2ecf8"/><path d="M200 86 L205 222 L200 222Z" fill="#a9bdd6"/></g>
+      <circle cx="200" cy="220" r="18" fill="url(#chrome)"/><circle cx="200" cy="220" r="11" fill="#0c1a2e" stroke="#4fd1e8" stroke-width="3"/>
+      <text id="pv" x="200" y="282" text-anchor="middle" font-family="Russo One" font-size="30" fill="#e2ecf8">40</text>
     </svg>
-    <div class="timebar" style="height:12px;margin:6px 4px 14px"><i id="prog" style="width:0;background:linear-gradient(90deg,#5be3a6,#4fd1e8)"></i></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-      <button class="btn ghost" id="bDown" style="padding:22px 10px;font-size:18px;touch-action:none">▼ Сбросить</button>
-      <button class="btn" id="bUp" style="padding:22px 10px;font-size:18px;touch-action:none">▲ Подкачать</button></div>`;
+    <div class="timebar" style="height:12px;margin:8px 4px 14px"><i id="prog" style="width:0;background:linear-gradient(90deg,#5be3a6,#4fd1e8)"></i></div>
+    <div class="pbtns">
+      <button class="btn ghost" id="bDown"><svg viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6"/></svg>Сбросить</button>
+      <button class="btn" id="bUp"><svg viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></svg>Подкачать</button></div>`;
   const pol=(val,r)=>{const a=Math.PI*(1-val/100);return [200+r*Math.cos(a),220-r*Math.sin(a)]};
   const [zx1,zy1]=pol(ZONE[0],150),[zx2,zy2]=pol(ZONE[1],150);
   $('zone').setAttribute('d',`M${zx1} ${zy1} A150 150 0 0 1 ${zx2} ${zy2}`);
@@ -329,10 +500,10 @@ const RUN={pipes:pipesGame,wires:wiresGame,simon:simonGame,pressure:pressureGame
 function boot(game){
   GEN++;closeOv();
   const g=game||(TASK&&TASK.g)||SHOT||window._demoGame||'pipes';window._demoGame=g;
-  $('gTitle').textContent=GAMES[g].t;
+  $('gTitle').textContent=GAMES[g].t;$('tIco').innerHTML=GICO[g]||GICO.pipes;
   if(TASK){$('tLabel').textContent=TASK.l;$('tSub').textContent=GAMES[g].d;$('tCountry').textContent=TASK.c;$('demo').innerHTML=''}
   else{$('tLabel').textContent='Демо · '+GAMES[g].t;$('tSub').textContent=GAMES[g].d;
-    $('demo').innerHTML=Object.entries(GAMES).map(([k,v])=>`<button class="btn ${k===g?'':'ghost'}" onclick="boot('${k}')">${v.t}</button>`).join('')}
+    $('demo').innerHTML=Object.entries(GAMES).map(([k,v])=>`<button class="btn ${k===g?'':'ghost'}" onclick="boot('${k}')">${GICO[k]}${v.t}</button>`).join('')}
   if(SHOT){const L={pipes:'НПЗ ×6',wires:'Сухопутный завод ×3',simon:'Крупный завод ×4',pressure:'АЭС ×2'};
     $('tLabel').textContent=L[g];$('tCountry').textContent='Германия';$('demo').innerHTML=''}
   if(TASK&&TASK.e*1000<Date.now()){stopTimer();$('stage').innerHTML='';lose('Ссылка устарела. Откройте ремонт заново в Discord: <b>!ремонт</b>.');return}
