@@ -22,8 +22,22 @@
 
   /* ── фон: звёзды + планета ── */
   #stars{position:fixed;inset:0;width:100%;height:100%}
-  #planet{position:fixed;right:-6vw;top:50%;width:min(860px,95vw);margin-top:min(-430px,-47.5vw);opacity:.34;pointer-events:none;
-    mix-blend-mode:screen;animation:float 18s ease-in-out infinite}
+  #planet{position:fixed;right:-4vw;top:46%;width:min(980px,110vw);aspect-ratio:888/475;translate:0 -50%;opacity:.42;
+    pointer-events:none;mix-blend-mode:screen;animation:float 18s ease-in-out infinite}
+  #planet img{position:absolute;inset:0;width:100%;height:100%}
+  /* световой блик: полоса света скользит по планете и кольцам */
+  #planet .glint{filter:brightness(2.4) saturate(1.4);mix-blend-mode:screen;
+    -webkit-mask-image:linear-gradient(105deg,transparent 42%,#000 50%,transparent 58%);mask-image:linear-gradient(105deg,transparent 42%,#000 50%,transparent 58%);
+    -webkit-mask-size:320% 100%;mask-size:320% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;animation:glint 11s ease-in-out infinite}
+  @keyframes glint{0%,18%{-webkit-mask-position:110% 0;mask-position:110% 0}70%,100%{-webkit-mask-position:-10% 0;mask-position:-10% 0}}
+  /* атмосфера дышит по ободу */
+  #planet .atmo{position:absolute;left:50.63%;top:73.68%;width:29.3%;aspect-ratio:1;translate:-50% -50%;border-radius:50%;
+    box-shadow:0 0 50px 10px rgba(110,205,255,.38),inset 6px 6px 24px rgba(150,225,255,.35);animation:breathe 6.5s ease-in-out infinite;
+    -webkit-mask-image:linear-gradient(to bottom,#000 55%,transparent 80%);mask-image:linear-gradient(to bottom,#000 55%,transparent 80%)}
+  @keyframes breathe{50%{box-shadow:0 0 80px 22px rgba(110,205,255,.6),inset 8px 8px 30px rgba(170,235,255,.55)}}
+  /* луна на орбите в плоскости колец */
+  #planet .moon{position:absolute;width:1.25%;aspect-ratio:1;border-radius:50%;translate:-50% -50%;
+    background:radial-gradient(circle at 35% 35%,#fff,#bfe8ff 45%,#4a90c0 100%);box-shadow:0 0 14px 4px rgba(150,220,255,.8)}
   @keyframes float{50%{transform:translateY(14px) rotate(1.5deg)}}
   #vignette{position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 55%,transparent 45%,rgba(3,6,12,.75) 100%)}
 
@@ -162,7 +176,7 @@
 </head>
 <body>
 <canvas id="stars"></canvas>
-<img id="planet" src="brand/avatar_bg.png" alt="">
+<div id="planet"><div class="atmo"></div><img src="brand/avatar_bg.png" alt=""><img class="glint" src="brand/avatar_bg.png" alt=""><div class="moon"></div></div>
 <div id="viewport"><div id="world"><svg id="links"></svg></div></div>
 <div id="vignette"></div>
 
@@ -222,6 +236,19 @@ window.__cam = {x: 0, y: 0, k: 1};
     g.strokeStyle = `rgba(220,240,255,${a * .55})`; g.lineWidth = D * .8;
     g.beginPath(); g.moveTo(x - len, y); g.lineTo(x + len, y); g.moveTo(x, y - len); g.lineTo(x, y + len); g.stroke();
   }
+  // луна: эллипс в плоскости колец (наклон 18°), прячется за диском планеты на дальней стороне
+  const PL = {cx: 50.63, cy: 73.68, r: 14.64, a: 41, b: 7.2, tilt: 18.2 * Math.PI / 180, asp: 888 / 475};
+  const moonEl = document.querySelector('#planet .moon');
+  function moon(t) {
+    const f = (still ? 1.2 : t / 26000 * 2 * Math.PI) % (2 * Math.PI), ct = Math.cos(PL.tilt), st = Math.sin(PL.tilt);
+    const ex = PL.a * Math.cos(f), ey = PL.b * Math.sin(f);
+    const dx = ex * ct - ey * st, dy = ex * st + ey * ct;          // в % ширины
+    const front = Math.sin(f) > 0, dist = Math.hypot(dx, dy);
+    const hide = front ? 1 : Math.min(1, Math.max(0, (dist - PL.r * .92) / (PL.r * .16)));
+    moonEl.style.left = (PL.cx + dx) + '%'; moonEl.style.top = (PL.cy + dy * PL.asp) + '%';
+    moonEl.style.opacity = hide * (front ? 1 : .75);
+    moonEl.style.scale = front ? 1 + .25 * Math.sin(f) : .8;
+  }
   let last = performance.now();
   (function frame(t) {
     const dt = Math.min(50, t - last); last = t;
@@ -264,6 +291,7 @@ window.__cam = {x: 0, y: 0, k: 1};
       g.fillStyle = `rgba(255,255,255,${a})`; g.beginPath(); g.arc(m.x, m.y, 1.8 * D, 0, 6.283); g.fill();
     }
     g.globalCompositeOperation = 'source-over';
+    moon(t);
     requestAnimationFrame(frame);
   })(last);
 })();
