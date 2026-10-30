@@ -198,18 +198,74 @@ const $ = s => document.querySelector(s);
 const ICON = {node: 64, br: 92, root: 156};
 const SVG_STAR = '<svg viewBox="0 0 24 24"><path fill="#ecc46c" stroke="#7a5a1c" stroke-width="1" d="M12 2.5l2.9 6 6.6.8-4.9 4.5 1.3 6.5L12 17.1l-5.9 3.2 1.3-6.5L2.5 9.3l6.6-.8z"/></svg>';
 
-// ── звёздное небо ──
+// ── живой космос: 3 слоя звёзд с параллаксом, мерцание, блики, падающие звёзды, туманности ──
+window.__cam = {x: 0, y: 0, k: 1};
 (() => {
-  const c = $('#stars'), g = c.getContext('2d'); let st = [];
-  const resize = () => { c.width = innerWidth * devicePixelRatio; c.height = innerHeight * devicePixelRatio;
-    st = Array.from({length: 260}, () => ({x: Math.random(), y: Math.random(), r: Math.random() * 1.3 + .2, p: Math.random() * 6, s: .4 + Math.random()})); };
+  const c = $('#stars'), g = c.getContext('2d'), still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let W, H, D, layers = [], nebulae = [], meteors = [], nextMeteor = 1500;
+  const LAYERS = [{n: 260, r: [.25, .8], v: .006, par: .015, a: .55}, {n: 120, r: [.5, 1.2], v: .014, par: .04, a: .75},
+                  {n: 38, r: [1, 1.9], v: .03, par: .09, a: .95}];
+  const rnd = (a, b) => a + Math.random() * (b - a);
+  function resize() {
+    D = Math.min(2, devicePixelRatio || 1); W = c.width = innerWidth * D; H = c.height = innerHeight * D;
+    layers = LAYERS.map(L => ({...L, s: Array.from({length: Math.round(L.n * Math.max(.6, innerWidth * innerHeight / 1.3e6))}, () => ({
+      x: Math.random() * W, y: Math.random() * H, r: rnd(...L.r) * D, p: Math.random() * 7, f: rnd(.5, 1.6),
+      hue: Math.random() < .18 ? 'rgba(150,225,255,' : Math.random() < .1 ? 'rgba(255,226,190,' : 'rgba(215,232,255,',
+      cross: L.par > .05 && Math.random() < .35}))}));
+    nebulae = [['#1f6b8a', .5, .62, .55], ['#2a4fa8', .18, .3, .45], ['#145c6e', .82, .78, .4], ['#3a2f7a', .3, .9, .35]]
+      .map(([col, x, y, r], i) => ({col, x, y, r, ph: i * 1.7}));
+  }
   resize(); addEventListener('resize', resize);
-  const grd = () => { const r = g.createRadialGradient(c.width*.3, c.height*.7, 0, c.width*.3, c.height*.7, c.width*.8);
-    r.addColorStop(0, '#10233a'); r.addColorStop(1, '#090f1a'); return r; };
-  (function tick(t) { g.fillStyle = grd(); g.fillRect(0, 0, c.width, c.height);
-    for (const s of st) { const a = .35 + .45 * Math.sin(t / 1000 * s.s + s.p);
-      g.fillStyle = `rgba(200,225,255,${a})`; g.beginPath(); g.arc(s.x * c.width, s.y * c.height, s.r * devicePixelRatio, 0, 7); g.fill(); }
-    requestAnimationFrame(tick); })(0);
+  let mx = 0, my = 0;
+  addEventListener('pointermove', e => { mx = e.clientX / innerWidth - .5; my = e.clientY / innerHeight - .5; });
+  function cross(x, y, len, a) {
+    g.strokeStyle = `rgba(220,240,255,${a * .55})`; g.lineWidth = D * .8;
+    g.beginPath(); g.moveTo(x - len, y); g.lineTo(x + len, y); g.moveTo(x, y - len); g.lineTo(x, y + len); g.stroke();
+  }
+  let last = performance.now();
+  (function frame(t) {
+    const dt = Math.min(50, t - last); last = t;
+    // база + туманности
+    const bg = g.createLinearGradient(0, 0, W * .3, H); bg.addColorStop(0, '#0b1626'); bg.addColorStop(1, '#070c16');
+    g.fillStyle = bg; g.fillRect(0, 0, W, H);
+    g.globalCompositeOperation = 'lighter';
+    for (const n of nebulae) {
+      const x = (n.x + Math.sin(t / 26000 + n.ph) * .05 - __cam.x / innerWidth * .02) * W,
+            y = (n.y + Math.cos(t / 31000 + n.ph) * .04 - __cam.y / innerHeight * .02) * H, r = n.r * Math.max(W, H);
+      const gr = g.createRadialGradient(x, y, 0, x, y, r);
+      gr.addColorStop(0, n.col + '38'); gr.addColorStop(.5, n.col + '14'); gr.addColorStop(1, n.col + '00');
+      g.fillStyle = gr; g.fillRect(0, 0, W, H);
+    }
+    // звёзды: дрейф + параллакс от камеры дерева и мыши
+    for (const L of layers) {
+      const ox = -__cam.x * L.par * D - mx * L.par * 260 * D, oy = -__cam.y * L.par * D - my * L.par * 260 * D;
+      for (const st of L.s) {
+        if (!still) { st.x -= L.v * dt * D; st.y += L.v * dt * D * .25; }
+        let x = ((st.x + ox) % W + W) % W, y = ((st.y + oy) % H + H) % H;
+        const tw = .55 + .45 * Math.sin(t / 1000 * st.f + st.p), a = L.a * tw;
+        g.fillStyle = st.hue + a + ')'; g.beginPath(); g.arc(x, y, st.r, 0, 6.283); g.fill();
+        if (st.cross && tw > .75) cross(x, y, st.r * 5 * tw, (tw - .75) * 4 * L.a);
+      }
+    }
+    // падающие звёзды
+    if (!still && (nextMeteor -= dt) <= 0) {
+      nextMeteor = rnd(2500, 6500);
+      const ang = rnd(.35, .6), sp = rnd(1.1, 1.8) * D;
+      meteors.push({x: rnd(W * .2, W * 1.1), y: rnd(-H * .1, H * .45), vx: -Math.cos(ang) * sp, vy: Math.sin(ang) * sp, life: 0, max: rnd(900, 1400)});
+    }
+    meteors = meteors.filter(m => m.life < m.max);
+    for (const m of meteors) {
+      m.life += dt; m.x += m.vx * dt; m.y += m.vy * dt;
+      const k = m.life / m.max, a = Math.sin(Math.PI * k), len = 160 * D;
+      const gr = g.createLinearGradient(m.x, m.y, m.x - m.vx / Math.hypot(m.vx, m.vy) * len, m.y - m.vy / Math.hypot(m.vx, m.vy) * len);
+      gr.addColorStop(0, `rgba(230,246,255,${a})`); gr.addColorStop(.25, `rgba(140,215,255,${a * .5})`); gr.addColorStop(1, 'rgba(120,186,255,0)');
+      g.strokeStyle = gr; g.lineWidth = 2 * D; g.lineCap = 'round';
+      g.beginPath(); g.moveTo(m.x, m.y); g.lineTo(m.x - m.vx / Math.hypot(m.vx, m.vy) * len, m.y - m.vy / Math.hypot(m.vx, m.vy) * len); g.stroke();
+      g.fillStyle = `rgba(255,255,255,${a})`; g.beginPath(); g.arc(m.x, m.y, 1.8 * D, 0, 6.283); g.fill();
+    }
+    g.globalCompositeOperation = 'source-over';
+    requestAnimationFrame(frame);
+  })(last);
 })();
 
 // ── данные: схема дерева + данные игрока из ссылки ──
@@ -308,7 +364,7 @@ for (const n of T.nodes) {
 
 // ── камера: пан / зум / инерция-полёт ──
 const view = {x: 0, y: 0, k: 1};
-const apply = () => world.style.transform = `translate(${view.x}px,${view.y}px) scale(${view.k})`;
+const apply = () => { world.style.transform = `translate(${view.x}px,${view.y}px) scale(${view.k})`; __cam.x = view.x; __cam.y = view.y; __cam.k = view.k; };
 const clampK = k => Math.min(2.4, Math.max(.12, k));
 function zoomAt(cx, cy, k) { k = clampK(k); view.x = cx - (cx - view.x) * k / view.k; view.y = cy - (cy - view.y) * k / view.k; view.k = k; apply(); }
 let anim = null;
