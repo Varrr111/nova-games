@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Nova Order · Дерево достижений</title>
+<meta name="theme-color" content="#090f1a">
+<link rel="icon" href="brand/emblem.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#090f1a; --glass:rgba(13,23,40,.78); --glass2:rgba(18,31,52,.92); --line:#24405e; --line2:#34425a;
+    --text:#e2ecf8; --muted:#8496b2; --dim:#4a5870; --accent:#78baff; --gold:#ecc46c;
+    --ease:cubic-bezier(.22,1,.36,1);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--text);
+    font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+  button{font:inherit;color:inherit}
+
+  /* ── фон: звёзды + планета ── */
+  #stars{position:fixed;inset:0;width:100%;height:100%}
+  #planet{position:fixed;right:-140px;top:-120px;width:min(560px,70vw);opacity:.38;pointer-events:none;
+    filter:drop-shadow(0 0 60px rgba(90,170,255,.25));animation:float 18s ease-in-out infinite}
+  @keyframes float{50%{transform:translateY(14px) rotate(1.5deg)}}
+  #vignette{position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 55%,transparent 45%,rgba(3,6,12,.75) 100%)}
+
+  /* ── холст дерева ── */
+  #viewport{position:fixed;inset:0;cursor:grab;touch-action:none;overflow:hidden}
+  #viewport.drag{cursor:grabbing}
+  #world{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}
+  #links{position:absolute;left:0;top:0;overflow:visible;pointer-events:none}
+  .lk{fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .lk.o{stroke:#04080f}
+  .lk.draw{stroke-dasharray:var(--len);stroke-dashoffset:var(--len);animation:draw .9s var(--ease) forwards;animation-delay:var(--d)}
+  @keyframes draw{to{stroke-dashoffset:0}}
+  .lk.hl{filter:drop-shadow(0 0 6px currentColor)}
+
+  .node{position:absolute;transform:translate(-50%,0);transform-origin:50% var(--oy);display:flex;flex-direction:column;align-items:center;
+    width:160px;cursor:pointer;user-select:none;opacity:0;animation:pop .6s var(--ease) forwards;animation-delay:var(--d)}
+  @keyframes pop{from{opacity:0;transform:translate(-50%,0) scale(.4)}to{opacity:1;transform:translate(-50%,0) scale(1)}}
+  .node .ic{position:relative;transition:transform .35s var(--ease)}
+  .node .ic img{display:block;width:100%;height:100%;pointer-events:none}
+  .node:hover .ic{transform:translateY(-4px) scale(1.08)}
+  .node.lock .ic img{filter:grayscale(1) brightness(.55);opacity:.7}
+  .node.got .ic::before{content:"";position:absolute;inset:-35%;border-radius:50%;
+    background:radial-gradient(circle,var(--c) 0%,transparent 65%);opacity:.38;animation:pulse 3.2s ease-in-out infinite;animation-delay:var(--p)}
+  @keyframes pulse{50%{opacity:.16;transform:scale(.88)}}
+  .node.sel .ic::after{content:"";position:absolute;inset:-12px;border-radius:22px;border:2px solid var(--c);
+    box-shadow:0 0 22px var(--c);animation:ring 1.6s ease-in-out infinite}
+  @keyframes ring{50%{inset:-17px;opacity:.55}}
+  .node .t{margin-top:7px;font-size:13.5px;font-weight:700;text-align:center;line-height:1.22;
+    text-shadow:0 2px 6px #000,0 0 2px #000;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .node.lock .t{color:var(--dim)}
+  .node .n{margin-top:3px;font-size:12px;color:var(--muted);display:flex;align-items:center;gap:5px;white-space:nowrap;
+    text-shadow:0 1px 4px #000}
+  .node .n i{width:9px;height:9px;border-radius:50%;display:inline-block;box-shadow:0 0 0 1.5px #04080f}
+  .star{position:absolute;right:-8px;top:-8px;width:26px;height:26px;filter:drop-shadow(0 0 6px rgba(236,196,108,.8));
+    animation:spin 6s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .cnt{position:absolute;right:-12px;top:-8px;background:#0c1422;border:2px solid var(--c);border-radius:10px;
+    font-size:11.5px;font-weight:800;padding:1px 6px}
+  .node.br .t{font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:var(--c)}
+  .node.br.lock .t{color:var(--muted)}
+  .node.root .t{font-size:22px;letter-spacing:.04em}
+  .node.root .n{font-size:14px}
+  .node.dim{opacity:.18!important;transition:opacity .3s}
+
+  /* ── панели ── */
+  .glass{background:var(--glass);border:1px solid var(--line);border-radius:18px;backdrop-filter:blur(14px) saturate(1.3);
+    -webkit-backdrop-filter:blur(14px) saturate(1.3);box-shadow:0 18px 50px rgba(0,0,0,.45)}
+  header{position:fixed;left:16px;top:16px;padding:16px 20px 16px 18px;display:flex;gap:14px;align-items:center;
+    max-width:min(560px,calc(100vw - 32px));animation:slideDown .8s var(--ease) both}
+  @keyframes slideDown{from{opacity:0;transform:translateY(-24px)}}
+  header img{width:46px;height:46px;filter:drop-shadow(0 0 10px rgba(120,186,255,.5))}
+  .kick{font-size:11px;font-weight:700;letter-spacing:.16em;color:var(--accent)}
+  h1{margin:2px 0 1px;font-size:22px;font-weight:800;line-height:1.15}
+  .sub{font-size:13px;color:var(--muted)}
+  .prog{margin-top:9px;display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--muted);font-weight:600}
+  .bar{flex:1;min-width:120px;height:8px;border-radius:5px;background:#18243a;overflow:hidden}
+  .bar b{display:block;height:100%;width:0;border-radius:5px;background:linear-gradient(90deg,#4f9bff,#9fd0ff);
+    box-shadow:0 0 12px rgba(120,186,255,.7);transition:width 1.6s var(--ease) .5s}
+
+  #chips{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);display:flex;gap:8px;padding:8px;
+    max-width:calc(100vw - 24px);overflow-x:auto;scrollbar-width:none;animation:slideUp .8s var(--ease) .15s both}
+  #chips::-webkit-scrollbar{display:none}
+  @keyframes slideUp{from{opacity:0;transform:translate(-50%,24px)}}
+  .chip{flex:none;display:flex;align-items:center;gap:7px;padding:8px 13px;border-radius:12px;border:1px solid transparent;
+    background:rgba(255,255,255,.04);cursor:pointer;font-size:13px;font-weight:600;transition:all .25s var(--ease)}
+  .chip:hover{background:rgba(255,255,255,.09);transform:translateY(-2px)}
+  .chip.on{border-color:var(--c);background:color-mix(in srgb,var(--c) 16%,transparent)}
+  .chip i{width:9px;height:9px;border-radius:50%;background:var(--c);box-shadow:0 0 8px var(--c)}
+  .chip small{color:var(--muted);font-weight:600}
+
+  #tools{position:fixed;right:16px;bottom:18px;display:flex;flex-direction:column;gap:8px;animation:slideUp2 .8s var(--ease) .25s both}
+  @keyframes slideUp2{from{opacity:0;transform:translateY(24px)}}
+  #tools button{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;cursor:pointer;
+    transition:transform .2s var(--ease),background .2s}
+  #tools button:hover{transform:scale(1.08);background:var(--glass2)}
+  #tools svg{width:20px;height:20px;stroke:var(--text);fill:none;stroke-width:2.2;stroke-linecap:round}
+
+  #search{position:fixed;right:16px;top:16px;width:min(280px,calc(100vw - 32px));display:flex;align-items:center;gap:8px;
+    padding:0 12px;height:46px;animation:slideDown .8s var(--ease) .1s both}
+  #search svg{width:17px;height:17px;stroke:var(--muted);fill:none;stroke-width:2.2;flex:none}
+  #search input{flex:1;min-width:0;background:none;border:0;outline:0;color:var(--text);font:inherit;font-size:14px}
+  #search input::placeholder{color:var(--muted)}
+  #results{position:fixed;right:16px;top:70px;width:min(280px,calc(100vw - 32px));max-height:50vh;overflow:auto;padding:6px;display:none}
+  #results.show{display:block;animation:fade .2s}
+  @keyframes fade{from{opacity:0;transform:translateY(-6px)}}
+  .res{display:flex;align-items:center;gap:10px;padding:7px 8px;border-radius:10px;cursor:pointer;font-size:13.5px}
+  .res:hover{background:rgba(255,255,255,.07)}
+  .res img{width:30px;height:30px}
+  .res.lock img{filter:grayscale(1) brightness(.6)}
+
+  /* ── карточка узла ── */
+  #sheet{position:fixed;right:16px;top:76px;bottom:80px;width:min(380px,calc(100vw - 32px));padding:22px;overflow:auto;
+    transform:translateX(calc(100% + 40px));transition:transform .55s var(--ease);z-index:5}
+  #sheet.open{transform:none}
+  #sheet .x{position:absolute;right:12px;top:12px;width:34px;height:34px;border-radius:10px;border:0;background:rgba(255,255,255,.06);
+    cursor:pointer;display:grid;place-items:center}
+  #sheet .x svg{width:16px;height:16px;stroke:var(--text);stroke-width:2.4}
+  .hero{display:flex;flex-direction:column;align-items:center;text-align:center;padding:6px 0 4px}
+  .hero .big{position:relative;width:112px;height:112px;margin-bottom:12px}
+  .hero .big img{width:100%;height:100%;position:relative}
+  .hero .big::before{content:"";position:absolute;inset:-30%;border-radius:50%;background:radial-gradient(circle,var(--c),transparent 65%);opacity:.45}
+  .hero.lock .big img{filter:grayscale(1) brightness(.55)}
+  .hero.lock .big::before{opacity:.08}
+  .pills{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-bottom:10px}
+  .pill{font-size:11.5px;font-weight:700;letter-spacing:.04em;padding:4px 9px;border-radius:8px;background:rgba(255,255,255,.06);color:var(--muted)}
+  .pill.c{color:var(--c);background:color-mix(in srgb,var(--c) 14%,transparent)}
+  #sheet h2{margin:0 0 6px;font-size:23px;font-weight:800}
+  #sheet .desc{color:#c3d0e2;font-size:15px;line-height:1.5;margin:0}
+  .status{margin:16px 0 4px;padding:13px 14px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid var(--line);
+    display:flex;flex-direction:column;gap:6px;font-size:14px}
+  .status .row{display:flex;align-items:center;gap:9px}
+  .status svg{width:18px;height:18px;flex:none}
+  .status.got{border-color:color-mix(in srgb,var(--c) 45%,transparent);background:color-mix(in srgb,var(--c) 8%,transparent)}
+  .sec{margin-top:16px;font-size:11.5px;font-weight:700;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
+  .crumbs{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  .crumb{display:flex;align-items:center;gap:6px;padding:5px 9px 5px 5px;border-radius:10px;background:rgba(255,255,255,.05);
+    font-size:12.5px;font-weight:600;cursor:pointer;transition:background .2s,transform .2s}
+  .crumb:hover{background:rgba(255,255,255,.1);transform:translateY(-1px)}
+  .crumb img{width:22px;height:22px}
+  .crumb.lock{color:var(--muted)} .crumb.lock img{filter:grayscale(1) brightness(.6)}
+
+  #hint{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);padding:12px 18px;font-size:14px;color:#c3d0e2;z-index:6;background:var(--glass2)!important;white-space:nowrap;
+    pointer-events:none;opacity:0;animation:hint 4.2s ease 2.2s forwards}
+  @keyframes hint{12%,75%{opacity:1}100%{opacity:0}}
+  #banner{position:fixed;left:50%;top:92px;transform:translateX(-50%);padding:10px 16px;font-size:13.5px;display:none;text-align:center}
+
+  @media (max-width:720px){
+    header{padding:12px 14px;right:16px} header img{width:36px;height:36px} h1{font-size:18px}
+    #search{top:auto;bottom:84px;right:16px;left:16px;width:auto} #results{top:auto;bottom:138px;left:16px;right:16px;width:auto}
+    #tools{bottom:142px}
+    #sheet{top:auto;left:8px;right:8px;bottom:8px;width:auto;max-height:58vh;transform:translateY(calc(100% + 30px))}
+    #hint{font-size:13px}
+  }
+  @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<canvas id="stars"></canvas>
+<img id="planet" src="brand/planet.png" alt="">
+<div id="viewport"><div id="world"><svg id="links"></svg></div></div>
+<div id="vignette"></div>
+
+<header class="glass">
+  <img src="brand/emblem.png" alt="">
+  <div style="min-width:0;flex:1">
+    <div class="kick">NOVA ORDER · ЛЕТОПИСЬ ВАЙПА</div>
+    <h1 id="title">Дерево достижений</h1>
+    <div class="sub" id="subtitle"></div>
+    <div class="prog" id="prog"><div class="bar"><b id="barfill"></b></div><span id="progtxt"></span></div>
+  </div>
+</header>
+
+<label id="search" class="glass">
+  <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+  <input id="q" placeholder="Найти достижение…" autocomplete="off">
+</label>
+<div id="results" class="glass"></div>
+<div id="banner" class="glass"></div>
+
+<nav id="chips" class="glass"></nav>
+<div id="tools">
+  <button class="glass" id="zin" title="Приблизить"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+  <button class="glass" id="zout" title="Отдалить"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button>
+  <button class="glass" id="zfit" title="Всё дерево"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+</div>
+<aside id="sheet" class="glass"></aside>
+<div id="hint" class="glass"></div>
+
+<script>
+(async () => {
+const $ = s => document.querySelector(s);
+const ICON = {node: 64, br: 92, root: 156};
+const SVG_STAR = '<svg viewBox="0 0 24 24"><path fill="#ecc46c" stroke="#7a5a1c" stroke-width="1" d="M12 2.5l2.9 6 6.6.8-4.9 4.5 1.3 6.5L12 17.1l-5.9 3.2 1.3-6.5L2.5 9.3l6.6-.8z"/></svg>';
+
+// ── звёздное небо ──
+(() => {
+  const c = $('#stars'), g = c.getContext('2d'); let st = [];
+  const resize = () => { c.width = innerWidth * devicePixelRatio; c.height = innerHeight * devicePixelRatio;
+    st = Array.from({length: 260}, () => ({x: Math.random(), y: Math.random(), r: Math.random() * 1.3 + .2, p: Math.random() * 6, s: .4 + Math.random()})); };
+  resize(); addEventListener('resize', resize);
+  const grd = () => { const r = g.createRadialGradient(c.width*.3, c.height*.7, 0, c.width*.3, c.height*.7, c.width*.8);
+    r.addColorStop(0, '#10233a'); r.addColorStop(1, '#090f1a'); return r; };
+  (function tick(t) { g.fillStyle = grd(); g.fillRect(0, 0, c.width, c.height);
+    for (const s of st) { const a = .35 + .45 * Math.sin(t / 1000 * s.s + s.p);
+      g.fillStyle = `rgba(200,225,255,${a})`; g.beginPath(); g.arc(s.x * c.width, s.y * c.height, s.r * devicePixelRatio, 0, 7); g.fill(); }
+    requestAnimationFrame(tick); })(0);
+})();
+
+// ── данные: схема дерева + данные игрока из ссылки ──
+const T = await (await fetch('ach.json', {cache: 'no-cache'})).json();
+const byKey = Object.fromEntries(T.nodes.map((n, i) => [n.key, {...n, i}]));
+async function payload() {
+  const h = location.hash.slice(1); if (!h) return null;
+  try {
+    const kind = h[0], b64 = h.slice(1).replace(/-/g, '+').replace(/_/g, '/');
+    const bin = Uint8Array.from(atob(b64 + '='.repeat((4 - b64.length % 4) % 4)), ch => ch.charCodeAt(0));
+    let txt;
+    if (kind === 'z') { const s = new Blob([bin]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
+      txt = await new Response(s).text(); } else txt = new TextDecoder().decode(bin);
+    return JSON.parse(txt);
+  } catch (e) { console.error(e); return null; }
+}
+const P = await payload();
+const mode = P ? P.m : 'demo';
+const state = {};             // key → {got, day, first, owner, rgb, count}
+if (P && mode === 'w') for (const row of P.n || []) {
+  const node = T.nodes[row[0]]; if (node) state[node.key] = {got: true, owner: P.o[row[1]], rgb: P.c[row[1]], count: row[2] || 1};
+}
+if (P && mode === 'p') for (let i = 0; i + 1 < (P.n || []).length; i += 2) {   // плоско: индекс, день (<0 — первым в мире)
+  const node = T.nodes[P.n[i]], d = P.n[i + 1]; if (node) state[node.key] = {got: true, day: Math.abs(d), first: d < 0};
+}
+state.root = state.root || {got: true};
+const banner = $('#banner');
+if (!P) { banner.style.display = 'block'; banner.innerHTML = 'Это пустое дерево. Своё открой командой <b>!достижения</b> в Discord.'; }
+else if (P.v && P.v !== T.v) { banner.style.display = 'block'; banner.textContent = 'Дерево обновилось — запроси свежую ссылку командой !достижения.'; }
+
+const colorOf = n => n.key === 'root' ? '#78baff' : (T.branches[n.branch] || {}).color || '#78baff';
+const isGot = k => !!(state[k] && state[k].got);
+const branchOpen = b => T.nodes.some(n => n.branch === b && !n.key.startsWith('br_') && isGot(n.key));
+const nodeOpen = n => n.key.startsWith('br_') ? branchOpen(n.branch) : isGot(n.key);
+const kind = n => n.key === 'root' ? 'root' : n.key.startsWith('br_') ? 'br' : 'node';
+const achs = T.nodes.filter(n => kind(n) === 'node');
+
+// ── шапка ──
+$('#title').textContent = P ? P.t : 'Дерево достижений';
+$('#subtitle').textContent = P ? P.s : 'Nova Order';
+const gotN = achs.filter(n => isGot(n.key)).length + 1, total = achs.length + 1;
+$('#progtxt').textContent = mode === 'w' ? `открыто ${gotN} из ${total}` : `${gotN} / ${total}`;
+setTimeout(() => $('#barfill').style.width = (100 * gotN / total) + '%', 50);
+
+// ── построение ──
+const world = $('#world'), svg = $('#links');
+world.style.width = T.w + 'px'; world.style.height = T.h + 'px';
+svg.setAttribute('width', T.w); svg.setAttribute('height', T.h);
+const root = byKey.root;
+const depthOf = n => Math.abs(n.x - root.x);           // волна от корня наружу
+const delay = n => (depthOf(n) / 1000) * 1.1 + .15;
+const iconY = n => kind(n) === 'node' ? n.y - 14 : n.y;
+const radius = n => ICON[kind(n)] / 2;
+const NS = 'http://www.w3.org/2000/svg';
+const linkEls = {};
+for (const pass of [false, true]) for (const n of T.nodes) {
+  if (!n.parent) continue; const p = byKey[n.parent], open = nodeOpen(n);
+  if (open !== pass) continue;
+  const s = n.x > p.x ? 1 : -1, x0 = p.x + s * radius(p), y0 = iconY(p), x1 = n.x - s * radius(n), y1 = iconY(n), xm = (x0 + x1) / 2;
+  const d = `M${x0} ${y0}H${xm}V${y1}H${x1}`, len = Math.abs(x1 - x0) + Math.abs(y1 - y0) + 2;
+  const col = open ? colorOf(n) : '#34425a', w = open ? 4 : 3;
+  for (const [cls, stroke, width] of [['lk o', '#04080f', w + 4], ['lk', col, w]]) {
+    const el = document.createElementNS(NS, 'path'); el.setAttribute('d', d); el.setAttribute('class', cls + ' draw');
+    el.setAttribute('stroke', stroke); el.setAttribute('stroke-width', width); el.style.color = col;
+    el.style.setProperty('--len', len); el.style.setProperty('--d', (delay(p) + .05) + 's'); svg.appendChild(el);
+    if (cls === 'lk') linkEls[n.key] = el;
+  }
+}
+const nodeEls = {};
+for (const n of T.nodes) {
+  const k = kind(n), st = state[n.key] || {}, open = nodeOpen(n), c = colorOf(n), size = ICON[k];
+  const el = document.createElement('div');
+  el.className = `node ${k} ${open ? 'got' : 'lock'}`;
+  el.style.left = n.x + 'px'; el.style.top = (iconY(n) - size / 2) + 'px'; el.style.setProperty('--oy', size / 2 + 'px');
+  el.style.setProperty('--c', c); el.style.setProperty('--d', delay(n) + 's'); el.style.setProperty('--p', (Math.random() * 3) + 's');
+  if (k === 'root') el.style.width = '260px';
+  let html = `<div class="ic" style="width:${size}px;height:${size}px"><img src="icons/${n.icon}.png" alt="" loading="eager">`;
+  if (k === 'node' && st.first) html += `<div class="star">${SVG_STAR}</div>`;
+  if (k === 'node' && st.count > 1) html += `<div class="cnt">×${st.count}</div>`;
+  html += '</div>';
+  if (k === 'root') {
+    html += `<div class="t">${(P ? P.r.toUpperCase() : 'НОВАЯ ЭРА')}</div><div class="n">${P ? (P.rs || 'моё дерево') : 'моё дерево'}</div>`;
+  } else if (k === 'br') {
+    const all = achs.filter(a => a.branch === n.branch);
+    html += `<div class="t">${n.title}</div><div class="n">${all.filter(a => isGot(a.key)).length}/${all.length}</div>`;
+  } else {
+    html += `<div class="t">${n.title}</div>`;
+    if (st.got) html += mode === 'w'
+      ? `<div class="n"><i style="background:${st.rgb}"></i>${st.owner}</div>`
+      : `<div class="n">${st.first ? '★ первый · ' : ''}день ${st.day}</div>`;
+  }
+  el.innerHTML = html;
+  el.addEventListener('click', e => { if (!moved) select(n.key, true); });
+  world.appendChild(el); nodeEls[n.key] = el;
+}
+
+// ── камера: пан / зум / инерция-полёт ──
+const view = {x: 0, y: 0, k: 1};
+const apply = () => world.style.transform = `translate(${view.x}px,${view.y}px) scale(${view.k})`;
+const clampK = k => Math.min(2.4, Math.max(.12, k));
+function zoomAt(cx, cy, k) { k = clampK(k); view.x = cx - (cx - view.x) * k / view.k; view.y = cy - (cy - view.y) * k / view.k; view.k = k; apply(); }
+let anim = null;
+function flyTo(x, y, k, ms = 900) {
+  cancelAnimationFrame(anim); const s = {...view}, vw = innerWidth, vh = innerHeight;
+  const sheetOpen = $('#sheet').classList.contains('open') && vw > 720;
+  const mOpen = $('#sheet').classList.contains('open') && vw <= 720, hb = $('header').getBoundingClientRect().bottom;
+  const cx = sheetOpen ? (vw - 400) / 2 : vw / 2, cy = vw > 720 ? vh / 2 : mOpen ? (hb + vh * .42) / 2 : vh * .46;
+  const e = {k: clampK(k), x: 0, y: 0}; e.x = cx - x * e.k; e.y = cy - y * e.k;
+  const t0 = performance.now(), ease = t => 1 - Math.pow(1 - t, 4);
+  (function step(t) { const p = Math.min(1, (t - t0) / ms), q = ease(p);
+    view.x = s.x + (e.x - s.x) * q; view.y = s.y + (e.y - s.y) * q; view.k = s.k + (e.k - s.k) * q; apply();
+    if (p < 1) anim = requestAnimationFrame(step); })(t0);
+}
+const fitK = () => Math.min(innerWidth / T.w, (innerHeight - 120) / T.h) * .96;
+function fit(ms) { flyTo(T.w / 2, T.h / 2 + 30, fitK(), ms); }
+
+const vp = $('#viewport'), ptr = new Map(); let moved = false, last = null, pinch = null;
+vp.addEventListener('pointerdown', e => { ptr.set(e.pointerId, e); moved = false; cancelAnimationFrame(anim);
+  if (ptr.size === 2) { const [a, b] = [...ptr.values()]; pinch = {d: Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY), k: view.k}; }
+  last = {x: e.clientX, y: e.clientY}; vp.classList.add('drag'); });
+addEventListener('pointermove', e => { if (!ptr.has(e.pointerId)) return; ptr.set(e.pointerId, e);
+  if (ptr.size === 2 && pinch) { const [a, b] = [...ptr.values()];
+    const d = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+    zoomAt((a.clientX + b.clientX) / 2, (a.clientY + b.clientY) / 2, pinch.k * d / pinch.d); moved = true; return; }
+  const dx = e.clientX - last.x, dy = e.clientY - last.y; if (Math.abs(dx) + Math.abs(dy) > 2) moved = true;
+  view.x += dx; view.y += dy; last = {x: e.clientX, y: e.clientY}; apply(); });
+const up = e => { ptr.delete(e.pointerId); if (ptr.size < 2) pinch = null;
+  if (!ptr.size) { vp.classList.remove('drag'); setTimeout(() => moved = false, 0); }
+  else { const r = [...ptr.values()][0]; last = {x: r.clientX, y: r.clientY}; } };
+addEventListener('pointerup', up); addEventListener('pointercancel', up);
+vp.addEventListener('wheel', e => { e.preventDefault(); cancelAnimationFrame(anim);
+  zoomAt(e.clientX, e.clientY, view.k * Math.exp(-e.deltaY * (e.ctrlKey ? .012 : .0018))); }, {passive: false});
+vp.addEventListener('dblclick', e => { const k = view.k * 1.8, wx = (e.clientX - view.x) / view.k, wy = (e.clientY - view.y) / view.k; flyTo(wx, wy, k, 500); });
+const center = () => ({x: (innerWidth / 2 - view.x) / view.k, y: (innerHeight / 2 - view.y) / view.k});
+$('#zin').onclick = () => { const c = center(); flyTo(c.x, c.y, view.k * 1.5, 450); };
+$('#zout').onclick = () => { const c = center(); flyTo(c.x, c.y, view.k / 1.5, 450); };
+$('#zfit').onclick = () => { closeSheet(); fit(900); };
+addEventListener('keydown', e => { if (e.target.tagName === 'INPUT') return;
+  if (e.key === '+' || e.key === '=') $('#zin').click(); if (e.key === '-') $('#zout').click();
+  if (e.key === '0') $('#zfit').click(); if (e.key === 'Escape') closeSheet(); });
+
+// ── ветки (чипы) ──
+const chips = $('#chips');
+for (const [b, br] of Object.entries(T.branches)) {
+  const all = achs.filter(a => a.branch === b), got = all.filter(a => isGot(a.key)).length;
+  const el = document.createElement('button'); el.className = 'chip'; el.style.setProperty('--c', br.color);
+  el.innerHTML = `<i></i>${br.label}<small>${got}/${all.length}</small>`;
+  el.onclick = () => { const n = byKey['br_' + b]; select(n.key, false);
+    const xs = all.map(a => a.x).concat(n.x), ys = all.map(a => a.y).concat(n.y);
+    const w = Math.max(...xs) - Math.min(...xs) + 260, h = Math.max(...ys) - Math.min(...ys) + 220;
+    const k = Math.min((innerWidth > 720 ? innerWidth - 420 : innerWidth) / w, (innerHeight * (innerWidth > 720 ? .78 : .45)) / h, 1.1);
+    flyTo((Math.max(...xs) + Math.min(...xs)) / 2, (Math.max(...ys) + Math.min(...ys)) / 2, k); };
+  chips.appendChild(el);
+}
+
+// ── карточка ──
+const sheet = $('#sheet');
+const ancestors = k => { const out = []; let n = byKey[k]; while (n && n.parent) { n = byKey[n.parent]; out.unshift(n); } return out; };
+const kidsOf = k => T.nodes.filter(n => n.parent === k);
+const crumb = n => `<div class="crumb ${nodeOpen(n) ? '' : 'lock'}" data-k="${n.key}"><img src="icons/${n.icon}.png" alt="">${kind(n) === 'root' ? 'Новая эра' : n.title}</div>`;
+const ICO = {
+  ok: c => `<svg viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2.6" stroke-linecap="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>`,
+  lock: '<svg viewBox="0 0 24 24" fill="none" stroke="#8496b2" stroke-width="2.2"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>',
+  clock: '<svg viewBox="0 0 24 24" fill="none" stroke="#8496b2" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg>',
+  flag: c => `<svg viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2.2" stroke-linecap="round"><path d="M6 21V4M6 4h11l-2 4 2 4H6"/></svg>`,
+};
+let selKey = null;
+function select(k, fly) {
+  const n = byKey[k], st = state[k] || {}, c = colorOf(n), open = nodeOpen(n), kd = kind(n);
+  document.querySelectorAll('.node.sel').forEach(e => e.classList.remove('sel'));
+  document.querySelectorAll('.lk.hl').forEach(e => e.classList.remove('hl'));
+  nodeEls[k].classList.add('sel'); selKey = k;
+  for (const a of [n, ...ancestors(k)]) if (linkEls[a.key]) linkEls[a.key].classList.add('hl');
+  document.querySelectorAll('.chip').forEach((el, i) => el.classList.toggle('on', Object.keys(T.branches)[i] === n.branch));
+  const frame = kd === 'br' ? 'Ветвь' : kd === 'root' ? 'Корень' : T.frames[n.frame];
+  let status;
+  if (kd === 'br') {
+    const all = achs.filter(a => a.branch === n.branch), g = all.filter(a => isGot(a.key)).length;
+    status = `<div class="status ${g ? 'got' : ''}" style="--c:${c}"><div class="row">${g ? ICO.ok(c) : ICO.lock}<span>Открыто <b>${g}</b> из ${all.length}</span></div></div>`;
+  } else if (kd === 'root') {
+    status = `<div class="status got" style="--c:${c}"><div class="row">${ICO.ok(c)}<span>Держава основана — отсюда растут все ветви</span></div></div>`;
+  } else if (st.got) {
+    status = `<div class="status got" style="--c:${c}">` + (mode === 'w'
+      ? `<div class="row">${ICO.flag(c)}<span>Первым открыл: <b><i style="display:inline-block;width:9px;height:9px;border-radius:50%;background:${st.rgb};margin-right:5px"></i>${st.owner}</b></span></div>
+         <div class="row">${ICO.ok(c)}<span>Открыли держав: <b>${st.count}</b></span></div>`
+      : `<div class="row">${ICO.ok(c)}<span>Открыто на <b>день ${st.day}</b></span></div>` +
+        (st.first ? `<div class="row"><span style="width:18px;display:grid">${SVG_STAR}</span><span><b style="color:var(--gold)">Первым в мире</b></span></div>` : '')) + '</div>';
+  } else {
+    status = `<div class="status"><div class="row">${n.final ? ICO.clock : ICO.lock}<span>${n.final ? 'Проверяется в конце вайпа' : 'Ещё не открыто'}</span></div></div>`;
+  }
+  const anc = ancestors(k), kids = kd === 'br' ? achs.filter(a => a.branch === n.branch) : kidsOf(k);
+  const desc = kd === 'br' ? `Ветвь достижений «${n.title}».` : n.desc;
+  sheet.innerHTML = `<button class="x" aria-label="Закрыть"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    <div class="hero ${open ? '' : 'lock'}" style="--c:${c}"><div class="big"><img src="icons/${n.icon}.png" alt=""></div>
+      <div class="pills"><span class="pill c" style="--c:${c}">${frame}</span>${n.branch && kd !== 'br' ? `<span class="pill c" style="--c:${c}">${T.branches[n.branch].label}</span>` : ''}</div>
+      <h2>${kd === 'root' ? (P ? P.r : 'Новая эра') : n.title}</h2><p class="desc">${desc}</p></div>
+    ${status}
+    ${anc.length ? `<div class="sec">Путь</div><div class="crumbs">${anc.map(crumb).join('')}</div>` : ''}
+    ${kids.length ? `<div class="sec">${kd === 'br' ? 'Достижения ветви' : 'Открывает дальше'}</div><div class="crumbs">${kids.map(crumb).join('')}</div>` : ''}`;
+  sheet.querySelector('.x').onclick = closeSheet;
+  sheet.querySelectorAll('.crumb').forEach(el => el.onclick = () => select(el.dataset.k, true));
+  sheet.scrollTop = 0; sheet.classList.add('open');
+  if (fly) flyTo(n.x, n.y, Math.max(view.k, kd === 'root' ? .7 : 1));
+}
+function closeSheet() { sheet.classList.remove('open'); selKey = null;
+  document.querySelectorAll('.node.sel').forEach(e => e.classList.remove('sel'));
+  document.querySelectorAll('.lk.hl').forEach(e => e.classList.remove('hl'));
+  document.querySelectorAll('.chip.on').forEach(e => e.classList.remove('on')); }
+
+// ── поиск ──
+const q = $('#q'), res = $('#results');
+q.addEventListener('input', () => { const s = q.value.trim().toLowerCase();
+  if (!s) { res.classList.remove('show'); return; }
+  const hits = achs.filter(n => (n.title + ' ' + n.desc).toLowerCase().includes(s)).slice(0, 12);
+  res.innerHTML = hits.length ? hits.map(n => `<div class="res ${isGot(n.key) ? '' : 'lock'}" data-k="${n.key}"><img src="icons/${n.icon}.png" alt=""><div><b>${n.title}</b><div style="font-size:12px;color:var(--muted)">${n.desc}</div></div></div>`).join('')
+    : '<div class="res" style="color:var(--muted)">Ничего не найдено</div>';
+  res.classList.add('show');
+  res.querySelectorAll('[data-k]').forEach(el => el.onclick = () => { res.classList.remove('show'); q.value = ''; q.blur(); select(el.dataset.k, true); }); });
+
+// ── старт: всё дерево → плавный подлёт к корню ──
+view.k = fitK() * .85; view.x = innerWidth / 2 - T.w / 2 * view.k; view.y = innerHeight / 2 - (T.h / 2 + 30) * view.k; apply();
+setTimeout(() => fit(1400), 80);
+if (innerWidth <= 720) setTimeout(() => flyTo(root.x, root.y, .55, 1400), 2200);
+addEventListener('resize', () => { if (!selKey) fit(300); });
+$('#hint').textContent = innerWidth <= 720 ? 'Тяни · щипок — зум · нажми на узел' : 'Тяни, чтобы двигать · колесо — приблизить · нажми на узел';
+const shot = new URLSearchParams(location.search).get('shot');
+if (shot) setTimeout(() => select(shot, true), 2600);
+})();
+</script>
+</body>
+</html>
