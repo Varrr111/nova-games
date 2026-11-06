@@ -1,0 +1,950 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0e1520">
+<title>Nova Order — Штаб</title>
+<link rel="icon" href="../tree/brand/avatar.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="icons.js"></script>
+<script src="sfx.js"></script>
+<style>
+:root{
+  --ground:#0e1520;--panel:#151e2b;--panel2:#1b2636;--panel3:#223044;--line:#263347;--ink:#e8edf4;--soft:#9aa7b8;
+  --a:#2f6fd1;--a2:#5a93ea;--aland:#24467a;--d:#b0394c;--d2:#d9677a;--dland:#5b2633;
+  --warn:#e0a43a;--good:#3fae7a;--sea:#13243a;--seaz:#183150;--land:#222c3a;--edge:#0e1520;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:var(--line);color:var(--ink);font:15px/1.45 "Golos Text",system-ui,sans-serif;overflow:hidden;
+  display:grid;grid-template-columns:1fr 400px;grid-template-rows:60px 1fr 150px;gap:1px;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+header{grid-column:1/3;background:var(--panel);display:flex;align-items:center;gap:24px;padding:0 20px;min-width:0}
+.mark{display:flex;align-items:center;gap:10px;flex:none}
+.mark svg{width:28px;height:28px}
+.mark b{font-size:17px;font-weight:800}
+.mark span{color:var(--soft);font-size:13.5px}
+.war{font-size:16.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.war i{font-style:normal;color:var(--soft);font-weight:500;margin:0 7px}
+.tug{flex:1;display:flex;align-items:center;gap:12px;font-size:13.5px;min-width:180px}
+.tug .t{flex:1;height:10px;background:var(--d);position:relative}
+.tug .t b{position:absolute;left:0;top:0;bottom:0;background:var(--a);transition:width .6s}
+.tug .t i{position:absolute;left:50%;top:-4px;bottom:-4px;width:2px;background:var(--ink)}
+.tug strong{font-weight:700;white-space:nowrap}
+.turn{text-align:right;font-size:13px;color:var(--soft);white-space:nowrap}
+.turn b{display:block;color:var(--ink);font-size:16.5px;font-variant-numeric:tabular-nums}
+.icon-btn{width:36px;height:36px;display:grid;place-items:center;background:var(--panel2);flex:none}
+.icon-btn:hover{background:var(--panel3)}
+.icon-btn svg{width:18px;height:18px;stroke:var(--ink);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.icon-btn.spin svg{animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* карта */
+.map{background:var(--sea);position:relative;overflow:hidden;touch-action:none}
+.map svg.m{width:100%;height:100%;display:block;cursor:grab}
+.map svg.m.drag{cursor:grabbing}
+.rg{stroke:var(--edge);stroke-width:.9;stroke-linejoin:round;vector-effect:non-scaling-stroke;transition:fill .25s}
+.rg.n{fill:var(--land)}
+.rg.ra{fill:var(--aland)}.rg.rd{fill:var(--dland)}
+.rg.rp{fill:#2b4a5e}
+.rg.w{stroke-width:.5;stroke:#0e1520}
+.rg.oa{fill:url(#hatchA)}.rg.od{fill:url(#hatchD)}
+.rg:hover{filter:brightness(1.18)}
+.rg.target{stroke:#e8edf4;stroke-width:2.2;filter:brightness(1.25)}
+.rg.reach{filter:brightness(1.12)}
+.rg.fight{stroke:var(--warn);stroke-width:2.6}
+.zn{fill:var(--seaz);stroke:#2c4a70;stroke-width:1.2;stroke-dasharray:5 4;vector-effect:non-scaling-stroke}
+.zn:hover{fill:#1d3a5e}
+.zn.target{stroke:#e8edf4;stroke-width:2;stroke-dasharray:none;fill:#1f4068}
+.zn.za{fill:#1b3d6e}.zn.zd{fill:#3a2232}
+.zlbl{fill:#6f8db3;font:italic 600 11px "Golos Text";text-anchor:middle;pointer-events:none;letter-spacing:.02em}
+.lbl{fill:var(--ink);font:600 12px "Golos Text";text-anchor:middle;paint-order:stroke;stroke:var(--edge);stroke-width:3.2px;pointer-events:none}
+.lbl.cap{font-weight:800}
+.lbl.fightl{fill:var(--warn);font-weight:700;font-size:11.5px}
+.radius{fill:rgba(90,147,234,.06);stroke:var(--a2);stroke-width:1.3;stroke-dasharray:3 4;vector-effect:non-scaling-stroke;pointer-events:none}
+.mv{fill:none;stroke:var(--a2);stroke-width:2.6;stroke-dasharray:7 5;vector-effect:non-scaling-stroke;pointer-events:none}
+.mv.atk{stroke:#e8edf4}
+.ctr{cursor:pointer}
+.ctr .body{fill:#f1f4f8;stroke:var(--edge);stroke-width:1.5}
+.ctr .bar0{fill:#d3dae4}
+.ctr.sel .body{stroke:#e8edf4;stroke-width:3}
+.ctr.sel{filter:drop-shadow(0 0 4px rgba(232,237,244,.7))}
+.ctr .nm{fill:var(--ink);font:600 10.5px "Golos Text";text-anchor:middle;paint-order:stroke;stroke:var(--edge);stroke-width:3px;pointer-events:none}
+.ctr .cnt{font:800 9px "Golos Text";fill:#fff;text-anchor:middle;pointer-events:none}
+.ctr.pending .body{stroke:var(--warn);stroke-width:2.4}
+.maptab{position:absolute;left:14px;top:14px;display:flex;background:var(--panel);font-size:13.5px;font-weight:600;box-shadow:0 2px 0 rgba(0,0,0,.25)}
+.maptab button{padding:8px 14px;color:var(--soft)}
+.maptab button.on{background:var(--panel2);color:var(--ink);box-shadow:inset 0 -2px 0 var(--a2)}
+.zoom{position:absolute;right:14px;top:14px;display:flex;flex-direction:column;gap:1px;background:var(--line)}
+.zoom button{width:36px;height:36px;background:var(--panel);display:grid;place-items:center;font-size:19px;font-weight:600}
+.zoom button:hover{background:var(--panel2)}
+.key{position:absolute;left:14px;bottom:14px;background:var(--panel);padding:9px 13px;display:flex;flex-wrap:wrap;gap:6px 15px;font-size:12.5px;color:var(--soft);max-width:calc(100% - 28px)}
+.key i{display:inline-block;width:14px;height:10px;margin-right:6px;vertical-align:-1px}
+.tip{position:absolute;pointer-events:none;background:var(--panel);padding:8px 11px;font-size:13px;line-height:1.4;max-width:260px;opacity:0;transition:opacity .12s;box-shadow:0 6px 18px rgba(0,0,0,.35);z-index:4}
+.tip.on{opacity:1}
+.tip b{font-weight:700}
+.tip small{color:var(--soft);display:block}
+.hint{position:absolute;left:50%;top:14px;translate:-50% 0;background:var(--warn);color:#1b1404;font-weight:700;font-size:13.5px;padding:8px 14px;display:none;z-index:3}
+.hint.on{display:block}
+
+/* правая панель */
+aside{background:var(--panel);grid-row:2/4;grid-column:2;display:flex;flex-direction:column;min-height:0}
+.scroll{overflow:auto;flex:1;min-height:0}
+.sec{padding:16px 18px;border-bottom:1px solid var(--line)}
+h2{font-size:18px;font-weight:700;letter-spacing:-.01em}
+h3{font-size:14.5px;font-weight:700;margin-bottom:8px}
+.sub{color:var(--soft);font-size:13px;margin-top:2px}
+.odds{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);margin-top:12px}
+.odds div{background:var(--panel2);padding:9px 11px}
+.odds small{color:var(--soft);font-size:12px;display:block}
+.odds b{font-size:20px;font-variant-numeric:tabular-nums;font-weight:700}
+.ulist .u{display:grid;grid-template-columns:44px 1fr auto;gap:11px;align-items:center;padding:8px 6px;margin:0 -6px;cursor:pointer}
+.ulist .u:hover{background:var(--panel2)}
+.ulist .u.on{background:var(--panel3)}
+.ulist .u+.u{box-shadow:inset 0 1px 0 var(--line)}
+.chip{--bg:#f1f4f8;width:44px;height:26px;background:var(--bg);border-radius:4px;color:#17202c;display:grid;place-items:center;position:relative;box-shadow:0 0 0 1.5px var(--edge)}
+.chip::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:4px 0 0 4px;background:var(--side,var(--a))}
+.chip svg{width:32px;height:16px;margin-left:3px}
+.u b{font-size:14px;font-weight:600;display:block;line-height:1.25}
+.u small{color:var(--soft);font-size:12px}
+.u .go{font-size:12.5px;font-weight:600;color:var(--a2);text-align:right;max-width:120px}
+.u .go.hold{color:var(--soft)}
+.u .go.pend{color:var(--warn)}
+.str{height:3px;background:#ffffff14;margin-top:5px;width:120px}.str i{display:block;height:100%;background:var(--good)}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);margin-top:10px}
+.seg button{background:var(--panel2);padding:9px 6px;text-align:center;font-size:13px;font-weight:600;color:var(--soft)}
+.seg button:hover{color:var(--ink);background:var(--panel3)}
+.seg button.on{background:var(--a);color:#fff}
+.seg button:disabled{opacity:.35;cursor:not-allowed}
+.note{font-size:13px;color:var(--soft);margin-top:10px;line-height:1.45}
+.note b{color:var(--ink)}
+.pend-list{margin-top:6px}
+.pend-list div{display:flex;justify-content:space-between;gap:10px;font-size:13px;padding:5px 0}
+.pend-list div+div{box-shadow:inset 0 1px 0 var(--line)}
+.pend-list button{color:var(--d2);font-weight:700;padding:0 4px}
+.send{margin:12px 18px 16px;padding:13px;text-align:center;background:var(--a);color:#fff;font-weight:700;font-size:15px;transition:filter .15s,transform .15s}
+.send:hover{filter:brightness(1.1)}.send:active{transform:scale(.98)}
+.send:disabled{background:var(--panel3);color:var(--soft);cursor:not-allowed;transform:none}
+.send small{display:block;font-weight:500;font-size:12px;opacity:.85}
+.result{margin:0 18px 14px;font-size:13px;line-height:1.5;display:none}
+.result.on{display:block}
+.result .okl{color:var(--good)}.result .bad{color:var(--d2)}
+
+footer{background:var(--panel);display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:26px;padding:14px 20px;min-height:0;overflow:auto}
+footer h3{font-size:13.5px}
+footer p,footer li{font-size:13.5px;color:#c9d2de}
+footer li{list-style:none;display:flex;gap:9px;padding:2px 0}
+footer li i{width:8px;height:8px;margin-top:6px;flex:none}
+.n{font-variant-numeric:tabular-nums}
+
+.loading{position:fixed;inset:0;background:var(--ground);display:grid;place-items:center;z-index:20;text-align:center;padding:24px}
+.loading b{font-size:18px;display:block;margin-bottom:6px}
+.loading span{color:var(--soft)}
+.loading.off{display:none}
+
+/* анимации */
+.mv{animation:march 1.2s linear infinite}
+@keyframes march{to{stroke-dashoffset:-24}}
+.rg.fight{animation:fightPulse 1.6s ease-in-out infinite}
+@keyframes fightPulse{50%{stroke-opacity:.35}}
+.ctr{transition:opacity .3s}
+.ctr .bob{transform-box:fill-box;transform-origin:center}
+.ctr.sel .bob{animation:bob 1.4s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-2px)}}
+.ctr.fresh{animation:pop .45s cubic-bezier(.22,1,.36,1)}
+@keyframes pop{from{opacity:0}}
+.sec{animation:fadeUp .28s cubic-bezier(.22,1,.36,1)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}}
+.rg.reach{stroke:#e8edf4;stroke-width:1.6;stroke-opacity:.65}
+.toasts{position:absolute;right:14px;bottom:14px;display:flex;flex-direction:column;gap:8px;z-index:5;pointer-events:none}
+.toast{background:var(--panel);border-left:3px solid var(--a2);padding:9px 13px;font-size:13.5px;max-width:320px;box-shadow:0 8px 24px rgba(0,0,0,.4);animation:toastIn .3s cubic-bezier(.22,1,.36,1)}
+.toast.bad{border-left-color:var(--d2)}.toast.good{border-left-color:var(--good)}
+.toast.out{opacity:0;transform:translateX(16px);transition:.3s}
+@keyframes toastIn{from{opacity:0;transform:translateX(24px)}}
+.hint{display:none;align-items:center;gap:12px}
+.hint.on{display:flex}
+.hint button{background:#1b1404;color:var(--warn);padding:3px 9px;font-weight:700;font-size:12.5px}
+.guide{display:grid;gap:10px;margin-top:12px}
+.guide>div{display:grid;grid-template-columns:28px 1fr;gap:10px;align-items:start;font-size:13.5px;color:#c9d2de}
+.guide b{color:var(--ink)}
+.guide span{width:28px;height:28px;background:var(--panel2);display:grid;place-items:center;font-weight:800;color:var(--a2)}
+.fc{margin-top:10px;padding:10px 12px;background:var(--panel2);font-size:13px}
+.fc b{font-size:15px}
+.fc .lvl{display:inline-block;padding:1px 8px;font-weight:700;font-size:12px;margin-left:6px}
+.modal{position:fixed;inset:0;z-index:30;background:rgba(6,10,16,.72);display:grid;place-items:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .25s}
+.modal.on{opacity:1;pointer-events:auto}
+.mbox{background:var(--panel);width:min(760px,100%);max-height:86vh;overflow:auto;transform:translateY(14px) scale(.98);transition:transform .35s cubic-bezier(.22,1,.36,1)}
+.modal.on .mbox{transform:none}
+.mhead{padding:18px 22px;display:flex;justify-content:space-between;align-items:center;gap:16px;box-shadow:inset 0 -1px 0 var(--line)}
+.mhead h2{font-size:20px}
+.mbody{padding:8px 22px 20px}
+.bt{padding:12px 0;box-shadow:inset 0 -1px 0 var(--line);opacity:0;animation:btIn .45s cubic-bezier(.22,1,.36,1) forwards}
+@keyframes btIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.bt .row{display:flex;justify-content:space-between;gap:12px;align-items:baseline}
+.bt .row b{font-size:15px}
+.bt .pb{height:6px;background:#ffffff12;margin:8px 0 6px;overflow:hidden}
+.bt .pb i{display:block;height:100%;width:0;background:var(--warn);transition:width .9s cubic-bezier(.22,1,.36,1)}
+.bt.won .pb i{background:var(--good)}
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px}
+.chips span{font-size:12px;padding:2px 8px;background:var(--panel2);color:#c9d2de}
+.chips span.p{color:#8fe0b5}.chips span.m{color:#f2a3ae}
+.ep{font-style:italic;color:var(--warn);font-size:13px;margin-top:4px}
+details.math{margin-top:8px;background:var(--panel2);padding:8px 12px;font-size:13px}
+details.math summary{cursor:pointer;color:var(--a2);font-weight:600;list-style:none}
+details.math summary::-webkit-details-marker{display:none}
+details.math .ln{display:flex;justify-content:space-between;gap:12px;padding:3px 0;color:#c9d2de}
+details.math .ln b{color:var(--ink);font-variant-numeric:tabular-nums}
+details.math .tot{box-shadow:inset 0 1px 0 var(--line);margin-top:4px;padding-top:6px}
+details.math .why{color:var(--soft);font-size:12px;margin-top:6px}
+.mfoot{padding:14px 22px;display:flex;justify-content:flex-end;box-shadow:inset 0 1px 0 var(--line)}
+.btn{background:var(--a);color:#fff;font-weight:700;padding:10px 18px}
+.btn.ghost{background:var(--panel2);color:var(--ink)}
+.turnbtn{background:var(--warn);color:#1b1404;font-weight:800;padding:9px 14px;font-size:13.5px;flex:none;display:none}
+.turnbtn.on{display:block}
+.turnbtn:disabled{opacity:.6}
+@media (max-width:900px){
+  body{grid-template-columns:1fr;grid-template-rows:auto 56vh auto auto;overflow:auto;height:auto}
+  header{grid-column:1;flex-wrap:wrap;gap:10px 16px;padding:10px 14px}
+  .tug{order:5;flex-basis:100%}
+  aside{grid-row:auto;grid-column:1}
+  .scroll{overflow:visible}
+  footer{grid-template-columns:1fr;gap:14px}
+  .maptab button{padding:7px 10px;font-size:12.5px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="loading" id="loading"><div><b id="loadT">Загружаю штаб…</b><span id="loadS">карта, войска, приказы</span></div></div>
+<header>
+  <div class="mark"><svg viewBox="0 0 30 30" aria-hidden="true"><circle cx="15" cy="15" r="12.5" fill="none" stroke="#5a93ea" stroke-width="2.4"/><path d="M15 4v22M4 15h22" stroke="#5a93ea" stroke-width="2"/><circle cx="15" cy="15" r="4" fill="#5a93ea"/></svg><b>Штаб</b><span>Nova Order</span></div>
+  <h1 class="war" id="warTitle">—</h1>
+  <div class="tug"><strong id="scoreLbl">—</strong><div class="t"><b id="scoreBar" style="width:50%"></b><i></i></div><span style="color:var(--soft)">капитуляция при 90%</span></div>
+  <div class="turn" id="turnBox">Ход —<b id="timer">—</b></div>
+  <button class="turnbtn" id="turnBtn">Сделать ход сейчас</button>
+  <button class="icon-btn" id="soundBtn" title="Звук" aria-label="Звук"><svg viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9z"/><path id="sndWave" d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12"/></svg></button>
+  <button class="icon-btn" id="refreshBtn" title="Обновить обстановку" aria-label="Обновить"><svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg></button>
+</header>
+
+<div class="map" id="map">
+  <svg class="m" id="svg" aria-label="Карта войны">
+    <defs>
+      <pattern id="hatchA" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="8" height="8" fill="#5b2633"/><rect width="3.5" height="8" fill="#24467a"/></pattern>
+      <pattern id="hatchD" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="8" height="8" fill="#24467a"/><rect width="3.5" height="8" fill="#5b2633"/></pattern>
+      <marker id="ar" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="4" markerHeight="4" orient="auto"><path d="M0,0L10,5L0,10z" fill="#5a93ea"/></marker>
+      <marker id="arw" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="4" markerHeight="4" orient="auto"><path d="M0,0L10,5L0,10z" fill="#e8edf4"/></marker>
+    </defs>
+    <g id="vp"><g id="gSea"></g><g id="gWorld"></g><g id="gLand"></g><g id="gOver"></g><g id="gLbl"></g><g id="gUnits"></g></g>
+  </svg>
+  <div class="maptab" role="tablist">
+    <button class="on" data-tab="land">Сухопутный фронт</button><button data-tab="sea">Море</button><button data-tab="air">Небо</button><button data-tab="terrain">Рельеф</button>
+  </div>
+  <div class="zoom"><button id="zin" aria-label="Приблизить">+</button><button id="zout" aria-label="Отдалить">−</button><button id="zfit" aria-label="Весь театр" style="font-size:14px">⤢</button></div>
+  <div class="hint" id="hint"><span id="hintT"></span><button id="hintX">Отмена · Esc</button></div>
+  <div class="key" id="key"></div>
+  <div class="tip" id="tip"></div>
+  <div class="toasts" id="toasts"></div>
+</div>
+<div class="modal" id="repModal" role="dialog" aria-modal="true"><div class="mbox"><div class="mhead"><div><h2 id="repTitle">Итоги хода</h2><div class="sub" id="repSub"></div></div><button class="btn ghost" id="repClose">Закрыть</button></div><div class="mbody" id="repBody"></div><div class="mfoot"><button class="btn" id="repOk">К карте</button></div></div></div>
+
+<aside>
+  <div class="scroll">
+    <div class="sec" id="selBox">
+      <h2>Выберите соединение</h2>
+      <div class="sub">Нажмите на свою фишку на карте или в списке ниже</div>
+    </div>
+    <div class="sec" id="orderBox" style="display:none"></div>
+    <div class="sec">
+      <h3>Мои соединения</h3>
+      <div class="ulist" id="myList"></div>
+    </div>
+    <div class="sec" id="pendBox" style="display:none">
+      <h3>Приказы на ход <span id="pendTurn"></span></h3>
+      <div class="pend-list" id="pendList"></div>
+    </div>
+  </div>
+  <div class="result" id="result"></div>
+  <button class="send" id="sendBtn" disabled>Отправить приказы<small>сначала выберите соединение и действие</small></button>
+</aside>
+
+<footer>
+  <div><h3>Обстановка</h3><p id="sitText">—</p></div>
+  <div><h3>Идут бои</h3><ul id="battleList"></ul></div>
+  <div><h3>Море и небо</h3><ul id="seaList"></ul></div>
+</footer>
+
+<script>
+"use strict";
+// ───────── данные ─────────
+const Q = new URLSearchParams(location.search);
+const TOK = Q.get("t") || "";
+let HOOK = decodeURIComponent((location.hash || "").slice(1));
+const LOCAL = Q.has("local") && /^http:\/\/localhost:\d+\/hook$/.test(HOOK);
+if (HOOK && !LOCAL && !/^https:\/\/(discord|discordapp)\.com\/api\/webhooks\//.test(HOOK)) HOOK = "";
+let T = null;
+try { if (TOK) T = JSON.parse(decodeURIComponent(escape(atob(TOK.replace(/-/g, "+").replace(/_/g, "/"))))); } catch (e) { T = null; }
+const DEMO = Q.has("demo");
+
+let S = null;                 // состояние войны
+const GEO = {};               // rid → {n, rings}
+let SEAS = {};                // zid → [name, ring, c]
+let WORLD = null;             // rid → грубые контуры всего мира
+const pending = {};           // uid → order
+let sel = null;               // выбранное соединение
+let mode = null;              // {t, need:'region'|'zone'|'fleet'|'coast'|'air'}
+let tab = "land";
+
+const $ = id => document.getElementById(id);
+const fmt = n => Math.round(n).toLocaleString("ru-RU").replace(/,/g, " ");
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
+
+async function api(path, opt) {
+  const r = await fetch(HOOK + path, opt);
+  if (!r.ok) throw new Error("HTTP " + r.status);
+  return r.status === 204 ? null : r.json();
+}
+async function loadState() {
+  if (DEMO) return (await fetch("demo.json?" + Date.now())).json();
+  if (!T || !HOOK) throw new Error("Ссылка неполная — откройте Штаб заново из `!war` в Discord.");
+  const msg = await api(`/messages/${T.m}`);
+  const att = (msg.attachments || [])[0];
+  if (!att) throw new Error("Обстановка ещё не выложена — нажмите «Обновить».");
+  return (await fetch(att.url)).json();
+}
+async function loadGeo(list) {
+  const need = list.filter(a3 => !GEO["_" + a3]);
+  await Promise.all(need.map(async a3 => {
+    try {
+      const g = await (await fetch(`geo/${a3}.json`)).json();
+      for (const [rid, v] of Object.entries(g)) GEO[rid] = {n: v[0], rings: v[1], a3};
+      GEO["_" + a3] = true;
+    } catch (e) { GEO["_" + a3] = true; }
+  }));
+  if (!Object.keys(SEAS).length) { try { SEAS = await (await fetch("geo/seas.json")).json(); } catch (e) {} }
+  if (!WORLD) { try { WORLD = await (await fetch("geo/world.json")).json(); } catch (e) { WORLD = {}; } }
+}
+
+// ───────── проекция ─────────
+let PRJ = {lon0: 0, lat1: 0, k: 1, s: 60};
+function setupProjection() {
+  const pts = [];
+  // стартовый вид — наша страна и соседние области (не весь огромный театр вроде СССР)
+  const mine = Object.keys(S.regions).filter(rid => S.a3[S.regions[rid][1] || S.regions[rid][0]] === "a");
+  const focus = new Set(mine);
+  for (const r of mine) for (const n of (S.adj[r] || [])) focus.add(n);
+  for (const u of S.units) if (u.mine && u.loc.startsWith("R:")) focus.add(u.loc.slice(2));
+  for (const rid of (focus.size ? focus : Object.keys(S.regions))) {
+    const g = GEO[rid]; if (!g) continue;
+    for (const ring of g.rings) for (let i = 0; i < ring.length; i += 4) pts.push(ring[i]);
+  }
+  if (!pts.length) for (const rid of Object.keys(S.regions)) { const g = GEO[rid]; if (g) for (const r of g.rings) pts.push(...r); }
+  const lons = pts.map(p => p[0]).sort((a, b) => a - b), lats = pts.map(p => p[1]).sort((a, b) => a - b);
+  const q = (arr, f) => arr[Math.min(arr.length - 1, Math.max(0, Math.floor(arr.length * f)))];
+  let lon0 = q(lons, .02), lon1 = q(lons, .98), lat0 = q(lats, .02), lat1 = q(lats, .98);
+  const px = Math.max(1, (lon1 - lon0) * .1), py = Math.max(.8, (lat1 - lat0) * .1);
+  lon0 -= px; lon1 += px; lat0 -= py; lat1 += py;
+  const k = Math.cos((lat0 + lat1) / 2 * Math.PI / 180);
+  PRJ = {lon0, lat1, k, s: 1000 / ((lon1 - lon0) * k), w: 1000, h: 1000 * (lat1 - lat0) / ((lon1 - lon0) * k)};
+}
+const P = (x, y) => [(x - PRJ.lon0) * PRJ.k * PRJ.s, (PRJ.lat1 - y) * PRJ.s];
+function pathOf(rings) {
+  let d = "";
+  for (const r of rings) {
+    if (r.length < 3) continue;
+    d += "M" + r.map(p => { const [x, y] = P(p[0], p[1]); return x.toFixed(1) + "," + y.toFixed(1); }).join("L") + "Z";
+  }
+  return d;
+}
+function centroid(rings) {
+  const r = rings.reduce((a, b) => (b.length > a.length ? b : a), rings[0] || []);
+  let sx = 0, sy = 0; for (const p of r) { sx += p[0]; sy += p[1]; }
+  return r.length ? P(sx / r.length, sy / r.length) : [0, 0];
+}
+function kmBetween(a, b) {
+  const ca = locCenterLL(a), cb = locCenterLL(b); if (!ca || !cb) return 1e9;
+  const R = Math.PI / 180, h = Math.sin((cb[1] - ca[1]) * R / 2) ** 2 + Math.cos(ca[1] * R) * Math.cos(cb[1] * R) * Math.sin((cb[0] - ca[0]) * R / 2) ** 2;
+  return 6371 * 2 * Math.asin(Math.min(1, Math.sqrt(h)));
+}
+function locCenterLL(loc) {
+  if (!loc) return null;
+  if (loc[0] === "S") { const z = SEAS[loc]; return z ? z[2] : null; }
+  const rid = loc.startsWith("R:") ? loc.slice(2) : loc;
+  const g = GEO[rid]; if (!g) return null;
+  const r = g.rings.reduce((a, b) => (b.length > a.length ? b : a), g.rings[0]);
+  let sx = 0, sy = 0; for (const p of r) { sx += p[0]; sy += p[1]; } return [sx / r.length, sy / r.length];
+}
+function locXY(loc) {
+  if (!loc) return null;
+  if (loc[0] === "S") { const z = SEAS[loc]; return z ? P(z[2][0], z[2][1]) : null; }
+  if (loc.startsWith("B:")) { const f = S.units.find(u => u.id === loc.slice(2)); return f ? locXY(f.loc) : null; }
+  const rid = loc.startsWith("R:") ? loc.slice(2) : loc;
+  const g = GEO[rid]; return g ? centroid(g.rings) : null;
+}
+
+// ───────── вид (панорама и масштаб) ─────────
+let VB = {x: 0, y: 0, w: 1000, h: 700};
+function applyVB() { $("svg").setAttribute("viewBox", `${VB.x} ${VB.y} ${VB.w} ${VB.h}`); }
+function fit() {
+  const box = $("map").getBoundingClientRect(), ar = box.width / Math.max(1, box.height);
+  let w = PRJ.w, h = PRJ.h;
+  if (w / h > ar) h = w / ar; else w = h * ar;
+  VB = {x: (PRJ.w - w) / 2, y: (PRJ.h - h) / 2, w, h}; applyVB();
+}
+function zoomAt(f, cx, cy) {
+  const nw = Math.min(Math.max(PRJ.w * 3, 360 * PRJ.k * PRJ.s * 1.05), Math.max(PRJ.w / 12, VB.w * f)), k = nw / VB.w;
+  VB.x = cx - (cx - VB.x) * k; VB.y = cy - (cy - VB.y) * k; VB.w = nw; VB.h *= k; applyVB(); drawUnits();
+}
+(function panzoom() {
+  const svg = $("svg"); let drag = null, moved = false, pinch = null;
+  const toSvg = (cx, cy) => { const b = svg.getBoundingClientRect(); return [VB.x + (cx - b.left) / b.width * VB.w, VB.y + (cy - b.top) / b.height * VB.h]; };
+  svg.addEventListener("wheel", e => { e.preventDefault(); const [x, y] = toSvg(e.clientX, e.clientY); zoomAt(e.deltaY > 0 ? 1.15 : 1 / 1.15, x, y); }, {passive: false});
+  svg.addEventListener("pointerdown", e => { drag = {x: e.clientX, y: e.clientY, vx: VB.x, vy: VB.y}; moved = false; });
+  window.addEventListener("pointermove", e => {
+    if (!drag || pinch) return;
+    const b = svg.getBoundingClientRect(), dx = (e.clientX - drag.x) / b.width * VB.w, dy = (e.clientY - drag.y) / b.height * VB.h;
+    if (Math.abs(e.clientX - drag.x) + Math.abs(e.clientY - drag.y) > 4) { moved = true; svg.classList.add("drag"); }
+    if (moved) { VB.x = drag.vx - dx; VB.y = drag.vy - dy; applyVB(); }
+  });
+  window.addEventListener("pointerup", () => { drag = null; svg.classList.remove("drag"); });
+  svg.addEventListener("click", e => { if (moved) { e.stopPropagation(); e.preventDefault(); } }, true);
+  svg.addEventListener("touchstart", e => { if (e.touches.length === 2) { const [a, b] = e.touches; pinch = {d: Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY)}; } }, {passive: true});
+  svg.addEventListener("touchmove", e => {
+    if (pinch && e.touches.length === 2) {
+      const [a, b] = e.touches, d = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+      const [x, y] = toSvg((a.clientX + b.clientX) / 2, (a.clientY + b.clientY) / 2); zoomAt(pinch.d / d, x, y); pinch.d = d;
+    }
+  }, {passive: true});
+  svg.addEventListener("touchend", () => { pinch = null; });
+  $("zin").onclick = () => zoomAt(1 / 1.3, VB.x + VB.w / 2, VB.y + VB.h / 2);
+  $("zout").onclick = () => zoomAt(1.3, VB.x + VB.w / 2, VB.y + VB.h / 2);
+  $("zfit").onclick = () => { fit(); drawUnits(); };
+})();
+
+// ───────── отрисовка карты ─────────
+const TERRAIN_COL = {plain: "#3d4b38", forest: "#2c4a32", hills: "#5a5636", mountain: "#6b5a48", urban: "#5c5f6a",
+  marsh: "#2f4a48", jungle: "#25503a", desert: "#7a6a44", tundra: "#55626e"};
+const ENEMY_COLS = ["#5b2633", "#6b4020", "#4a2d5e", "#5e5022", "#2f4f5a", "#5a2f4f"];
+function enemyColor(a3) { const i = (S.enemies || []).findIndex(e => e.a3 === a3); return i > 0 ? ENEMY_COLS[i % ENEMY_COLS.length] : null; }
+function regionSide(rid) {
+  const r = S.regions[rid]; if (!r) return "n";
+  const cur = r[1] || r[0], own = r[0];
+  const sc = S.a3[cur], so = S.a3[own];
+  if (r[1] && sc && so && sc !== so) return sc === "a" ? "oa" : "od";
+  return sc === "a" ? "ra" : sc === "d" ? "rd" : "n";
+}
+function drawMap() {
+  const gl = $("gLand"), gs = $("gSea"), lb = $("gLbl");
+  let h = "";
+  for (const zid of Object.keys(S.zones)) {
+    const z = SEAS[zid]; if (!z) continue;
+    const ctrl = zoneControl(zid);
+    h += `<path class="zn ${ctrl ? "z" + ctrl : ""}" data-z="${zid}" d="${pathOf([z[1]])}"/>`;
+  }
+  gs.innerHTML = h;
+  h = "";
+  // фон: соседние страны (контекст) — тоже из S.regions (кольцо соседей)
+  for (const rid of Object.keys(S.regions)) {
+    const g = GEO[rid]; if (!g) continue;
+    const r = S.regions[rid], cls = regionSide(rid);
+    const ec = cls === "rd" ? enemyColor(r[1] || r[0]) : null;
+    const fill = tab === "terrain" ? ` style="fill:${TERRAIN_COL[r[2]] || "#3d4b38"}"` : ec ? ` style="fill:${ec}"` : "";
+    h += `<path class="rg ${cls}${r[4] >= 0 ? " fight" : ""}" data-r="${rid}" d="${pathOf(g.rings)}"${fill}/>`;
+  }
+  gl.innerHTML = h;
+  // весь мир (грубо) — всё, что вне театра: партнёры по праву прохода, союзники, нейтралы
+  let hw = "";
+  const partners = new Set(S.partners || []);
+  if (WORLD && S.wown) for (const [rid, rings] of Object.entries(WORLD)) {
+    if (S.regions[rid]) continue;
+    const own = S.wown[rid], occ = (S.wocc || {})[rid], cur = occ || own;
+    const sd = S.a3[cur];
+    const cls = sd === "a" ? "ra" : sd === "d" ? "rd" : partners.has(cur) ? "rp" : "n";
+    hw += `<path class="rg w ${cls}" data-r="${rid}" d="${pathOf(rings)}"/>`;
+  }
+  $("gWorld").innerHTML = hw;
+  $("gWorld").style.opacity = tab === "sea" ? .55 : 1;
+  // подписи: столицы, бои, морские зоны
+  h = "";
+  for (const [c, rid] of Object.entries(S.capitals || {})) {
+    const xy = locXY("R:" + rid); if (!xy) continue;
+    h += `<circle cx="${xy[0]}" cy="${xy[1]}" r="3.2" fill="#e8edf4" stroke="#0e1520" stroke-width="1.5"/><text class="lbl cap" x="${xy[0]}" y="${xy[1] - 14}">★ ${esc(S.rname[rid] || "")}</text>`;
+  }
+  for (const [rid, r] of Object.entries(S.regions)) {
+    if (r[4] < 0) continue; const xy = locXY("R:" + rid); if (!xy) continue;
+    h += `<text class="lbl fightl" x="${xy[0]}" y="${xy[1] + 34}">${esc(S.rname[rid])} · штурм ${r[4]}%</text>`;
+  }
+  if (tab === "sea") for (const zid of Object.keys(S.zones)) {
+    const z = SEAS[zid]; if (!z) continue; const [x, y] = P(z[2][0], z[2][1]);
+    h += `<text class="zlbl" x="${x}" y="${y + 30}">${esc(z[0])}</text>`;
+  }
+  lb.innerHTML = h;
+  $("gLand").style.opacity = tab === "sea" ? .55 : 1;
+  drawUnits(); drawKey();
+}
+function zoneControl(zid) {
+  const here = S.units.filter(u => u.d === "naval" && u.loc === zid);
+  const sides = new Set(here.map(u => u.side));
+  return sides.size === 1 ? [...sides][0] : "";
+}
+function chipSvg(k, side) {
+  return `<svg viewBox="0 0 40 20" fill="currentColor">${(SIL[k] || SIL.ifv)}</svg>`;
+}
+function drawUnits() {
+  const g = $("gUnits"); if (!S) return;
+  const scale = Math.max(.35, Math.min(2.2, VB.w / 1000));
+  const stacks = {};
+  for (const u of S.units) {
+    const xy = locXY(u.loc); if (!xy || u.loc.startsWith("B:")) continue;
+    const key = u.loc + "|" + u.side;
+    (stacks[key] = stacks[key] || {xy, us: []}).us.push(u);
+  }
+  let h = "";
+  // радиусы (небо) и стрелки приказов
+  if (sel && (sel.d === "air" || sel.d === "missile") && sel.rkm) h += radiusSvg(sel);
+  if (tab === "air") for (const u of S.units) if (u.mine && u.d === "air") h += radiusSvg(u);
+  for (const u of S.units) {
+    if (!u.mine) continue;
+    const o = pending[u.id] || u.o || {}; const tgt = o.to || o.at;
+    if (!tgt || !["move", "retreat", "land", "support", "bomb", "strike", "bombard"].includes(o.t)) continue;
+    const a = locXY(u.loc), b = locXY(tgt.length > 3 && tgt[0] !== "S" ? "R:" + tgt : tgt);
+    if (!a || !b) continue;
+    const mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2 - Math.hypot(b[0] - a[0], b[1] - a[1]) * .18;
+    const atk = isHostileLoc(tgt);
+    h += `<path class="mv${atk ? " atk" : ""}" marker-end="url(#${atk ? "arw" : "ar"})" d="M${a[0]},${a[1]} Q${mx},${my} ${b[0]},${b[1]}"/>`;
+  }
+  const W = 44 * scale, H = 26 * scale;
+  for (const st of Object.values(stacks)) {
+    st.us.sort((a, b) => (b.mine - a.mine) || (b.cv - a.cv));
+    const top = st.us.find(u => sel && u.id === sel.id) || st.us[0];
+    const off = st.side === "d" ? 1 : -1;
+    const [cx, cy] = [st.xy[0] + (top.side === S.side ? -W * .2 : W * .4), st.xy[1] + (top.side === S.side ? 0 : H * .5)];
+    const col = top.side === "a" ? "#2f6fd1" : "#b0394c";
+    const isSel = sel && st.us.some(u => u.id === sel.id), isPend = st.us.some(u => pending[u.id]);
+    const strength = Math.max(.05, Math.min(1, top.s ?? 1));
+    const tx = cx - W / 2, ty = cy - H / 2;
+    const from = MOVES[top.id];
+    h += `<g class="ctr${isSel ? " sel" : ""}${isPend ? " pending" : ""}" data-u="${top.id}" data-tx="${tx}" data-ty="${ty}" data-sc="${scale}" transform="translate(${from ? from[0] - W / 2 : tx},${from ? from[1] - H / 2 : ty}) scale(${scale})">`;
+    if (st.us.length > 1) h += `<rect class="body" x="4" y="-4" width="44" height="26" rx="4" opacity=".85"/>`;
+    h += `<rect class="body" width="44" height="26" rx="4"/><path d="M0 4a4 4 0 0 1 4-4h0v26h0a4 4 0 0 1-4-4z" fill="${col}"/>`;
+    h += `<g class="bob"><g transform="translate(7.5,3) scale(.8)" style="color:#17202c;--bg:#f1f4f8">${chipSvg(top.k).replace('<svg viewBox="0 0 40 20" fill="currentColor">', '<g fill="#17202c">').replace("</svg>", "</g>")}</g></g>`;
+    h += `<rect class="bar0" x="7" y="21.5" width="34" height="2"/><rect x="7" y="21.5" width="${34 * strength}" height="2" fill="${col}"/>`;
+    if (st.us.length > 1) h += `<rect x="36" y="-7" width="${st.us.length > 9 ? 16 : 12}" height="11" rx="3" fill="${col}" stroke="#0e1520" stroke-width="1.5"/><text class="cnt" x="${st.us.length > 9 ? 44 : 42}" y="1.5">${st.us.length}</text>`;
+    if (scale > .55) h += `<text class="nm" x="22" y="38">${esc(shortName(top))}</text>`;
+    h += `</g>`;
+  }
+  g.innerHTML = h;
+  if (Object.keys(MOVES).length) animateMoves();
+}
+// анимация перемещения фишек после хода
+let MOVES = {};
+function animateMoves() {
+  const els = [...document.querySelectorAll("#gUnits .ctr")].filter(el => MOVES[el.dataset.u]);
+  const W = 44, H = 26, t0 = performance.now(), dur = 950;
+  const data = els.map(el => { const f = MOVES[el.dataset.u], sc = +el.dataset.sc; return {el, x0: f[0] - W * sc / 2, y0: f[1] - H * sc / 2, x1: +el.dataset.tx, y1: +el.dataset.ty, sc}; });
+  MOVES = {};
+  const ease = t => 1 - Math.pow(1 - t, 3);
+  function step(now) {
+    const k = ease(Math.min(1, (now - t0) / dur));
+    for (const d of data) d.el.setAttribute("transform", `translate(${d.x0 + (d.x1 - d.x0) * k},${d.y0 + (d.y1 - d.y0) * k}) scale(${d.sc})`);
+    if (k < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+function shortName(u) {
+  if (!u.mine && u.side !== S.side) return "~" + (u.n.replace(/^#\d+\s*/, "").split(" ")[0] || "враг");
+  return u.n.replace(/дивизия|бригада|полк|дивизион|соединение/gi, m => ({"дивизия": "див.", "бригада": "бр.", "полк": "п.", "дивизион": "д-н"}[m.toLowerCase()] || "")).slice(0, 22);
+}
+function radiusSvg(u) {
+  const c = locCenterLL(u.loc); if (!c) return "";
+  const [x, y] = P(c[0], c[1]); const r = u.rkm / 111 * PRJ.s;
+  return `<ellipse class="radius" cx="${x}" cy="${y}" rx="${r}" ry="${r}"/>`;
+}
+function drawKey() {
+  const A = Object.entries(S.a3).filter(([, v]) => v === "a").map(([k]) => S.names[k] || k).join(", ");
+  const items = tab === "terrain"
+    ? Object.entries(S.terrain).map(([k, v]) => `<span><i style="background:${TERRAIN_COL[k]}"></i>${esc(v)}</span>`).join("")
+    : `<span><i style="background:#24467a"></i>${esc(A)}</span>` + (S.enemies || [{n: S.war.def, a3: ""}]).map((e, i) => `<span><i style="background:${i ? ENEMY_COLS[i % ENEMY_COLS.length] : "#5b2633"}"></i>${esc(e.n)}</span>`).join("") +
+      `<span><i style="background:repeating-linear-gradient(45deg,#24467a 0 3px,#5b2633 3px 8px)"></i>оккупация</span>` +
+      ((S.partners || []).length ? `<span><i style="background:#2b4a5e"></i>право прохода / союзники</span>` : "") +
+      `<span><i style="border:2px solid #e0a43a"></i>идёт штурм</span><span><i style="border-top:2px dashed #5a93ea;height:0;margin-bottom:3px"></i>приказ</span>`;
+  $("key").innerHTML = items;
+}
+function isHostileLoc(loc) {
+  if (!loc || loc[0] === "S") return false;
+  const rid = loc.startsWith("R:") ? loc.slice(2) : loc, r = S.regions[rid]; if (!r) return false;
+  const side = S.a3[r[1] || r[0]]; return side && side !== S.side;
+}
+
+// ───────── выбор и приказы ─────────
+const ORDERS = {
+  land: [["hold", "Держать"], ["move", "Наступать / идти", "region"], ["entrench", "Окопаться"], ["retreat", "Отступить", "own"], ["embark", "На флот", "fleet"], ["land", "Высадка", "coast"]],
+  naval: [["patrol", "Патруль"], ["move", "Плыть", "zone"], ["blockade", "Блокада"], ["bombard", "Обстрел берега", "zcoast"]],
+  air: [["cover", "Прикрытие", "airopt"], ["support", "Поддержка боя", "air"], ["bomb", "Бомбить", "air"], ["rebase", "Перебазировать", "ownair"]],
+  missile: [["hold", "Ждать"], ["strike", "Ракетный удар", "air"]],
+};
+const ORDER_TXT = {hold: "держит позицию", move: "идёт к", entrench: "окапывается", retreat: "отходит в", embark: "грузится на флот",
+  land: "высадка в", patrol: "патрулирует", blockade: "блокада", bombard: "обстрел", cover: "прикрывает небо", support: "поддержка боя в",
+  bomb: "бомбардировка", rebase: "перебазируется в", strike: "удар по"};
+const DOMAIN = {land: "сухопутные", naval: "флот", air: "авиация", missile: "ракеты"};
+function locLabel(loc) {
+  if (!loc) return "тыл";
+  if (loc[0] === "S") return (SEAS[loc] || [loc])[0];
+  if (loc.startsWith("B:")) return "на борту флота";
+  const rid = loc.startsWith("R:") ? loc.slice(2) : loc; return S.rname[rid] || GEO[rid]?.n || rid;
+}
+function orderText(o) {
+  if (!o || !o.t) return "держит позицию";
+  const tgt = o.to || o.at;
+  return (ORDER_TXT[o.t] || o.t) + (tgt ? " " + locLabel(tgt) : o.fleet ? "" : "");
+}
+function select(u) {
+  sel = u; mode = null; setHint(""); if (u) SFX.play("select", u.d);
+  renderSel(); renderList(); drawUnits(); highlight();
+}
+function renderSel() {
+  const box = $("selBox"), ob = $("orderBox");
+  if (!sel) { box.innerHTML = `<h2>Как отдать приказ</h2><div class="guide">
+      <div><span>1</span><div><b>Выберите соединение</b> — нажмите свою фишку на карте или строку в списке ниже.</div></div>
+      <div><span>2</span><div><b>Выберите действие</b> — наступать, окопаться, плыть, бомбить… Подсветятся доступные цели.</div></div>
+      <div><span>3</span><div><b>Нажмите цель на карте</b> и отправьте приказы. Ход — каждые 2 часа, без приказа войска держат позиции.</div></div></div>`;
+    ob.style.display = "none"; return; }
+  const u = sel, o = pending[u.id] || u.o || {};
+  const here = S.units.filter(x => x.loc === u.loc);
+  const enemyNear = S.units.filter(x => x.side !== S.side && x.d === u.d && nearLoc(x.loc, u.loc)).reduce((a, x) => a + x.cv, 0);
+  const myHere = here.filter(x => x.side === S.side).reduce((a, x) => a + x.cv, 0);
+  const r = u.loc.startsWith("R:") ? S.regions[u.loc.slice(2)] : null;
+  box.innerHTML = `<div style="display:flex;gap:12px;align-items:center"><div class="chip" style="--side:${u.side === "a" ? "#2f6fd1" : "#b0394c"}">${chipSvg(u.k)}</div>
+    <div><h2>${esc(u.n)}</h2><div class="sub">${DOMAIN[u.d]} · ${esc(locLabel(u.loc))}${r ? " · " + esc(S.terrain[r[2]] || "") + (r[3] ? " · р. " + esc(r[3]) : "") : ""}</div></div></div>
+    <div class="odds"><div><small>Сила соединения</small><b class="n">${fmt(u.cv)}</b></div><div><small>${u.d === "land" ? "Враг рядом (разведка)" : "Враг поблизости"}</small><b class="n" style="color:var(--d2)">${enemyNear ? "~" + fmt(enemyNear) : "—"}</b></div></div>
+    <div class="note">${u.g ? `Генерал <b>${esc(u.g)}</b> ${"★".repeat(u.gs || 1)} · ` : ""}${u.ent ? `окопы ур. <b>${u.ent}</b> · ` : ""}${u.d === "land" && !u.hold ? "<b>не может занимать области</b> (нет пехоты/танков) · " : ""}${u.cd ? `перезарядка ${u.cd} ход(а) · ` : ""}сейчас: <b>${esc(orderText(o))}</b>${pending[u.id] ? " (новый приказ)" : ""}</div>`;
+  const opts = ORDERS[u.d] || [];
+  ob.style.display = "";
+  ob.innerHTML = `<h3>Приказ</h3><div class="seg">${opts.map(([t, l, need]) => {
+    const dis = (t === "land" && !u.loc.startsWith("B:")) || (t !== "land" && u.loc.startsWith("B:") && u.d === "land") || (t === "strike" && u.cd > 0);
+    const on = (o.t || (u.d === "naval" ? "patrol" : u.d === "air" ? "cover" : "hold")) === t;
+    return `<button data-o="${t}" data-need="${need || ""}" class="${on ? "on" : ""}" ${dis ? "disabled" : ""}>${l}</button>`;
+  }).join("")}</div><div class="note" id="orderNote">${orderHelp(u)}</div>${fcHtml(u, o)}`;
+  ob.querySelectorAll("button[data-o]").forEach(b => b.onclick = () => chooseOrder(b.dataset.o, b.dataset.need));
+}
+function fcHtml(u, o) {
+  if (u.d !== "land" || !o || o.t !== "move" || !o.to || !isHostileLoc(o.to)) return "";
+  const f = forecast(u, o.to); if (!f) return "";
+  return `<div class="fc">Прогноз штурма <b>${esc(S.rname[o.to] || "")}</b><span class="lvl" style="background:${f.lvl[1]}22;color:${f.lvl[1]}">${f.lvl[0]}</span>
+    <div class="sub">ваши ~${fmt(f.myCv)} против ~${fmt(f.ecv)}${f.hidden ? " (+ополчение)" : ""} · рельеф ×${f.tdef}${f.river ? " · река −18%" : ""}${u.hold ? "" : " · <b style=\"color:#d9677a\">занять область этим соединением нельзя</b>"}</div></div>`;
+}
+function orderHelp(u) {
+  if (u.d === "land") return "Наступление по своей земле — до 3 областей за ход, во вражескую область — бой. Окопы дают +10% обороны за уровень.";
+  if (u.d === "naval") return "Флот проходит до 2 морских зон за ход. Контроль зоны блокирует побережье врага и позволяет высаживать десант.";
+  if (u.d === "air") return `Радиус действия — ${u.rkm} км от базы. Господство в небе даёт +15% в бою и полную силу ударов.`;
+  return `Дальность — ${u.rkm} км. Удар расходует 15% ракет, перезарядка 3 хода. ПВО цели перехватывает часть.`;
+}
+function nearLoc(a, b) {
+  if (a === b) return true;
+  if (a.startsWith("R:") && b.startsWith("R:")) return (S.adj[b.slice(2)] || []).includes(a.slice(2));
+  if (a[0] === "S" && b[0] === "S") return (S.zones[b]?.nbr || []).includes(a);
+  return false;
+}
+function chooseOrder(t, need) {
+  if (!sel) return; SFX.play("click");
+  if (!need || need === "airopt" && false) { setOrder(sel, {t}); return; }
+  mode = {t, need};
+  const txt = {region: "Нажмите на область — куда идти или кого атаковать", own: "Нажмите на свою соседнюю область для отхода",
+    fleet: "Нажмите на свой флот в соседней морской зоне", coast: "Нажмите на прибрежную область для высадки",
+    zone: "Нажмите на морскую зону, куда плыть", zcoast: "Нажмите на прибрежную область для обстрела",
+    air: "Нажмите на цель в пределах радиуса", airopt: "Нажмите на область для прикрытия (или ещё раз «Прикрытие» — над базой)",
+    ownair: "Нажмите на свою область для новой базы"}[need];
+  setHint(txt);
+  if (need === "airopt") { const b = document.querySelector('#orderBox button[data-o="cover"]'); b && (b.onclick = () => { setOrder(sel, {t: "cover"}); }); }
+  highlight();
+}
+function setHint(t) { $("hintT").textContent = t; $("hint").classList.toggle("on", !!t); }
+$("hintX").onclick = () => { mode = null; setHint(""); highlight(); renderSel(); };
+function toast(text, kind = "") {
+  const el = document.createElement("div"); el.className = "toast " + kind; el.textContent = text;
+  $("toasts").appendChild(el);
+  setTimeout(() => { el.classList.add("out"); setTimeout(() => el.remove(), 320); }, 3200);
+}
+// прогноз боя по видимым силам (оценка — бот считает точно, с погодой, окопами и удачей)
+function forecast(u, rid) {
+  const r = S.regions[rid]; if (!r) return null;
+  const myCv = S.units.filter(x => x.mine && x.d === "land" && x.loc === u.loc).reduce((a, x) => a + x.cv, 0) || u.cv;
+  const enemy = S.units.filter(x => x.side !== S.side && x.d === "land" && x.loc === "R:" + rid);
+  const ecv = enemy.reduce((a, x) => a + x.cv, 0) * (1 + 0.1 * Math.max(0, ...enemy.map(x => x.ent || 0), 0));
+  const tdef = (S.tdef || {})[r[2]] || 1, river = r[3] ? 0.82 : 1;
+  const d = Math.max(60, ecv) * tdef, ratio = myCv * river / d;
+  const lvl = ratio >= 2.5 ? ["прорыв за ход", "#3fae7a"] : ratio >= 1.4 ? ["перевес", "#3fae7a"] : ratio >= 0.9 ? ["тяжёлый бой", "#e0a43a"] : ["почти без шансов", "#d9677a"];
+  return {myCv, ecv, tdef, river: !!r[3], ratio, lvl, hidden: !enemy.length};
+}
+function highlight() {
+  document.querySelectorAll(".rg.reach,.rg.target,.zn.target").forEach(e => e.classList.remove("reach", "target"));
+  if (!sel) return;
+  if (mode) {
+    for (const el of document.querySelectorAll(".rg")) if (validTarget(el.dataset.r, "R")) el.classList.add("reach");
+    for (const el of document.querySelectorAll(".zn")) if (validTarget(el.dataset.z, "Z")) el.classList.add("target");
+  }
+  const o = pending[sel.id] || sel.o || {}; const tgt = o.to || o.at;
+  if (tgt) { const el = document.querySelector(`[data-r="${tgt}"],[data-z="${tgt}"]`); el && el.classList.add("target"); }
+}
+function validTarget(id, kind) {
+  if (!mode || !sel) return false;
+  const u = sel, here = u.loc.startsWith("R:") ? u.loc.slice(2) : null;
+  const mySide = rid => { const r = S.regions[rid]; return r && S.a3[r[1] || r[0]] === S.side; };
+  switch (mode.need) {
+    case "region": return kind === "R" && id !== here;
+    case "own": return kind === "R" && mySide(id) && (S.adj[here] || []).includes(id);
+    case "coast": { const f = S.units.find(x => x.id === u.loc.slice(2)); return kind === "R" && f && (S.zones[f.loc]?.coast || []).includes(id); }
+    case "zone": return kind === "Z" && id !== u.loc;
+    case "zcoast": return kind === "R" && (S.zones[u.loc]?.coast || []).includes(id);
+    case "air": case "airopt": return kind === "R" && kmBetween(u.loc, "R:" + id) <= u.rkm;
+    case "ownair": return kind === "R" && mySide(id);
+  }
+  return false;
+}
+function setOrder(u, o) {
+  pending[u.id] = o; mode = null; setHint("");
+  toast(`${u.n}: ${orderText(o)}`); SFX.play("order");
+  renderSel(); renderList(); renderPending(); drawUnits(); highlight();
+}
+function onMapClick(e) {
+  const t = e.target.closest("[data-u],[data-r],[data-z]"); if (!t) return;
+  if (t.dataset.u) {
+    const u = S.units.find(x => x.id === t.dataset.u);
+    if (mode && mode.need === "fleet" && u && u.d === "naval" && u.side === S.side) {
+      const here = sel.loc.slice(2);
+      if ((S.zones[u.loc]?.coast || []).includes(here)) { setOrder(sel, {t: "embark", fleet: u.id}); return; }
+      setHint("Этот флот не у вашего берега — подведите его в соседнюю зону"); return;
+    }
+    if (mode && u && !u.mine) {   // клик по вражеской фишке = клик по её области
+      const loc = u.loc; if (loc.startsWith("R:") && validTarget(loc.slice(2), "R")) return targetPicked(loc.slice(2));
+      if (loc[0] === "S" && validTarget(loc, "Z")) return targetPicked(loc);
+    }
+    if (u && u.mine) { const same = S.units.filter(x => x.loc === u.loc && x.mine); const i = sel ? same.findIndex(x => x.id === sel.id) : -1; select(i >= 0 ? same[(i + 1) % same.length] : u); return; }
+    return;
+  }
+  const id = t.dataset.r || t.dataset.z;
+  if (mode) {
+    if (validTarget(id, t.dataset.r ? "R" : "Z")) targetPicked(id);
+    else setHint("Сюда нельзя — выберите подсвеченную цель");
+  }
+}
+function targetPicked(id) {
+  const t = mode.t, o = {t};
+  if (["move", "retreat", "land", "rebase"].includes(t)) o.to = id; else o.at = id;
+  if (t === "move" && sel.d === "naval") o.to = id;
+  setOrder(sel, o);
+}
+$("svg").addEventListener("click", onMapClick);
+$("svg").addEventListener("mousemove", e => {
+  const t = e.target.closest("[data-r],[data-z],[data-u]"), tip = $("tip");
+  if (!t) { tip.classList.remove("on"); return; }
+  let h = "";
+  if (t.dataset.u) { const u = S.units.find(x => x.id === t.dataset.u); const n = S.units.filter(x => x.loc === u.loc && x.side === u.side).length;
+    h = `<b>${esc(u.mine || u.side === S.side ? u.n : "Противник")}</b><small>${esc(u.c)} · ${DOMAIN[u.d]} · сила ${u.mine || u.side === S.side ? fmt(u.cv) : "~" + fmt(u.cv)}${n > 1 ? " · в стопке " + n : ""}</small>`; }
+  else if (t.dataset.r && mode && mode.need === "region" && sel && isHostileLoc(t.dataset.r)) {
+    const f = forecast(sel, t.dataset.r);
+    h = `<b>Атака: ${esc(S.rname[t.dataset.r])}</b><small>${esc(S.terrain[S.regions[t.dataset.r][2]] || "")}${f.river ? " · река" : ""}</small><small>ваши ~${fmt(f.myCv)} против ~${fmt(f.ecv)} · <b style="color:${f.lvl[1]}">${f.lvl[0]}</b></small>`; }
+  else if (t.dataset.r && !S.regions[t.dataset.r]) {
+    const own = (S.wown || {})[t.dataset.r], nm = S.names[own] || own || "";
+    const p = (S.partners || []).includes(own);
+    h = `<b>${esc(nm)}</b><small>${p ? "право прохода — войска могут идти через эту страну" : S.a3[own] === "a" ? "союзник" : S.a3[own] === "d" ? "противник" : "нейтральная страна — проход закрыт"}</small>`; }
+  else if (t.dataset.r) { const r = S.regions[t.dataset.r]; const own = S.names[r[0]] || r[0], occ = r[1] ? S.names[r[1]] || r[1] : "";
+    h = `<b>${esc(S.rname[t.dataset.r])}</b><small>${esc(own)}${occ && occ !== own ? " · занята: " + esc(occ) : ""}</small><small>${esc(S.terrain[r[2]] || "")}${r[3] ? " · река " + esc(r[3]) : ""}${r[4] >= 0 ? " · штурм " + r[4] + "%" : ""}</small>`; }
+  else { const z = SEAS[t.dataset.z]; h = `<b>${esc(z ? z[0] : t.dataset.z)}</b><small>морская зона</small>`; }
+  tip.innerHTML = h; tip.classList.add("on");
+  const b = $("map").getBoundingClientRect(); let x = e.clientX - b.left + 14, y = e.clientY - b.top + 14;
+  if (x > b.width - 270) x -= 290; tip.style.left = x + "px"; tip.style.top = y + "px";
+});
+$("svg").addEventListener("mouseleave", () => $("tip").classList.remove("on"));
+
+function renderList() {
+  const mine = S.units.filter(u => u.mine).sort((a, b) => ["land", "naval", "air", "missile"].indexOf(a.d) - ["land", "naval", "air", "missile"].indexOf(b.d) || b.cv - a.cv);
+  $("myList").innerHTML = mine.length ? mine.map(u => {
+    const o = pending[u.id] || u.o || {}; const p = !!pending[u.id];
+    const hold = !o.t || ["hold", "patrol", "cover"].includes(o.t);
+    return `<div class="u${sel && sel.id === u.id ? " on" : ""}" data-pick="${u.id}"><div class="chip" style="--side:${u.side === "a" ? "#2f6fd1" : "#b0394c"}">${chipSvg(u.k)}</div>
+      <div><b>${esc(u.n)}</b><small>${esc(locLabel(u.loc))} · ${fmt(u.cv)}</small><div class="str"><i style="width:${Math.round(Math.min(1, u.s ?? 1) * 100)}%"></i></div></div>
+      <div class="go${p ? " pend" : hold ? " hold" : ""}">${esc(orderText(o))}</div></div>`;
+  }).join("") : `<div class="note">У вас нет готовых соединений. Сформируйте их в <b>!army</b>.</div>`;
+  document.querySelectorAll("[data-pick]").forEach(el => el.onclick = () => { const u = S.units.find(x => x.id === el.dataset.pick); select(u); centerOn(u.loc); });
+}
+function centerOn(loc) {
+  const xy = locXY(loc); if (!xy) return;
+  VB.x = xy[0] - VB.w / 2; VB.y = xy[1] - VB.h / 2; applyVB();
+}
+function renderPending() {
+  const ids = Object.keys(pending);
+  $("pendBox").style.display = ids.length ? "" : "none";
+  $("pendTurn").textContent = S.war.turn;
+  $("pendList").innerHTML = ids.map(id => { const u = S.units.find(x => x.id === id);
+    return `<div><span><b>${esc(u ? u.n : id)}</b> — ${esc(orderText(pending[id]))}</span><button data-un="${id}" aria-label="Отменить">×</button></div>`; }).join("");
+  document.querySelectorAll("[data-un]").forEach(b => b.onclick = () => { delete pending[b.dataset.un]; renderPending(); renderList(); renderSel(); drawUnits(); });
+  const btn = $("sendBtn");
+  btn.disabled = !ids.length;
+  btn.innerHTML = ids.length ? `Отправить приказы на ход ${S.war.turn}<small>${ids.length} ${plural(ids.length, "приказ", "приказа", "приказов")} · можно менять до начала хода</small>`
+    : `Отправить приказы<small>выберите соединение и действие</small>`;
+}
+const plural = (n, a, b, c) => (n % 10 === 1 && n % 100 !== 11 ? a : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? b : c);
+
+// ───────── связь с ботом ─────────
+async function sendToBot(kind, payload) {
+  if (DEMO) { await new Promise(r => setTimeout(r, 700)); return kind === "WARORD" ? "WAROK " + payload.o.length + "/" + payload.o.length + "\n" + payload.o.map(o => "+принято").join("\n") : "WAROK обновлено"; }
+  const msg = await api("?wait=true", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({content: kind + " " + JSON.stringify({t: TOK, ...payload})})});
+  for (let i = 0; i < 24; i++) {
+    await new Promise(r => setTimeout(r, 1200));
+    try { const m = await api(`/messages/${msg.id}`); if (/^WAR(OK|ERR)/.test(m.content)) return m.content; } catch (e) {}
+  }
+  throw new Error("Бот не ответил. Проверьте, что он онлайн, и попробуйте ещё раз.");
+}
+$("sendBtn").onclick = async () => {
+  const ids = Object.keys(pending); if (!ids.length) return;
+  const btn = $("sendBtn"), res = $("result"); btn.disabled = true; btn.innerHTML = "Отправляю…<small>бот проверяет приказы</small>"; SFX.play("send");
+  try {
+    const ans = await sendToBot("WARORD", {o: ids.map(id => [id, pending[id]])});
+    const lines = ans.split("\n").slice(1);
+    const okN = lines.filter(l => l[0] === "+").length, bad = lines.filter(l => l[0] !== "+");
+    res.innerHTML = ans.startsWith("WARERR") ? `<span class="bad">${esc(ans.slice(7))}</span>` :
+      `<div class="okl">Принято приказов: ${okN}</div>` + bad.map(l => `<div class="bad">${esc(l.slice(1))}</div>`).join("");
+    setTimeout(() => res.classList.remove("on"), 6000);
+    res.classList.add("on");
+    if (ans.startsWith("WAROK")) { for (const id of ids) delete pending[id]; toast("Приказы приняты штабом", "good"); await refresh(false); }
+    else { toast("Приказы не приняты", "bad"); SFX.play("error"); }
+  } catch (e) { res.innerHTML = `<span class="bad">${esc(e.message)}</span>`; res.classList.add("on"); }
+  renderPending();
+};
+async function refresh(ask = true) {
+  const b = $("refreshBtn"); b.classList.add("spin");
+  try {
+    if (ask && !DEMO) await sendToBot("WARSTATE", {});
+    const old = S, oldTurn = S && S.war.turn;
+    const oldPos = {}; if (old) for (const u of old.units) { const xy = locXY(u.loc); if (xy) oldPos[u.id] = xy; }
+    S = await loadState(); await loadGeo(S.geo);
+    for (const u of S.units) { const xy = locXY(u.loc), o = oldPos[u.id]; if (xy && o && (Math.abs(xy[0] - o[0]) + Math.abs(xy[1] - o[1]) > 2)) MOVES[u.id] = o; }
+    if (oldTurn && S.war.turn !== oldTurn) { SFX.play("turn"); if (S.last) setTimeout(showReport, 1100); }
+    if (sel) sel = S.units.find(u => u.id === sel.id) || null;
+    renderAll(false);
+  } catch (e) { const res = $("result"); res.innerHTML = `<span class="bad">${esc(e.message)}</span>`; res.classList.add("on"); }
+  b.classList.remove("spin");
+}
+$("refreshBtn").onclick = () => { SFX.play("click"); refresh(true); };
+function soundIcon() { $("sndWave").style.display = SFX.on ? "" : "none"; $("soundBtn").style.opacity = SFX.on ? 1 : .55; }
+$("soundBtn").onclick = () => { SFX.toggle(); soundIcon(); toast(SFX.on ? "Звук включён" : "Звук выключен"); };
+document.addEventListener("pointerdown", () => SFX.unlock(), {once: true});
+soundIcon();
+function mathHtml(b) {
+  const m = b.math; if (!m) return "";
+  const pct = k => (k >= 1 ? "+" : "−") + Math.abs(Math.round((k - 1) * 100)) + "%";
+  const fl = arr => (arr || []).map(([l, k]) => `<div class="ln"><span>${esc(l)}</span><b>${pct(k)}</b></div>`).join("");
+  return `<details class="math"><summary>Расчёт боя — почему так</summary>
+    <div class="ln"><span>Наступающие (${esc(b.att)}): сила соединений</span><b>${fmt(m.a_cv)}</b></div>
+    ${m.a_sup ? `<div class="ln"><span>+ поддержка авиации и флота</span><b>${fmt(m.a_sup)}</b></div>` : ""}${fl(m.fa)}
+    <div class="ln tot"><span>Итог наступающих (с удачей)</span><b>${fmt(m.a_pow)}</b></div>
+    <div class="ln" style="margin-top:6px"><span>Оборона (${esc(b.def)}): сила соединений</span><b>${fmt(m.d_cv)}</b></div>
+    ${m.militia ? `<div class="ln"><span>+ ополчение области</span><b>${fmt(m.militia)}</b></div>` : ""}
+    ${m.d_sup ? `<div class="ln"><span>+ поддержка авиации</span><b>${fmt(m.d_sup)}</b></div>` : ""}${fl(m.fd)}
+    <div class="ln tot"><span>Итог обороны (с удачей)</span><b>${fmt(m.d_pow)}</b></div>
+    <div class="ln tot"><span>Соотношение ${fmt(m.a_pow)} / ${fmt(m.d_pow)}</span><b>×${b.R}</b></div>
+    <div class="ln"><span>Штурм: было ${m.prev}% ${m.step >= 0 ? "+" : "−"} ${Math.abs(m.step)}%</span><b>${b.captured ? "взята" : b.progress + "%"}</b></div>
+    <div class="why">Прирост штурма = 55 × (соотношение − 0.9), не больше +85% и не меньше −8% за ход. Область взята при 100% или при соотношении ×2.6 и выше. Занять её могут только пехота и танки.</div></details>`;
+}
+function showReport() {
+  const L = S.last; if (!L) return;
+  $("repTitle").textContent = `Итоги хода ${L.turn}`;
+  const sc0 = S.war.score || 0, sc = S.war.mine === "a" ? sc0 : -sc0;
+  $("repSub").textContent = (sc >= 0 ? `Наш перевес ${sc.toFixed(0)}%` : `Перевес врага ${(-sc).toFixed(0)}%`) + (L.weather ? ` · погода: ${L.weather}` : "");
+  const chip = f => f.split(" · ").filter(Boolean).map(x => `<span class="${/\+\d+%$/.test(x) && !/оборона/.test(x) ? "p" : /−\d+%$/.test(x) || /оборона/.test(x) ? "m" : ""}">${esc(x)}</span>`).join("");
+  let h = "";
+  const bs = L.battles || [];
+  bs.forEach((b, i) => {
+    const mineAtk = S.a3[Object.keys(S.names).find(k => S.names[k] === b.att)] === "a";
+    h += `<div class="bt${b.captured ? " won" : ""}" style="animation-delay:${i * 90}ms"><div class="row"><b>${esc(b.name)}</b><span class="sub">${esc(b.terrain)} · ×${b.R}</span></div>
+      <div class="sub">${esc(b.att)} ${b.captured ? "взял область" : "штурмует"} · обороняется ${esc(b.def)} · потери: наступающие ${Math.round(b.a_loss * 100)}%, оборона ${Math.round(b.d_loss * 100)}%</div>
+      <div class="pb"><i data-w="${b.captured ? 100 : b.progress}"></i></div>
+      <div class="chips">${chip(b.factors || "")}</div>${b.episode ? `<div class="ep">${esc(b.episode)}</div>` : ""}${mathHtml(b)}</div>`;
+  });
+  const extra = [...(L.naval || []), ...(L.air || []), ...(L.strikes || []), ...(L.events || [])];
+  if (extra.length) h += `<div class="bt" style="animation-delay:${bs.length * 90}ms"><b>Море, небо, тыл</b>${extra.map(x => `<div class="sub">${esc(x.replace(/\*\*/g, ""))}</div>`).join("")}</div>`;
+  if ((L.destroyed || []).length) h += `<div class="bt" style="animation-delay:${(bs.length + 1) * 90}ms"><b style="color:#d9677a">Разгромлены</b><div class="sub">${esc(L.destroyed.join(", "))}</div></div>`;
+  if (!h) h = `<div class="bt"><div class="sub">Тихий ход — боёв не было. Войска заняли позиции.</div></div>`;
+  $("repBody").innerHTML = h;
+  $("repModal").classList.add("on");
+  const mineSide = Object.entries(S.a3).filter(([, v]) => v === "a").map(([k]) => S.names[k] || k);
+  const won = (L.captures || []).some(c => mineSide.includes(c[1])), lost = (L.captures || []).some(c => !mineSide.includes(c[1]));
+  setTimeout(() => SFX.play(won && !lost ? "win" : lost ? "lose" : (bs.length ? "boom" : "click")), 350);
+  setTimeout(() => document.querySelectorAll("#repBody .pb i").forEach(el => el.style.width = el.dataset.w + "%"), 200);
+}
+$("repClose").onclick = $("repOk").onclick = () => $("repModal").classList.remove("on");
+$("repModal").addEventListener("click", e => { if (e.target.id === "repModal") $("repModal").classList.remove("on"); });
+if (LOCAL) $("turnBtn").classList.add("on");
+$("turnBtn").onclick = async () => {
+  const b = $("turnBtn"); b.disabled = true; b.textContent = "Идёт ход…";
+  try {
+    if (Object.keys(pending).length) await $("sendBtn").onclick();
+    const ans = await sendToBot("WARTURN", {});
+    toast(ans.replace(/^WAROK\s*/, ""), "good");
+    await refresh(false);
+  } catch (e) { toast(e.message, "bad"); }
+  b.disabled = false; b.textContent = "Сделать ход сейчас";
+};
+document.querySelectorAll(".maptab button").forEach(b => b.onclick = () => {
+  document.querySelectorAll(".maptab button").forEach(x => x.classList.toggle("on", x === b)); tab = b.dataset.tab; drawMap(); highlight();
+});
+document.addEventListener("keydown", e => { if (e.key === "Escape") { mode = null; setHint(""); highlight(); $("repModal").classList.remove("on"); } });
+
+// ───────── шапка, таймер, сводка ─────────
+function renderHeader() {
+  const w = S.war;
+  const me = w.mine === "a" ? w.att : w.def, them = (S.enemies || []).map(e => e.n);
+  $("warTitle").innerHTML = `${esc(S.country)}<i>против</i>${esc(them.length ? them.join(", ") : (w.mine === "a" ? w.def : w.att))}`;
+  const raw = w.score || 0, sc = w.mine === "a" ? raw : -raw;   // с нашей стороны
+  $("scoreLbl").innerHTML = sc ? `<span style="color:${sc > 0 ? "var(--a2)" : "var(--d2)"}">${sc > 0 ? "Наш перевес" : "Перевес врага"} ${Math.abs(sc).toFixed(0)}%</span>` : "равновесие";
+  $("scoreBar").style.width = ((sc + 100) / 2) + "%";
+  document.querySelector(".turn").firstChild.textContent = `Ход ${w.turn} · следующий через`;
+}
+function tick() {
+  if (!S) return; const left = Math.max(0, S.war.next - Date.now() / 1000);
+  const h = Math.floor(left / 3600), m = Math.floor(left % 3600 / 60), s = Math.floor(left % 60);
+  $("timer").textContent = h ? `${h} ч ${m} мин` : `${m} мин ${String(s).padStart(2, "0")} с`;
+}
+setInterval(tick, 1000);
+function renderFooter() {
+  const w = S.war, mine = S.units.filter(u => u.mine), sideU = S.units.filter(u => u.side === S.side);
+  const battles = Object.entries(S.regions).filter(([, r]) => r[4] >= 0);
+  const occMine = Object.values(S.regions).filter(r => r[1] && S.a3[r[1]] === S.side && S.a3[r[0]] !== S.side).length;
+  const occTheirs = Object.values(S.regions).filter(r => r[1] && S.a3[r[1]] && S.a3[r[1]] !== S.side && S.a3[r[0]] === S.side).length;
+  const wl = (S.wars || []).map(x => { const v = x.mine === "a" ? x.score : -x.score; return `№${x.id} против ${esc(x.mine === "a" ? x.def : x.att)} <b style="color:${v >= 0 ? "var(--a2)" : "var(--d2)"}">${v >= 0 ? "+" : "−"}${Math.abs(v).toFixed(0)}%</b>`; }).join(" · ");
+  $("sitText").innerHTML = (wl ? `Войны: ${wl}.<br>` : "") + `Ваших соединений: <b>${mine.length}</b> (сила ${fmt(mine.reduce((a, u) => a + u.cv, 0))}). Занято нами областей: <b>${occMine}</b>, потеряно: <b>${occTheirs}</b>.` +
+    (w.offer ? ` Есть предложение мира от <b>${esc(w.offer.by)}</b> — ответ в Discord (<b>!war</b>).` : "") +
+    ` Ход войны — каждые 2 часа; без приказа войска держат позиции.`;
+  $("battleList").innerHTML = battles.length ? battles.slice(0, 6).map(([rid, r]) =>
+    `<li><i style="background:${r[5] === S.side ? "var(--a)" : "var(--d)"}"></i><span>${esc(S.rname[rid])}: штурм <b>${r[4]}%</b>${r[5] === S.side ? " (наступаем)" : " (обороняемся)"}</span></li>`).join("")
+    : `<li><i style="background:var(--soft)"></i><span>Боёв сейчас нет</span></li>`;
+  const fleets = S.units.filter(u => u.d === "naval"), zl = [];
+  for (const zid of new Set(fleets.map(f => f.loc))) { const c = zoneControl(zid); zl.push(`<li><i style="background:${!c ? "var(--warn)" : c === S.side ? "var(--a)" : "var(--d)"}"></i><span>${esc(locLabel(zid))}: ${!c ? "оспаривается" : c === S.side ? "наш флот" : "флот противника"}</span></li>`); }
+  const air = sideU.filter(u => u.d === "air").length;
+  zl.push(`<li><i style="background:var(--good)"></i><span>Авиация: ${air ? air + " " + plural(air, "крыло", "крыла", "крыльев") : "нет"}</span></li>`);
+  $("seaList").innerHTML = zl.slice(0, 5).join("");
+}
+function renderAll(first) {
+  renderHeader(); if (first) setupProjection(); drawMap(); if (first) fit(); drawUnits();
+  renderSel(); renderList(); renderPending(); renderFooter(); tick(); highlight();
+}
+window.addEventListener("resize", () => { if (S) { fit(); drawUnits(); } });
+
+(async () => {
+  try {
+    S = await loadState();
+    $("loadS").textContent = "карта театра…";
+    await loadGeo(S.geo);
+    renderAll(true);
+    $("loading").classList.add("off");
+    const first = S.units.find(u => u.mine && u.d === "land"); if (first) { /* не выбираем автоматически — игрок сам */ }
+  } catch (e) {
+    $("loadT").textContent = "Штаб не открылся"; $("loadS").textContent = e.message;
+  }
+})();
+</script>
+</body>
+</html>
