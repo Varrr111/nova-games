@@ -72,7 +72,7 @@ header{grid-column:1/3;background:var(--panel);display:flex;align-items:center;g
 .ctr .bar0{fill:#d3dae4}
 .ctr.sel .body{stroke:#e8edf4;stroke-width:3}
 .ctr.sel{filter:drop-shadow(0 0 4px rgba(232,237,244,.7))}
-.ctr .nm{fill:var(--ink);font:600 10.5px "Golos Text";text-anchor:middle;paint-order:stroke;stroke:var(--edge);stroke-width:3px;pointer-events:none}
+.ctr .nm{fill:var(--ink);font:600 13px "Golos Text";text-anchor:middle;paint-order:stroke;stroke:var(--edge);stroke-width:3px;pointer-events:none}
 .ctr .cnt{font:800 9px "Golos Text";fill:#fff;text-anchor:middle;pointer-events:none}
 .ctr.pending .body{stroke:var(--warn);stroke-width:2.4}
 .maptab{position:absolute;left:14px;top:14px;display:flex;background:var(--panel);font-size:13.5px;font-weight:600;box-shadow:0 2px 0 rgba(0,0,0,.25)}
@@ -192,6 +192,36 @@ footer li i{width:8px;height:8px;margin-top:6px;flex:none}
 .chips span{font-size:12px;padding:2px 8px;background:var(--panel2);color:#c9d2de}
 .chips span.p{color:#8fe0b5}.chips span.m{color:#f2a3ae}
 .ep{font-style:italic;color:var(--warn);font-size:13px;margin-top:4px}
+/* рельеф, границы, подписи стран */
+#gRelief{mix-blend-mode:soft-light;pointer-events:none}
+#gRelief image{image-rendering:auto}
+.nb{fill:none;stroke:rgba(6,10,18,.92);stroke-width:2.6;vector-effect:non-scaling-stroke;stroke-linejoin:round;stroke-linecap:round;pointer-events:none}
+.cname{fill:rgba(255,255,255,.5);font-weight:800;text-anchor:middle;letter-spacing:.32em;text-transform:uppercase;pointer-events:none;
+  paint-order:stroke;stroke:rgba(6,10,18,.55);stroke-width:4px;font-family:-apple-system,"SF Pro Display","Inter",sans-serif}
+.cname.en{fill:rgba(255,214,214,.66)}.cname.ne{fill:rgba(220,226,236,.42)}
+/* рамка выделения */
+.boxsel{position:absolute;border:1.5px solid #4aa0ff;background:rgba(74,160,255,.14);border-radius:4px;pointer-events:none;display:none;z-index:4}
+/* статус сохранения приказов */
+.savebar{margin:10px 16px 14px;padding:10px 12px;border-radius:10px;background:var(--panel2);font-size:13px;display:flex;align-items:center;gap:10px;color:var(--soft)}
+.savebar i{width:8px;height:8px;border-radius:50%;background:var(--good);flex:none}
+.savebar.busy i{background:var(--warn);animation:fightPulse 1s infinite}
+.savebar.err i{background:var(--d2)}
+.savebar b{color:var(--ink);font-weight:600}
+/* армии и группы в списке */
+.grp{margin:6px 0 2px;padding:7px 8px;border-radius:7px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-size:13px;font-weight:600;background:var(--panel2)}
+.grp:hover{background:var(--panel3)}
+.grp small{color:var(--soft);font-weight:500}
+.grp.reg{background:none;color:var(--soft);font-weight:600;font-size:12px;padding:8px 8px 2px;cursor:pointer}
+.grp.reg:hover{color:var(--ink);background:none}
+.grp button{color:var(--d2);font-weight:700;padding:0 4px}
+.armybox{display:flex;gap:8px;margin-top:10px}
+.armybox input{flex:1;min-width:0;background:var(--panel2);border:0;border-radius:8px;color:var(--ink);padding:8px 10px;font:inherit;font-size:13px}
+.armybox button,.frontbtn{background:var(--a);color:#fff;border-radius:8px;padding:8px 10px;font-size:12px;font-weight:600;flex:none}
+.frontrow{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}
+.frontbtn{background:var(--panel2);color:var(--ink);font-weight:500;padding:9px 6px}
+.frontbtn:hover{background:var(--panel3)}
+.multi{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.multi span{font-size:12px;padding:3px 8px;border-radius:6px;background:var(--panel2);color:#d1d1d6}
 details.math{margin-top:8px;background:var(--panel2);padding:8px 12px;font-size:13px}
 details.math summary{cursor:pointer;color:var(--a2);font-weight:600;list-style:none}
 details.math summary::-webkit-details-marker{display:none}
@@ -205,6 +235,157 @@ details.math .why{color:var(--soft);font-size:12px;margin-top:6px}
 .turnbtn{background:var(--warn);color:#1b1404;font-weight:800;padding:9px 14px;font-size:13.5px;flex:none;display:none}
 .turnbtn.on{display:block}
 .turnbtn:disabled{opacity:.6}
+
+/* ══════════ ТЕМЫ (выбор дизайна): ?theme=maps | pro | light ══════════ */
+/* MIX (по умолчанию) — карта на весь экран (A) + строгие тёмные панели macOS (B) */
+body[data-theme=mix]{display:block;background:#0b1424;--panel:rgba(26,27,31,.94);--panel2:#2a2b30;--panel3:#36373d;--line:rgba(255,255,255,.07);
+  --ink:#f5f5f7;--soft:#98989f;--a:#0a84ff;--a2:#4aa0ff}
+body[data-theme=mix] .map{position:fixed;inset:0}
+body[data-theme=mix] header,body[data-theme=mix] aside,body[data-theme=mix] footer{position:fixed;z-index:5;background:var(--panel);
+  backdrop-filter:blur(24px) saturate(160%);-webkit-backdrop-filter:blur(24px) saturate(160%);border-radius:14px;
+  box-shadow:0 0 0 .5px rgba(255,255,255,.1),0 14px 40px rgba(0,0,0,.45)}
+body[data-theme=mix] header{top:12px;left:12px;right:424px;height:54px;padding:0 14px;gap:16px}
+body[data-theme=mix] header .mark span,body[data-theme=mix] .tug>span{display:none}
+body[data-theme=mix] .tug{min-width:120px}
+body[data-theme=mix] .war{font-size:15px;font-weight:600}
+body[data-theme=mix] aside{top:12px;right:12px;bottom:12px;width:400px}
+body[data-theme=mix] footer{left:12px;bottom:12px;right:424px;height:112px;padding:12px 18px}
+body[data-theme=mix] .sec{border-bottom:0;box-shadow:inset 0 -.5px 0 var(--line);padding:14px 16px}
+body[data-theme=mix] h2{font-size:17px;font-weight:600}
+body[data-theme=mix] h3{font-size:12px;font-weight:600;color:var(--soft)}
+body[data-theme=mix] .maptab{top:76px;left:24px;background:rgba(44,44,48,.92);border-radius:8px;padding:2px;box-shadow:0 0 0 .5px rgba(255,255,255,.1)}
+body[data-theme=mix] .maptab button{border-radius:6px;padding:5px 12px;font-size:12.5px;font-weight:500}
+body[data-theme=mix] .maptab button.on{background:#5a5a60;color:#fff;box-shadow:0 1px 1px rgba(0,0,0,.4)}
+body[data-theme=mix] .zoom{top:76px;right:436px;background:none;gap:6px}
+body[data-theme=mix] .zoom button{border-radius:8px;background:rgba(44,44,48,.92);width:32px;height:32px;font-size:16px;box-shadow:0 0 0 .5px rgba(255,255,255,.1)}
+body[data-theme=mix] .zoom button.on{background:var(--a);color:#fff}
+body[data-theme=mix] .key{left:24px;bottom:136px;background:rgba(30,31,35,.9);border-radius:8px;box-shadow:0 0 0 .5px rgba(255,255,255,.1)}
+body[data-theme=mix] .seg{background:#2c2c30;border-radius:8px;padding:2px;gap:2px}
+body[data-theme=mix] .seg button{background:transparent;border-radius:6px;font-size:12.5px;padding:7px 4px;color:#d1d1d6;font-weight:500}
+body[data-theme=mix] .seg button.on{background:var(--a);color:#fff}
+body[data-theme=mix] .odds{background:none;gap:6px}
+body[data-theme=mix] .odds div{background:var(--panel2);border-radius:10px}
+body[data-theme=mix] .icon-btn{border-radius:8px;background:#3a3a3f;width:32px;height:30px}
+body[data-theme=mix] .turnbtn{border-radius:8px;padding:7px 12px;font-size:12.5px}
+body[data-theme=mix] .ulist .u{padding:6px 8px;border-radius:7px}
+body[data-theme=mix] .ulist .u.on{background:var(--a)}
+body[data-theme=mix] .ulist .u.on small,body[data-theme=mix] .ulist .u.on .go{color:#fff}
+body[data-theme=mix] .ulist .u+.u{box-shadow:none}
+body[data-theme=mix] .u b{font-size:13px;font-weight:500}
+body[data-theme=mix] .tug .t{border-radius:4px;overflow:hidden;height:6px}
+body[data-theme=mix] .tip{border-radius:10px;background:rgba(30,31,35,.96);box-shadow:0 0 0 .5px rgba(255,255,255,.12),0 10px 30px rgba(0,0,0,.4)}
+body[data-theme=mix] .hint{border-radius:10px}
+
+body[data-theme]{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Inter","Golos Text",system-ui,sans-serif;letter-spacing:-.01em}
+body[data-theme] h2,body[data-theme] .war,body[data-theme] .turn b{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Inter",system-ui,sans-serif;letter-spacing:-.02em}
+
+/* A — «Карты Apple»: карта на весь экран, плавающие стеклянные панели */
+body[data-theme=maps]{display:block;background:#0b1424;--panel:rgba(28,32,40,.72);--panel2:rgba(118,128,150,.16);--panel3:rgba(118,128,150,.26);--line:rgba(255,255,255,.08);--a:#0a84ff;--a2:#64a8ff}
+body[data-theme=maps] .map{position:fixed;inset:0}
+body[data-theme=maps] header,body[data-theme=maps] aside,body[data-theme=maps] footer{position:fixed;z-index:5;background:var(--panel);
+  backdrop-filter:blur(30px) saturate(180%);-webkit-backdrop-filter:blur(30px) saturate(180%);border-radius:20px;
+  box-shadow:0 0 0 .5px rgba(255,255,255,.12),0 18px 50px rgba(0,0,0,.45)}
+body[data-theme=maps] header{top:14px;left:14px;right:438px;height:60px;padding:0 16px;gap:16px;--panel:rgba(22,26,34,.84)}
+body[data-theme=maps] header .mark span,body[data-theme=maps] .tug>span{display:none}
+body[data-theme=maps] .tug{min-width:120px}
+body[data-theme=maps] .war{font-size:15px}
+body[data-theme=maps] aside,body[data-theme=maps] footer{--panel:rgba(22,26,34,.84)}
+body[data-theme=maps] aside{top:14px;right:14px;bottom:14px;width:410px}
+body[data-theme=maps] footer{left:14px;bottom:14px;right:438px;height:118px;padding:14px 20px}
+body[data-theme=maps] .sec{border-bottom:0;box-shadow:inset 0 -.5px 0 var(--line)}
+body[data-theme=maps] .maptab{top:88px;left:28px;background:rgba(118,128,150,.22);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:10px;padding:2px;box-shadow:none}
+body[data-theme=maps] .maptab button{border-radius:8px;padding:6px 14px;font-weight:600;font-size:13px}
+body[data-theme=maps] .maptab button.on{background:rgba(255,255,255,.18);box-shadow:0 1px 3px rgba(0,0,0,.3);color:#fff}
+body[data-theme=maps] .zoom{top:88px;right:452px;background:none;gap:8px}
+body[data-theme=maps] .zoom button{background:var(--panel);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:12px;box-shadow:0 0 0 .5px rgba(255,255,255,.12)}
+body[data-theme=maps] .key{left:28px;bottom:146px;background:var(--panel);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:12px}
+body[data-theme=maps] .send{border-radius:14px;background:var(--a);font-weight:600}
+body[data-theme=maps] .seg{background:rgba(118,128,150,.22);border-radius:10px;padding:2px;gap:2px}
+body[data-theme=maps] .seg button{background:transparent;border-radius:8px;color:#d6dbe4}
+body[data-theme=maps] .seg button.on{background:rgba(255,255,255,.18);color:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+body[data-theme=maps] .odds{background:none;gap:8px}
+body[data-theme=maps] .odds div{border-radius:12px;background:var(--panel2)}
+body[data-theme=maps] .icon-btn{border-radius:12px;background:var(--panel2)}
+body[data-theme=maps] .turnbtn{border-radius:12px}
+body[data-theme=maps] .tug .t{border-radius:6px;overflow:hidden;height:8px}
+body[data-theme=maps] .chip{border-radius:7px}
+body[data-theme=maps] .ulist .u{border-radius:12px}
+body[data-theme=maps] .ulist .u+.u{box-shadow:none}
+
+/* B — «Pro-приложение»: сплошной тёмный хром macOS, панель инструментов, инспектор, тонкие линии */
+body[data-theme=pro]{--ground:#1c1c1e;--panel:#232326;--panel2:#2c2c30;--panel3:#38383d;--line:rgba(255,255,255,.07);--ink:#f5f5f7;--soft:#98989f;--a:#0a84ff;--a2:#409cff;gap:0;background:#000;grid-template-rows:52px 1fr 132px}
+body[data-theme=pro] header{background:linear-gradient(#2b2b2f,#262629);box-shadow:inset 0 -.5px 0 rgba(255,255,255,.1);padding:0 16px;gap:18px}
+body[data-theme=pro] .mark b{font-size:15px}
+body[data-theme=pro] .war{font-size:15px;font-weight:600}
+body[data-theme=pro] aside{box-shadow:inset .5px 0 0 rgba(255,255,255,.08)}
+body[data-theme=pro] footer{box-shadow:inset 0 .5px 0 rgba(255,255,255,.08);background:#1e1e21}
+body[data-theme=pro] .sec{border-bottom:0;box-shadow:inset 0 -.5px 0 var(--line);padding:14px 16px}
+body[data-theme=pro] h2{font-size:17px;font-weight:600}
+body[data-theme=pro] h3{font-size:11px;font-weight:600;color:var(--soft);text-transform:none;letter-spacing:0}
+body[data-theme=pro] .maptab{background:#2c2c30;border-radius:7px;padding:2px;top:12px;left:12px;box-shadow:0 0 0 .5px rgba(255,255,255,.1)}
+body[data-theme=pro] .maptab button{border-radius:5px;padding:4px 12px;font-size:12.5px;font-weight:500}
+body[data-theme=pro] .maptab button.on{background:#5a5a60;color:#fff;box-shadow:0 1px 1px rgba(0,0,0,.4)}
+body[data-theme=pro] .seg{background:#2c2c30;border-radius:7px;padding:2px;gap:2px}
+body[data-theme=pro] .seg button{background:transparent;border-radius:5px;font-size:12.5px;padding:6px 4px;color:#d1d1d6;font-weight:500}
+body[data-theme=pro] .seg button.on{background:var(--a);color:#fff}
+body[data-theme=pro] .odds{background:none;gap:1px}
+body[data-theme=pro] .odds div{background:var(--panel2);border-radius:0}
+body[data-theme=pro] .odds div:first-child{border-radius:8px 0 0 8px}.t-x{}
+body[data-theme=pro] .odds div:last-child{border-radius:0 8px 8px 0}
+body[data-theme=pro] .send{border-radius:8px;margin:10px 16px 14px;padding:10px;font-size:13.5px;font-weight:600}
+body[data-theme=pro] .icon-btn{border-radius:7px;background:#3a3a3f;width:32px;height:28px}
+body[data-theme=pro] .turnbtn{border-radius:7px;padding:6px 12px;font-size:12.5px;background:#ffd60a}
+body[data-theme=pro] .ulist .u{padding:6px 6px;border-radius:6px}
+body[data-theme=pro] .ulist .u.on{background:var(--a)}
+body[data-theme=pro] .ulist .u.on small,body[data-theme=pro] .ulist .u.on .go{color:#fff}
+body[data-theme=pro] .ulist .u+.u{box-shadow:none}
+body[data-theme=pro] .u b{font-size:13px;font-weight:500}
+body[data-theme=pro] .zoom{background:none;gap:6px}
+body[data-theme=pro] .zoom button{border-radius:7px;background:#2c2c30;width:30px;height:30px;font-size:16px}
+body[data-theme=pro] .key{background:rgba(35,35,38,.92);border-radius:8px;box-shadow:0 0 0 .5px rgba(255,255,255,.1)}
+body[data-theme=pro] .tug .t{border-radius:4px;overflow:hidden;height:6px}
+
+/* C — «Светлая»: в духе apple.com — светлый фон, белые панели, мягкая карта */
+body[data-theme=light]{--ground:#f5f5f7;--panel:#ffffff;--panel2:#f5f5f7;--panel3:#e8e8ed;--line:rgba(0,0,0,.08);--ink:#1d1d1f;--soft:#6e6e73;
+  --a:#0071e3;--a2:#0071e3;--aland:#9cc2f2;--dland:#f0a5ae;--land:#e3e3e8;--sea:#cfe0f3;--seaz:#c2d7ee;--edge:#ffffff;--warn:#c47a00;--good:#248a3d;--d2:#d70015;
+  gap:1px;background:#d2d2d7}
+body[data-theme=light] .rg{stroke:#ffffff}
+body[data-theme=light] .rg.n{fill:#e6e6ea}
+body[data-theme=light] .rg.rp{fill:#b9d7cf}
+body[data-theme=light] .zn{fill:#c2d7ee;stroke:#a9c3e3}
+body[data-theme=light] .zn.za{fill:#b3cff0}.zn.zd{}
+body[data-theme=light] .lbl{fill:#1d1d1f;stroke:#ffffff}
+body[data-theme=light] .ctr .nm{fill:#1d1d1f;stroke:#ffffff}
+body[data-theme=light] #hatchA rect:first-child{fill:#f0a5ae}
+body[data-theme=light] .sec{border-bottom:0;box-shadow:inset 0 -1px 0 var(--line)}
+body[data-theme=light] .maptab{background:rgba(255,255,255,.86);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:980px;padding:3px;box-shadow:0 2px 12px rgba(0,0,0,.08)}
+body[data-theme=light] .maptab button{border-radius:980px;color:#424245;font-weight:500}
+body[data-theme=light] .maptab button.on{background:#1d1d1f;color:#fff;box-shadow:none}
+body[data-theme=light] .seg{background:var(--panel2);border-radius:12px;padding:3px;gap:3px}
+body[data-theme=light] .seg button{background:transparent;border-radius:9px;color:#1d1d1f;font-weight:500}
+body[data-theme=light] .seg button.on{background:#fff;color:#1d1d1f;box-shadow:0 1px 4px rgba(0,0,0,.12)}
+body[data-theme=light] .odds{background:none;gap:10px}
+body[data-theme=light] .odds div{border-radius:14px;background:var(--panel2)}
+body[data-theme=light] .send{border-radius:980px;font-weight:500}
+body[data-theme=light] .send:disabled{background:#e8e8ed;color:#86868b}
+body[data-theme=light] .icon-btn{border-radius:980px;background:var(--panel2)}
+body[data-theme=light] .icon-btn svg{stroke:#1d1d1f}
+body[data-theme=light] .turnbtn{border-radius:980px;background:#1d1d1f;color:#fff}
+body[data-theme=light] .zoom{background:none;gap:8px}
+body[data-theme=light] .zoom button{border-radius:980px;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+body[data-theme=light] .key{background:rgba(255,255,255,.9);border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,.06);color:#424245}
+body[data-theme=light] .chip{--bg:#fff;box-shadow:0 0 0 1px rgba(0,0,0,.08)}
+body[data-theme=light] .ulist .u{border-radius:12px}
+body[data-theme=light] .ulist .u.on{background:#e8f1fd}
+body[data-theme=light] .ulist .u+.u{box-shadow:none}
+body[data-theme=light] .mark svg circle,body[data-theme=light] .mark svg path{stroke:#0071e3}
+body[data-theme=light] .mark svg circle:last-child{fill:#0071e3}
+body[data-theme=light] footer p,body[data-theme=light] footer li{color:#424245}
+body[data-theme=light] .tug .t{border-radius:4px;overflow:hidden;height:6px;background:#f0a5ae}
+body[data-theme=light] .tug .t b{background:#0071e3}
+body[data-theme=light] .tip{background:#fff;color:#1d1d1f;box-shadow:0 8px 30px rgba(0,0,0,.12);border-radius:12px}
+body[data-theme=light] .loading{background:#f5f5f7}
+
 @media (max-width:900px){
   body{grid-template-columns:1fr;grid-template-rows:auto 56vh auto auto;overflow:auto;height:auto}
   header{grid-column:1;flex-wrap:wrap;gap:10px 16px;padding:10px 14px}
@@ -237,12 +418,13 @@ details.math .why{color:var(--soft);font-size:12px;margin-top:6px}
       <marker id="ar" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="4" markerHeight="4" orient="auto"><path d="M0,0L10,5L0,10z" fill="#5a93ea"/></marker>
       <marker id="arw" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="4" markerHeight="4" orient="auto"><path d="M0,0L10,5L0,10z" fill="#e8edf4"/></marker>
     </defs>
-    <g id="vp"><g id="gSea"></g><g id="gWorld"></g><g id="gLand"></g><g id="gOver"></g><g id="gLbl"></g><g id="gUnits"></g></g>
+    <g id="vp"><g id="gSea"></g><g id="gWorld"></g><g id="gLand"></g><g id="gRelief"></g><g id="gBorders"></g><g id="gNames"></g><g id="gOver"></g><g id="gLbl"></g><g id="gUnits"></g></g>
   </svg>
   <div class="maptab" role="tablist">
     <button class="on" data-tab="land">Сухопутный фронт</button><button data-tab="sea">Море</button><button data-tab="air">Небо</button><button data-tab="terrain">Рельеф</button>
   </div>
-  <div class="zoom"><button id="zin" aria-label="Приблизить">+</button><button id="zout" aria-label="Отдалить">−</button><button id="zfit" aria-label="Весь театр" style="font-size:14px">⤢</button></div>
+  <div class="zoom"><button id="zin" aria-label="Приблизить">+</button><button id="zout" aria-label="Отдалить">−</button><button id="zfit" aria-label="Весь театр" style="font-size:14px">⤢</button><button id="zbox" aria-label="Выделение рамкой" title="Выделение рамкой (или Shift + перетаскивание)"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="3 2"><rect x="4" y="5" width="16" height="14" rx="2"/></svg></button></div>
+  <div class="boxsel" id="boxsel"></div>
   <div class="hint" id="hint"><span id="hintT"></span><button id="hintX">Отмена · Esc</button></div>
   <div class="key" id="key"></div>
   <div class="tip" id="tip"></div>
@@ -257,6 +439,11 @@ details.math .why{color:var(--soft);font-size:12px;margin-top:6px}
       <div class="sub">Нажмите на свою фишку на карте или в списке ниже</div>
     </div>
     <div class="sec" id="orderBox" style="display:none"></div>
+    <div class="sec" id="frontBox">
+      <h3>Весь фронт</h3>
+      <div class="frontrow"><button class="frontbtn" data-front="entrench">Окопаться</button><button class="frontbtn" data-front="hold">Держать</button><button class="frontbtn" data-front="attack">Бить по слабым местам</button></div>
+      <div class="note" id="frontNote">Для всех частей на линии фронта (или только выбранных).</div>
+    </div>
     <div class="sec">
       <h3>Мои соединения</h3>
       <div class="ulist" id="myList"></div>
@@ -267,7 +454,8 @@ details.math .why{color:var(--soft);font-size:12px;margin-top:6px}
     </div>
   </div>
   <div class="result" id="result"></div>
-  <button class="send" id="sendBtn" disabled>Отправить приказы<small>сначала выберите соединение и действие</small></button>
+  <div class="savebar" id="saveBar"><i></i><span>Приказы сохраняются автоматически</span></div>
+  <button class="send" id="sendBtn" style="display:none"></button>
 </aside>
 
 <footer>
@@ -278,6 +466,7 @@ details.math .why{color:var(--soft);font-size:12px;margin-top:6px}
 
 <script>
 "use strict";
+(function () { document.body.dataset.theme = new URLSearchParams(location.search).get("theme") || "mix"; })();
 // ───────── данные ─────────
 const Q = new URLSearchParams(location.search);
 const TOK = Q.get("t") || "";
@@ -293,7 +482,9 @@ const GEO = {};               // rid → {n, rings}
 let SEAS = {};                // zid → [name, ring, c]
 let WORLD = null;             // rid → грубые контуры всего мира
 const pending = {};           // uid → order
-let sel = null;               // выбранное соединение
+let sel = null;               // главное выбранное соединение
+let selIds = new Set();       // все выбранные (рамка, стопка, армия)
+let boxMode = false;
 let mode = null;              // {t, need:'region'|'zone'|'fleet'|'coast'|'air'}
 let tab = "land";
 
@@ -386,7 +577,11 @@ function locXY(loc) {
 
 // ───────── вид (панорама и масштаб) ─────────
 let VB = {x: 0, y: 0, w: 1000, h: 700};
-function applyVB() { $("svg").setAttribute("viewBox", `${VB.x} ${VB.y} ${VB.w} ${VB.h}`); }
+let reliefRaf = 0;
+function applyVB() {
+  $("svg").setAttribute("viewBox", `${VB.x} ${VB.y} ${VB.w} ${VB.h}`);
+  cancelAnimationFrame(reliefRaf); reliefRaf = requestAnimationFrame(() => { if (S) drawRelief(); });
+}
 function fit() {
   const box = $("map").getBoundingClientRect(), ar = box.width / Math.max(1, box.height);
   let w = PRJ.w, h = PRJ.h;
@@ -401,14 +596,36 @@ function zoomAt(f, cx, cy) {
   const svg = $("svg"); let drag = null, moved = false, pinch = null;
   const toSvg = (cx, cy) => { const b = svg.getBoundingClientRect(); return [VB.x + (cx - b.left) / b.width * VB.w, VB.y + (cy - b.top) / b.height * VB.h]; };
   svg.addEventListener("wheel", e => { e.preventDefault(); const [x, y] = toSvg(e.clientX, e.clientY); zoomAt(e.deltaY > 0 ? 1.15 : 1 / 1.15, x, y); }, {passive: false});
-  svg.addEventListener("pointerdown", e => { drag = {x: e.clientX, y: e.clientY, vx: VB.x, vy: VB.y}; moved = false; });
+  let box = null;
+  $("zbox").onclick = () => { boxMode = !boxMode; $("zbox").classList.toggle("on", boxMode); toast(boxMode ? "Рамка: обведите соединения на карте" : "Рамка выключена"); };
+  svg.addEventListener("pointerdown", e => {
+    if ((e.shiftKey || boxMode) && !e.target.closest("[data-u]")) {
+      const b = $("map").getBoundingClientRect(); box = {x: e.clientX, y: e.clientY, bx: b.left, by: b.top}; moved = true;
+      const el = $("boxsel"); el.style.display = "block"; el.style.left = (e.clientX - b.left) + "px"; el.style.top = (e.clientY - b.top) + "px"; el.style.width = el.style.height = "0px";
+      return;
+    }
+    drag = {x: e.clientX, y: e.clientY, vx: VB.x, vy: VB.y}; moved = false;
+  });
   window.addEventListener("pointermove", e => {
+    if (box) { const el = $("boxsel"); el.style.left = (Math.min(e.clientX, box.x) - box.bx) + "px"; el.style.top = (Math.min(e.clientY, box.y) - box.by) + "px";
+      el.style.width = Math.abs(e.clientX - box.x) + "px"; el.style.height = Math.abs(e.clientY - box.y) + "px"; return; }
     if (!drag || pinch) return;
     const b = svg.getBoundingClientRect(), dx = (e.clientX - drag.x) / b.width * VB.w, dy = (e.clientY - drag.y) / b.height * VB.h;
     if (Math.abs(e.clientX - drag.x) + Math.abs(e.clientY - drag.y) > 4) { moved = true; svg.classList.add("drag"); }
     if (moved) { VB.x = drag.vx - dx; VB.y = drag.vy - dy; applyVB(); }
   });
-  window.addEventListener("pointerup", () => { drag = null; svg.classList.remove("drag"); });
+  window.addEventListener("pointerup", e => {
+    if (box) {
+      $("boxsel").style.display = "none";
+      const [x0, y0] = toSvg(Math.min(e.clientX, box.x), Math.min(e.clientY, box.y)), [x1, y1] = toSvg(Math.max(e.clientX, box.x), Math.max(e.clientY, box.y));
+      box = null;
+      const inside = S.units.filter(u => u.mine && !u.loc.startsWith("B:")).filter(u => { const xy = locXY(u.loc); return xy && xy[0] >= x0 && xy[0] <= x1 && xy[1] >= y0 && xy[1] <= y1; });
+      if (inside.length) selectMany(inside); else toast("В рамке нет ваших соединений");
+      setTimeout(() => { moved = false; }, 50);
+      return;
+    }
+    drag = null; svg.classList.remove("drag");
+  });
   svg.addEventListener("click", e => { if (moved) { e.stopPropagation(); e.preventDefault(); } }, true);
   svg.addEventListener("touchstart", e => { if (e.touches.length === 2) { const [a, b] = e.touches; pinch = {d: Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY)}; } }, {passive: true});
   svg.addEventListener("touchmove", e => {
@@ -426,7 +643,9 @@ function zoomAt(f, cx, cy) {
 // ───────── отрисовка карты ─────────
 const TERRAIN_COL = {plain: "#3d4b38", forest: "#2c4a32", hills: "#5a5636", mountain: "#6b5a48", urban: "#5c5f6a",
   marsh: "#2f4a48", jungle: "#25503a", desert: "#7a6a44", tundra: "#55626e"};
-const ENEMY_COLS = ["#5b2633", "#6b4020", "#4a2d5e", "#5e5022", "#2f4f5a", "#5a2f4f"];
+const ENEMY_COLS_DARK = ["#5b2633", "#6b4020", "#4a2d5e", "#5e5022", "#2f4f5a", "#5a2f4f"];
+const ENEMY_COLS_LIGHT = ["#f0a5ae", "#efc79c", "#cfb8ec", "#e6d98f", "#a9d3dc", "#e7b3d6"];
+const ENEMY_COLS = document.body.dataset.theme === "light" ? ENEMY_COLS_LIGHT : ENEMY_COLS_DARK;
 function enemyColor(a3) { const i = (S.enemies || []).findIndex(e => e.a3 === a3); return i > 0 ? ENEMY_COLS[i % ENEMY_COLS.length] : null; }
 function regionSide(rid) {
   const r = S.regions[rid]; if (!r) return "n";
@@ -481,8 +700,47 @@ function drawMap() {
     h += `<text class="zlbl" x="${x}" y="${y + 30}">${esc(z[0])}</text>`;
   }
   lb.innerHTML = h;
+  drawBorders(); drawNames(); drawRelief();
+  $("gRelief").style.display = tab === "terrain" ? "none" : "";
   $("gLand").style.opacity = tab === "sea" ? .55 : 1;
   drawUnits(); drawKey();
+}
+function drawRelief() {
+  const g = $("gRelief"); if (!g || !PRJ.s) return;
+  const lonA = PRJ.lon0 + VB.x / (PRJ.k * PRJ.s), lonB = PRJ.lon0 + (VB.x + VB.w) / (PRJ.k * PRJ.s);
+  const latA = PRJ.lat1 - VB.y / PRJ.s, latB = PRJ.lat1 - (VB.y + VB.h) / PRJ.s;
+  const tw = 10 * PRJ.k * PRJ.s, th = 10 * PRJ.s;
+  let h = "";
+  if (lonB - lonA > 120) {   // далеко — один обзорный снимок мира
+    const [x, y] = P(-180, 90);
+    h = `<image href="relief/world.jpg" x="${x}" y="${y}" width="${360 * PRJ.k * PRJ.s}" height="${180 * PRJ.s}" preserveAspectRatio="none"/>`;
+  } else {
+    for (let tx = Math.max(0, Math.floor((lonA + 180) / 10)); tx <= Math.min(35, Math.floor((lonB + 180) / 10)); tx++)
+      for (let ty = Math.max(0, Math.floor((90 - latA) / 10)); ty <= Math.min(17, Math.floor((90 - latB) / 10)); ty++) {
+        const [x, y] = P(-180 + tx * 10, 90 - ty * 10);
+        h += `<image href="relief/${tx}_${ty}.jpg" x="${x}" y="${y}" width="${tw + .5}" height="${th + .5}" preserveAspectRatio="none"/>`;
+      }
+  }
+  if (g.dataset.k !== h.length + ":" + lonA.toFixed(0)) { g.innerHTML = h; g.dataset.k = h.length + ":" + lonA.toFixed(0); }
+}
+function drawBorders() {
+  $("gBorders").innerHTML = (S.borders || []).map(l => `<path class="nb" d="M${l.map(p => { const [x, y] = P(p[0], p[1]); return x.toFixed(1) + "," + y.toFixed(1); }).join("L")}"/>`).join("");
+}
+function drawNames() {
+  const acc = {};
+  for (const [rid, r] of Object.entries(S.regions)) {
+    const g = GEO[rid]; if (!g) continue; const own = r[0];
+    const ring = g.rings.reduce((a, b) => (b.length > a.length ? b : a), g.rings[0]);
+    for (const p of ring) { const a = acc[own] = acc[own] || {x: 0, y: 0, n: 0, x0: 1e9, x1: -1e9}; const [x, y] = P(p[0], p[1]); a.x += x; a.y += y; a.n++; a.x0 = Math.min(a.x0, x); a.x1 = Math.max(a.x1, x); }
+  }
+  let h = "";
+  for (const [a3, a] of Object.entries(acc)) {
+    const w = a.x1 - a.x0; if (w < 40) continue;
+    const fs = Math.max(9, Math.min(46, w / Math.max(6, (S.names[a3] || a3).length) * .62));
+    const cls = S.a3[a3] === "a" ? "" : S.a3[a3] === "d" ? " en" : " ne";
+    h += `<text class="cname${cls}" x="${a.x / a.n}" y="${a.y / a.n}" font-size="${fs.toFixed(1)}">${esc(S.names[a3] || a3)}</text>`;
+  }
+  $("gNames").innerHTML = h;
 }
 function zoneControl(zid) {
   const here = S.units.filter(u => u.d === "naval" && u.loc === zid);
@@ -494,7 +752,8 @@ function chipSvg(k, side) {
 }
 function drawUnits() {
   const g = $("gUnits"); if (!S) return;
-  const scale = Math.max(.35, Math.min(2.2, VB.w / 1000));
+  // фишка — постоянного размера на экране (~32×19 px), при любом масштабе карты
+  const scale = (VB.w / Math.max(300, $("map").clientWidth)) * 0.72;
   const stacks = {};
   for (const u of S.units) {
     const xy = locXY(u.loc); if (!xy || u.loc.startsWith("B:")) continue;
@@ -522,7 +781,7 @@ function drawUnits() {
     const off = st.side === "d" ? 1 : -1;
     const [cx, cy] = [st.xy[0] + (top.side === S.side ? -W * .2 : W * .4), st.xy[1] + (top.side === S.side ? 0 : H * .5)];
     const col = top.side === "a" ? "#2f6fd1" : "#b0394c";
-    const isSel = sel && st.us.some(u => u.id === sel.id), isPend = st.us.some(u => pending[u.id]);
+    const isSel = st.us.some(u => selIds.has(u.id)), isPend = st.us.some(u => pending[u.id]);
     const strength = Math.max(.05, Math.min(1, top.s ?? 1));
     const tx = cx - W / 2, ty = cy - H / 2;
     const from = MOVES[top.id];
@@ -532,7 +791,7 @@ function drawUnits() {
     h += `<g class="bob"><g transform="translate(7.5,3) scale(.8)" style="color:#17202c;--bg:#f1f4f8">${chipSvg(top.k).replace('<svg viewBox="0 0 40 20" fill="currentColor">', '<g fill="#17202c">').replace("</svg>", "</g>")}</g></g>`;
     h += `<rect class="bar0" x="7" y="21.5" width="34" height="2"/><rect x="7" y="21.5" width="${34 * strength}" height="2" fill="${col}"/>`;
     if (st.us.length > 1) h += `<rect x="36" y="-7" width="${st.us.length > 9 ? 16 : 12}" height="11" rx="3" fill="${col}" stroke="#0e1520" stroke-width="1.5"/><text class="cnt" x="${st.us.length > 9 ? 44 : 42}" y="1.5">${st.us.length}</text>`;
-    if (scale > .55) h += `<text class="nm" x="22" y="38">${esc(shortName(top))}</text>`;
+    if (VB.w / Math.max(300, $("map").clientWidth) < 1.6) h += `<text class="nm" x="22" y="40">${esc(shortName(top))}</text>`;
     h += `</g>`;
   }
   g.innerHTML = h;
@@ -566,7 +825,7 @@ function drawKey() {
   const A = Object.entries(S.a3).filter(([, v]) => v === "a").map(([k]) => S.names[k] || k).join(", ");
   const items = tab === "terrain"
     ? Object.entries(S.terrain).map(([k, v]) => `<span><i style="background:${TERRAIN_COL[k]}"></i>${esc(v)}</span>`).join("")
-    : `<span><i style="background:#24467a"></i>${esc(A)}</span>` + (S.enemies || [{n: S.war.def, a3: ""}]).map((e, i) => `<span><i style="background:${i ? ENEMY_COLS[i % ENEMY_COLS.length] : "#5b2633"}"></i>${esc(e.n)}</span>`).join("") +
+    : `<span><i style="background:var(--aland)"></i>${esc(A)}</span>` + (S.enemies || [{n: S.war.def, a3: ""}]).map((e, i) => `<span><i style="background:${ENEMY_COLS[i % ENEMY_COLS.length]}"></i>${esc(e.n)}</span>`).join("") +
       `<span><i style="background:repeating-linear-gradient(45deg,#24467a 0 3px,#5b2633 3px 8px)"></i>оккупация</span>` +
       ((S.partners || []).length ? `<span><i style="background:#2b4a5e"></i>право прохода / союзники</span>` : "") +
       `<span><i style="border:2px solid #e0a43a"></i>идёт штурм</span><span><i style="border-top:2px dashed #5a93ea;height:0;margin-bottom:3px"></i>приказ</span>`;
@@ -600,11 +859,44 @@ function orderText(o) {
   const tgt = o.to || o.at;
   return (ORDER_TXT[o.t] || o.t) + (tgt ? " " + locLabel(tgt) : o.fleet ? "" : "");
 }
+function selectedUnits() { return S.units.filter(u => selIds.has(u.id)); }
+function selectMany(us) {
+  us = us.filter(u => u && u.mine);
+  if (!us.length) { select(null); return; }
+  if (us.length === 1) { select(us[0]); return; }
+  sel = us.find(u => u.d === "land") || us[0]; selIds = new Set(us.map(u => u.id)); mode = null; setHint("");
+  SFX.play("select", sel.d); renderSel(); renderList(); drawUnits(); highlight();
+}
 function select(u) {
-  sel = u; mode = null; setHint(""); if (u) SFX.play("select", u.d);
+  sel = u; selIds = new Set(u ? [u.id] : []); mode = null; setHint(""); if (u) SFX.play("select", u.d);
   renderSel(); renderList(); drawUnits(); highlight();
 }
+function groupOf(id) { return (S.groups || []).find(g => g.ids.includes(id)); }
+function renderMulti() {
+  const box = $("selBox"), ob = $("orderBox"), us = selectedUnits();
+  const by = {}; for (const u of us) by[u.d] = (by[u.d] || 0) + 1;
+  const dom = by.land ? "land" : Object.keys(by).sort((a, b) => by[b] - by[a])[0];
+  const g = groupOf(us[0].id), oneGroup = g && us.every(u => g.ids.includes(u.id)) && g.ids.length === us.length;
+  box.innerHTML = `<h2>${oneGroup ? esc(g.name) : "Выбрано: " + us.length}</h2>
+    <div class="sub">${us.length} соединений · общая сила ${fmt(us.reduce((a, u) => a + u.cv, 0))}</div>
+    <div class="multi">${Object.entries(by).map(([d, n]) => `<span>${DOMAIN[d]}: ${n}</span>`).join("")}</div>
+    ${oneGroup ? `<div class="armybox"><input id="armyName" value="${esc(g.name)}" maxlength="40"><button id="armySave">Переименовать</button><button id="armyDel" style="background:#3a3a3f">Распустить</button></div>`
+      : `<div class="armybox"><input id="armyName" placeholder="Название армии" value="${(S.groups || []).length + 1}-я армия" maxlength="40"><button id="armySave">Сделать армией</button></div>`}`;
+  const opts = (ORDERS[dom] || []).filter(([t]) => !["embark", "land"].includes(t));
+  ob.style.display = "";
+  ob.innerHTML = `<h3>Приказ для всех: ${DOMAIN[dom]} (${by[dom]})</h3><div class="seg">${opts.map(([t, l, need]) =>
+    `<button data-o="${t}" data-need="${need || ""}">${l}</button>`).join("")}</div>
+    <div class="note">${dom === "land" ? "Для атаки выберите цель — пойдут все выбранные сухопутные части. Остальные рода войск этот приказ не получат." : "Приказ получат все выбранные соединения этого рода войск."}</div>`;
+  ob.querySelectorAll("button[data-o]").forEach(b => b.onclick = () => chooseOrder(b.dataset.o, b.dataset.need, dom));
+  $("armySave").onclick = () => armyOp(oneGroup ? {op: "set", id: g.id, name: $("armyName").value, ids: g.ids} : {op: "set", name: $("armyName").value, ids: us.map(u => u.id)});
+  if ($("armyDel")) $("armyDel").onclick = () => armyOp({op: "del", id: g.id});
+}
+async function armyOp(body) {
+  try { const ans = await sendToBot("WARGRP", body); toast(ans.replace(/^WAR(OK|ERR)\s*/, ""), ans.startsWith("WAROK") ? "good" : "bad"); SFX.play("order"); await refresh(false); }
+  catch (e) { toast(e.message, "bad"); }
+}
 function renderSel() {
+  if (selIds.size > 1) { renderMulti(); return; }
   const box = $("selBox"), ob = $("orderBox");
   if (!sel) { box.innerHTML = `<h2>Как отдать приказ</h2><div class="guide">
       <div><span>1</span><div><b>Выберите соединение</b> — нажмите свою фишку на карте или строку в списке ниже.</div></div>
@@ -647,10 +939,12 @@ function nearLoc(a, b) {
   if (a[0] === "S" && b[0] === "S") return (S.zones[b]?.nbr || []).includes(a);
   return false;
 }
-function chooseOrder(t, need) {
+function chooseOrder(t, need, dom) {
   if (!sel) return; SFX.play("click");
-  if (!need || need === "airopt" && false) { setOrder(sel, {t}); return; }
-  mode = {t, need};
+  const targets = selIds.size > 1 ? selectedUnits().filter(u => u.d === (dom || sel.d)) : [sel];
+  if (targets.length && targets[0].d !== sel.d) sel = targets[0];
+  if (!need) { setOrders(targets, {t}); return; }
+  mode = {t, need, units: targets};
   const txt = {region: "Нажмите на область — куда идти или кого атаковать", own: "Нажмите на свою соседнюю область для отхода",
     fleet: "Нажмите на свой флот в соседней морской зоне", coast: "Нажмите на прибрежную область для высадки",
     zone: "Нажмите на морскую зону, куда плыть", zcoast: "Нажмите на прибрежную область для обстрела",
@@ -703,10 +997,33 @@ function validTarget(id, kind) {
   }
   return false;
 }
-function setOrder(u, o) {
-  pending[u.id] = o; mode = null; setHint("");
-  toast(`${u.n}: ${orderText(o)}`); SFX.play("order");
-  renderSel(); renderList(); renderPending(); drawUnits(); highlight();
+function setOrder(u, o) { setOrders([u], o); }
+function setOrders(us, o) {
+  for (const u of us) pending[u.id] = o;
+  mode = null; setHint("");
+  toast(us.length > 1 ? `${us.length} соединений: ${orderText(o)}` : `${us[0].n}: ${orderText(o)}`); SFX.play("order");
+  renderSel(); renderList(); renderPending(); drawUnits(); highlight(); scheduleSave();
+}
+// ── автосохранение приказов (без кнопки «Отправить») ──
+let saveTimer = null, saving = false;
+function saveBar(state, text) { const b = $("saveBar"); b.className = "savebar" + (state ? " " + state : ""); b.querySelector("span").innerHTML = text; }
+function scheduleSave() { clearTimeout(saveTimer); saveBar("busy", "Сохраняю приказы…"); saveTimer = setTimeout(flushSave, 700); }
+async function flushSave() {
+  clearTimeout(saveTimer);
+  const ids = Object.keys(pending); if (!ids.length || saving) return;
+  saving = true;
+  const batch = ids.map(id => [id, pending[id]]);
+  try {
+    const ans = await sendToBot("WARORD", {o: batch});
+    const lines = ans.split("\n").slice(1), bad = lines.filter(l => l[0] !== "+");
+    for (const [id, o] of batch) if (pending[id] === o) delete pending[id];
+    if (ans.startsWith("WARERR")) { saveBar("err", esc(ans.slice(7))); SFX.play("error"); }
+    else if (bad.length) { saveBar("err", `Сохранено, кроме ${bad.length}: ${esc(bad[0].slice(1))}`); SFX.play("error"); }
+    else saveBar("", `<b>Все приказы сохранены</b> · ход через ${$("timer").textContent}`);
+    await refresh(false);
+  } catch (e) { saveBar("err", esc(e.message) + " — повторю"); setTimeout(flushSave, 4000); }
+  saving = false;
+  if (Object.keys(pending).length) scheduleSave();
 }
 function onMapClick(e) {
   const t = e.target.closest("[data-u],[data-r],[data-z]"); if (!t) return;
@@ -721,7 +1038,13 @@ function onMapClick(e) {
       const loc = u.loc; if (loc.startsWith("R:") && validTarget(loc.slice(2), "R")) return targetPicked(loc.slice(2));
       if (loc[0] === "S" && validTarget(loc, "Z")) return targetPicked(loc);
     }
-    if (u && u.mine) { const same = S.units.filter(x => x.loc === u.loc && x.mine); const i = sel ? same.findIndex(x => x.id === sel.id) : -1; select(i >= 0 ? same[(i + 1) % same.length] : u); return; }
+    if (u && u.mine) {   // 1-й клик — вся стопка; следующие — по одному соединению по кругу
+      const same = S.units.filter(x => x.loc === u.loc && x.mine);
+      const allSel = same.length > 1 && same.every(x => selIds.has(x.id)) && selIds.size === same.length;
+      if (same.length > 1 && !same.some(x => selIds.has(x.id))) { selectMany(same); return; }
+      if (allSel) { select(same[0]); return; }
+      const i = sel ? same.findIndex(x => x.id === sel.id) : -1; select(same[(i + 1) % same.length]); return;
+    }
     return;
   }
   const id = t.dataset.r || t.dataset.z;
@@ -733,8 +1056,7 @@ function onMapClick(e) {
 function targetPicked(id) {
   const t = mode.t, o = {t};
   if (["move", "retreat", "land", "rebase"].includes(t)) o.to = id; else o.at = id;
-  if (t === "move" && sel.d === "naval") o.to = id;
-  setOrder(sel, o);
+  setOrders(mode.units || [sel], o);
 }
 $("svg").addEventListener("click", onMapClick);
 $("svg").addEventListener("mousemove", e => {
@@ -760,20 +1082,56 @@ $("svg").addEventListener("mousemove", e => {
 $("svg").addEventListener("mouseleave", () => $("tip").classList.remove("on"));
 
 function renderList() {
-  const mine = S.units.filter(u => u.mine).sort((a, b) => ["land", "naval", "air", "missile"].indexOf(a.d) - ["land", "naval", "air", "missile"].indexOf(b.d) || b.cv - a.cv);
-  $("myList").innerHTML = mine.length ? mine.map(u => {
+  const order = ["land", "naval", "air", "missile"];
+  const mine = S.units.filter(u => u.mine).sort((a, b) => order.indexOf(a.d) - order.indexOf(b.d) || b.cv - a.cv);
+  const row = u => {
     const o = pending[u.id] || u.o || {}; const p = !!pending[u.id];
     const hold = !o.t || ["hold", "patrol", "cover"].includes(o.t);
-    return `<div class="u${sel && sel.id === u.id ? " on" : ""}" data-pick="${u.id}"><div class="chip" style="--side:${u.side === "a" ? "#2f6fd1" : "#b0394c"}">${chipSvg(u.k)}</div>
+    return `<div class="u${selIds.has(u.id) ? " on" : ""}" data-pick="${u.id}"><div class="chip" style="--side:${u.side === "a" ? "#2f6fd1" : "#b0394c"}">${chipSvg(u.k)}</div>
       <div><b>${esc(u.n)}</b><small>${esc(locLabel(u.loc))} · ${fmt(u.cv)}</small><div class="str"><i style="width:${Math.round(Math.min(1, u.s ?? 1) * 100)}%"></i></div></div>
       <div class="go${p ? " pend" : hold ? " hold" : ""}">${esc(orderText(o))}</div></div>`;
-  }).join("") : `<div class="note">У вас нет готовых соединений. Сформируйте их в <b>!army</b>.</div>`;
+  };
+  let h = "";
+  const inGroup = new Set();
+  for (const g of S.groups || []) {
+    const us = mine.filter(u => g.ids.includes(u.id)); if (!us.length) continue;
+    us.forEach(u => inGroup.add(u.id));
+    h += `<div class="grp" data-grp="${g.id}"><span>${esc(g.name)} <small>· ${us.length} соед. · ${fmt(us.reduce((a, u) => a + u.cv, 0))}</small></span><button data-gdel="${g.id}" title="Распустить">×</button></div>` + us.map(row).join("");
+  }
+  const rest = mine.filter(u => !inGroup.has(u.id)), byLoc = {};
+  for (const u of rest) (byLoc[u.loc] = byLoc[u.loc] || []).push(u);
+  for (const [loc, us] of Object.entries(byLoc))
+    h += `<div class="grp reg" data-loc="${esc(loc)}"><span>${esc(locLabel(loc))} <small>· ${us.length}</small></span></div>` + us.map(row).join("");
+  $("myList").innerHTML = mine.length ? h : `<div class="note">У вас нет готовых соединений. Сформируйте их в <b>!army</b>.</div>`;
+  document.querySelectorAll("[data-grp]").forEach(el => el.onclick = e => { if (e.target.dataset.gdel) return; const g = S.groups.find(x => x.id == el.dataset.grp); selectMany(S.units.filter(u => g.ids.includes(u.id))); });
+  document.querySelectorAll("[data-gdel]").forEach(el => el.onclick = () => armyOp({op: "del", id: +el.dataset.gdel}));
+  document.querySelectorAll("[data-loc]").forEach(el => el.onclick = () => { selectMany(S.units.filter(u => u.mine && u.loc === el.dataset.loc)); centerOn(el.dataset.loc); });
   document.querySelectorAll("[data-pick]").forEach(el => el.onclick = () => { const u = S.units.find(x => x.id === el.dataset.pick); select(u); centerOn(u.loc); });
 }
 function centerOn(loc) {
   const xy = locXY(loc); if (!xy) return;
   VB.x = xy[0] - VB.w / 2; VB.y = xy[1] - VB.h / 2; applyVB();
 }
+function frontOrder(kind) {
+  const pool = (selIds.size ? selectedUnits() : S.units.filter(u => u.mine)).filter(u => u.d === "land" && u.loc.startsWith("R:"));
+  const atFront = pool.filter(u => (S.adj[u.loc.slice(2)] || []).some(r => isHostileLoc(r)) || (S.regions[u.loc.slice(2)] || [])[4] >= 0);
+  if (!atFront.length) { toast("На линии фронта нет выбранных частей", "bad"); return; }
+  if (kind !== "attack") { setOrders(atFront, {t: kind}); return; }
+  const stacks = {}; for (const u of atFront) (stacks[u.loc] = stacks[u.loc] || []).push(u);
+  let n = 0;
+  for (const [loc, us] of Object.entries(stacks)) {
+    const near = (S.adj[loc.slice(2)] || []).filter(r => isHostileLoc(r));
+    if (!near.length) continue;
+    const best = near.map(r => { const f = forecast(us[0], r); return [r, f ? f.ratio : 0]; }).sort((a, b) => b[1] - a[1])[0];
+    if (best[1] < 1.0) continue;   // слабых мест нет — не гоним на убой
+    for (const u of us) pending[u.id] = {t: "move", to: best[0]};
+    n += us.length;
+  }
+  if (!n) { toast("Слабых мест на фронте не видно — лучше окопаться", "bad"); return; }
+  toast(`Атака по слабым местам: ${n} соединений`); SFX.play("order");
+  renderSel(); renderList(); renderPending(); drawUnits(); highlight(); scheduleSave();
+}
+document.querySelectorAll("[data-front]").forEach(b => b.onclick = () => frontOrder(b.dataset.front));
 function renderPending() {
   const ids = Object.keys(pending);
   $("pendBox").style.display = ids.length ? "" : "none";
@@ -881,7 +1239,7 @@ if (LOCAL) $("turnBtn").classList.add("on");
 $("turnBtn").onclick = async () => {
   const b = $("turnBtn"); b.disabled = true; b.textContent = "Идёт ход…";
   try {
-    if (Object.keys(pending).length) await $("sendBtn").onclick();
+    if (Object.keys(pending).length) await flushSave();
     const ans = await sendToBot("WARTURN", {});
     toast(ans.replace(/^WAROK\s*/, ""), "good");
     await refresh(false);
