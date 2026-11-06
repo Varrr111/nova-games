@@ -1,0 +1,661 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nova Order · Редактор карты</title>
+<style>
+:root{
+  --bg:#070d18; --panel:#0e1829; --panel2:#132138; --line:#1f3352; --line2:#2a4469;
+  --text:#dce8f6; --muted:#8195b0; --accent:#4d9de0; --accent2:#6cc2e8; --gold:#e6b45a;
+  --red:#e0525f; --occ:#9c2a2e; --ok:#3fbf8f; --neutral:#2e3644; --neutral-edge:#3c4656;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--text);
+  font:14px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;overflow:hidden}
+button{font:inherit;color:inherit;cursor:pointer}
+.app{display:grid;grid-template-columns:316px 1fr;grid-template-rows:56px 1fr;height:100vh}
+header{grid-column:1/3;display:flex;align-items:center;gap:14px;padding:0 16px;
+  background:linear-gradient(180deg,#0f1c31,#0b1526);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.06em}
+.brand .dot{width:26px;height:26px;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,#9fd6ff,#2a6fb3 55%,#0b2747);box-shadow:0 0 14px #4d9de080}
+.brand small{display:block;font-weight:500;letter-spacing:0;color:var(--muted);font-size:12px}
+.spacer{flex:1}
+.pill{padding:6px 12px;border-radius:999px;background:var(--panel2);border:1px solid var(--line);color:var(--muted);font-size:13px}
+.pill b{color:var(--text)}
+.chip{display:none;align-items:center;gap:8px;padding:5px 12px 5px 6px;border-radius:999px;background:var(--panel2);border:1px solid var(--line2);font-size:13px}
+.chip i{width:18px;height:18px;border-radius:50%;box-shadow:inset 0 0 0 1px #ffffff40}
+.chip b{font-weight:600}
+.btn{display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 14px;border-radius:9px;
+  background:var(--panel2);border:1px solid var(--line2);transition:.15s}
+.btn:hover{border-color:var(--accent);background:#17294a}
+.btn:disabled{opacity:.4;cursor:default}
+.btn.primary{background:linear-gradient(180deg,#4d9de0,#2f78bd);border-color:#5fb0f0;font-weight:600;color:#fff}
+.btn.primary:hover{filter:brightness(1.1)}
+.btn svg{width:16px;height:16px}
+aside{background:var(--panel);border-right:1px solid var(--line);overflow:auto;padding:14px 14px 24px}
+.sec{margin-bottom:18px}
+.sec h3{margin:0 0 8px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:3px;gap:3px}
+.seg button{background:none;border:0;border-radius:7px;padding:8px 4px;font-size:13px;color:var(--muted);font-weight:600;display:flex;align-items:center;justify-content:center;gap:6px}
+.seg.tools{grid-auto-flow:row;grid-template-columns:1fr 1fr}
+.seg.tools .kbd{margin-left:4px}
+.seg button.on{background:var(--panel2);color:var(--text);box-shadow:inset 0 0 0 1px var(--line2)}
+.seg button.on.occ{background:#3a1418;box-shadow:inset 0 0 0 1px #7a2a30;color:#ffb3b0}
+.seg button svg{width:15px;height:15px}
+.kbd{font:11px ui-monospace,Menlo,monospace;color:var(--muted);border:1px solid var(--line2);border-radius:4px;padding:0 4px;margin-left:2px}
+.sizes{display:flex;gap:6px;margin-top:8px;align-items:center;color:var(--muted);font-size:12px}
+.sizes button{width:30px;height:30px;border-radius:8px;border:1px solid var(--line);background:var(--bg);display:grid;place-items:center}
+.sizes button.on{border-color:var(--accent);background:#10233f}
+.sizes i{display:block;border-radius:50%;background:var(--accent2)}
+.search{width:100%;height:36px;border-radius:9px;border:1px solid var(--line2);background:var(--bg);color:var(--text);padding:0 12px;outline:none}
+.search:focus{border-color:var(--accent)}
+.list{margin-top:8px;max-height:280px;overflow:auto;border:1px solid var(--line);border-radius:10px;background:var(--bg)}
+.item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-bottom:1px solid #12203a;cursor:pointer}
+.item:last-child{border-bottom:0}
+.item:hover{background:#0f1d33}
+.item.on{background:#13284a;box-shadow:inset 3px 0 0 var(--accent)}
+.sw{width:14px;height:14px;border-radius:4px;flex:none;box-shadow:inset 0 0 0 1px #ffffff30}
+.item small{margin-left:auto;color:var(--muted)}
+.hint{color:var(--muted);font-size:12px;margin-top:6px}
+.results .item small{font-size:11px}
+.chg{display:flex;justify-content:space-between;font-size:13px;padding:3px 0;color:var(--muted)}
+.chg b{color:var(--text)}
+main{position:relative;overflow:hidden;background:radial-gradient(ellipse at 50% 30%,#0c1a2e,#050a14 70%)}
+svg#map{width:100%;height:100%;display:block;touch-action:none;user-select:none}
+#map{shape-rendering:geometricPrecision}
+#map path.r{stroke:var(--neutral-edge);stroke-width:.55;vector-effect:non-scaling-stroke;stroke-linejoin:round}
+#map.ready path.r{transition:fill .18s ease}
+#map path.r.pend{stroke:#fff;stroke-width:1.2}
+#map.moving path.r{stroke:none;transition:none}
+#map.moving path.c{stroke-width:.7;opacity:.6}
+#map.moving{shape-rendering:optimizeSpeed}
+#map path.sel{fill:none;stroke:#ffe9a8;stroke-width:1.6;vector-effect:non-scaling-stroke;pointer-events:none;
+  filter:drop-shadow(0 0 3px #ffd36a);opacity:.95}
+#map.moving path.sel{filter:none}
+#map text.lbl{font-weight:700;fill:#f2f6fc;paint-order:stroke;stroke:#08101dcc;stroke-linejoin:round;
+  text-anchor:middle;dominant-baseline:middle;pointer-events:none;letter-spacing:.02em}
+#map.moving text.lbl{display:none}
+#map path.c{fill:none;stroke:#a6c0dd;stroke-width:1.1;vector-effect:non-scaling-stroke;pointer-events:none;opacity:.9;
+  stroke-linejoin:round;stroke-linecap:round}
+#map path.hov{fill:none;stroke:#fff;stroke-width:2;vector-effect:non-scaling-stroke;pointer-events:none}
+.cursor{position:absolute;pointer-events:none;border:1.5px solid #ffffffd0;border-radius:50%;box-shadow:0 0 0 1px #0008,0 0 12px #0006;display:none;transform:translate(-50%,-50%);transition:width .12s,height .12s,background-color .12s}
+.tip{position:absolute;pointer-events:none;background:#0b1526ee;border:1px solid var(--line2);border-radius:10px;padding:8px 10px;font-size:12px;min-width:170px;display:none;box-shadow:0 8px 24px #0008}
+.tip b{font-size:13px}
+.tip .row{color:var(--muted);margin-top:2px}
+.tip .row span{color:var(--text)}
+.zoom{position:absolute;right:14px;bottom:14px;display:flex;flex-direction:column;gap:6px}
+.zoom button{width:38px;height:38px;border-radius:10px;background:var(--panel);border:1px solid var(--line2);font-size:18px}
+.legend{position:absolute;left:14px;bottom:14px;background:#0b1526dd;border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:12px;color:var(--muted);display:flex;gap:14px}
+.legend span{display:flex;align-items:center;gap:6px}
+.toast{position:fixed;left:50%;top:70px;transform:translateX(-50%) translateY(-20px);opacity:0;transition:.25s;
+  background:var(--panel2);border:1px solid var(--line2);border-radius:12px;padding:12px 16px;box-shadow:0 12px 32px #000a;max-width:560px;z-index:10}
+.toast.show{opacity:1;transform:translateX(-50%)}
+.toast.ok{border-color:#2f8f6d}.toast.err{border-color:#8f2f3a}
+.modal{position:fixed;inset:0;background:#000a;display:none;place-items:center;z-index:20}
+.modal .box{background:var(--panel);border:1px solid var(--line2);border-radius:14px;padding:20px;width:min(460px,92vw)}
+.modal h2{margin:0 0 8px;font-size:18px}
+.modal p{color:var(--muted);margin:0 0 14px}
+.modal .acts{display:flex;gap:8px;justify-content:flex-end}
+@media (max-width:820px){.app{grid-template-columns:1fr;grid-template-rows:56px 46vh 1fr}aside{grid-row:3}main{grid-row:2}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand"><div class="dot"></div><div>NOVA ORDER · Редактор карты<small id="sub">—</small></div></div>
+    <div class="spacer"></div>
+    <div class="chip" id="whoChip"><i id="whoDot"></i><span id="whoMode">Кисть:</span><b id="whoName"></b></div>
+    <div class="pill">Правок: <b id="cnt">0</b></div>
+    <button class="btn" id="undo" title="Отменить (Ctrl+Z)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 14 4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/></svg>Отменить</button>
+    <button class="btn" id="redo" title="Повторить (Ctrl+Shift+Z)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 14 5-5-5-5"/><path d="M20 9H9a5 5 0 0 0 0 10h3"/></svg></button>
+    <button class="btn" id="reset" title="Сбросить все правки"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 14h10l1-14"/></svg>Сбросить</button>
+    <button class="btn primary" id="send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 2-7 20-4-9-9-4 20-7z"/><path d="M22 2 11 13"/></svg>Отправить в бота</button>
+  </header>
+
+  <aside>
+    <div class="sec">
+      <h3>Режим</h3>
+      <div class="seg" id="modeSeg">
+        <button data-mode="own" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 21V4h11l-1 4h6v9H9"/></svg>Передача</button>
+        <button data-mode="occ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m14.5 17.5-11-11V3h3.5l11 11"/><path d="m13 19 6-6"/><path d="m16 16 4 4"/></svg>Оккупация</button>
+      </div>
+      <div class="hint" id="modeHint"></div>
+    </div>
+
+    <div class="sec">
+      <h3>Инструмент</h3>
+      <div class="seg tools" id="toolSeg">
+        <button data-tool="hand" class="on">Рука<span class="kbd">H</span></button>
+        <button data-tool="brush">Кисть<span class="kbd">B</span></button>
+        <button data-tool="erase">Ластик<span class="kbd">E</span></button>
+        <button data-tool="fill">Страна<span class="kbd">F</span></button>
+      </div>
+      <div class="sizes" id="sizes">Размер:
+        <button data-s="1" class="on"><i style="width:6px;height:6px"></i></button>
+        <button data-s="2"><i style="width:11px;height:11px"></i></button>
+        <button data-s="3"><i style="width:16px;height:16px"></i></button>
+        <span class="kbd">1</span><span class="kbd">2</span><span class="kbd">3</span>
+      </div>
+      <div class="hint" id="toolHint"></div>
+    </div>
+
+    <div class="sec">
+      <h3 id="whoTitle">Кому передать</h3>
+      <input class="search" id="whoSearch" placeholder="Поиск страны…">
+      <div class="list" id="whoList"></div>
+    </div>
+
+    <div class="sec">
+      <h3>Найти на карте</h3>
+      <input class="search" id="find" placeholder="Страна или область…">
+      <div class="list results" id="findList" style="display:none"></div>
+    </div>
+
+    <div class="sec">
+      <h3>Правки к отправке</h3>
+      <div id="summary"><div class="hint">Пока ничего не изменено.</div></div>
+    </div>
+
+    <div class="sec hint">
+      <b>Двигать карту:</b> инструмент «Рука» <span class="kbd">H</span>, или зажать <span class="kbd">Пробел</span> / правую кнопку и тянуть, или стрелки / <span class="kbd">W</span><span class="kbd">A</span><span class="kbd">S</span><span class="kbd">D</span>. Тачпад: два пальца — двигать, щипок — масштаб.<br>
+      <b>Масштаб:</b> колесо мыши, кнопки <span class="kbd">+</span> <span class="kbd">−</span>, двойной клик рукой.
+      <span class="kbd">Shift</span>+клик — вся страна. Правки сохраняются в браузере, пока не отправлены.
+    </div>
+  </aside>
+
+  <main id="main">
+    <svg id="map" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="stripes" patternUnits="userSpaceOnUse" width="9" height="9" patternTransform="rotate(45)">
+          <rect width="9" height="9" fill="#9c2a2e"/><rect width="3.2" height="9" fill="#e07a7a" opacity=".75"/>
+        </pattern>
+        <pattern id="stripesP" patternUnits="userSpaceOnUse" width="9" height="9" patternTransform="rotate(45)">
+          <rect width="9" height="9" fill="#b8333a"/><rect width="3.2" height="9" fill="#ffb0a8" opacity=".85"/>
+        </pattern>
+      </defs>
+      <g id="vp"><g id="regs"></g><g id="ctry"></g><path id="sel" class="sel"/><g id="lbls"></g><path id="hov" class="hov"/></g>
+    </svg>
+    <div class="cursor" id="cursor"></div>
+    <div class="tip" id="tip"></div>
+    <div class="legend">
+      <span><i class="sw" style="background:#2e3644"></i>не в игре</span>
+      <span><i class="sw" style="background:repeating-linear-gradient(45deg,#9c2a2e 0 4px,#e07a7a 4px 6px)"></i>оккупация</span>
+      <span><i class="sw" style="background:transparent;box-shadow:inset 0 0 0 2px #fff"></i>несохранённая правка</span>
+    </div>
+    <div class="zoom"><button id="zin">+</button><button id="zout">−</button><button id="zfit" title="Весь мир">⤢</button></div>
+  </main>
+</div>
+<div class="toast" id="toast"></div>
+<div class="modal" id="modal"><div class="box"><h2 id="mTitle"></h2><p id="mText"></p><div class="acts" id="mActs"></div></div></div>
+
+<script>
+// ── загрузка данных: личная ссылка из бота (?t=…#<вебхук>) → состояние карты (вложение сообщения вебхука)
+//    + геометрия областей (geo.json рядом). Эпоха (1936/2026) приходит в состоянии — карта своего времени.
+async function __load() {
+  const q = new URLSearchParams(location.search);
+  let hook = decodeURIComponent((location.hash || "").slice(1)), t = null;
+  try { t = JSON.parse(decodeURIComponent(escape(atob((q.get("t") || "").replace(/-/g, "+").replace(/_/g, "/"))))); } catch (e) {}
+  const local = q.has("local") && /^http:\/\/localhost:\d+\/hook$/.test(hook);
+  if (!t || !hook || (!local && !/^https:\/\/(discord|discordapp)\.com\/api\/webhooks\//.test(hook)))
+    throw new Error("Ссылка неполная — откройте редактор заново командой !карта-редактор в Discord.");
+  const msg = await (await fetch(hook + "/messages/" + t.m)).json();
+  const att = (msg.attachments || [])[0];
+  if (!att) throw new Error("Состояние карты не найдено — откройте редактор заново.");
+  const [st, geo] = await Promise.all([fetch(att.url).then(r => r.json()), fetch("geo.json").then(r => r.json())]);
+  for (const [a3, v] of Object.entries(st.names || {})) geo.countries[a3] = v;   // державы эпохи (СССР, …)
+  return {...st, geo, webhook: hook};
+}
+(async () => {
+let D;
+try { D = await __load(); }
+catch (e) { document.body.innerHTML = `<div style="font:16px -apple-system,Inter,sans-serif;color:#e8edf4;background:#0e1520;min-height:100vh;display:grid;place-items:center;padding:24px;text-align:center"><div><b style="font-size:19px">Редактор карты не открылся</b><p style="color:#9aa7b8;margin-top:8px">${e.message}</p></div></div>`; return; }
+
+const G = D.geo, NS = "http://www.w3.org/2000/svg";
+const $ = id => document.getElementById(id);
+const NEUTRAL = "#2e3644";
+const KEY = "novaMapEdit:" + D.guild + ":" + D.generated;
+
+// ── состояние ──
+const regions = {};            // code -> {a0, name, el}
+const byCountry = {};          // a3 -> [codes]
+const base = {own: Object.assign({}, D.overrides), occ: Object.assign({}, D.occupied)};
+let pending = {};              // code -> {t, to}
+let history = [], future = [];
+let mode = "own", tool = "hand", size = 1, who = null;
+
+$("sub").textContent = D.guild + (D.era ? " · " + D.era : "") + " · состояние на " + new Date(D.generated * 1000).toLocaleString("ru-RU");
+
+// ── построение карты ──
+const regsG = $("regs"), ctryG = $("ctry");
+const frag = document.createDocumentFragment();
+for (const [code, a0, name, d] of G.regions) {
+  const p = document.createElementNS(NS, "path");
+  p.setAttribute("d", d); p.setAttribute("class", "r"); p.dataset.c = code;
+  regions[code] = {a0, name, el: p};
+  (byCountry[a0] = byCountry[a0] || []).push(code);
+  frag.appendChild(p);
+}
+regsG.appendChild(frag);
+// границы стран и берега — из тех же общих участков, что и области (точно по стыку заливок)
+if (D.borders || G.borders) {          // границы эпохи (1936 — СССР, империи…) приходят с состоянием
+  const p = document.createElementNS(NS, "path");
+  p.setAttribute("d", D.borders || G.borders); p.setAttribute("class", "c");
+  ctryG.appendChild(p);
+} else {
+  const cfrag = document.createDocumentFragment();
+  for (const a3 in G.countries) { if (!G.countries[a3][1]) continue;
+    const p = document.createElementNS(NS, "path"); p.setAttribute("d", G.countries[a3][1]); p.setAttribute("class", "c");
+    cfrag.appendChild(p); }
+  ctryG.appendChild(cfrag);
+}
+
+function cname(a3) { return (D.active[a3] && D.active[a3][0]) || (G.countries[a3] && G.countries[a3][0]) || a3; }
+function ccol(a3) { return D.active[a3] ? D.active[a3][1] : NEUTRAL; }
+
+// итоговое состояние области с учётом правок
+function view(code) {
+  const r = regions[code], pd = pending[code];
+  let owner = base.own[code] || r.a0, occ = base.occ[code] || null;
+  if (pd) {
+    if (pd.t === "own") { owner = pd.to; occ = null; }
+    else if (pd.t === "free") { owner = r.a0; occ = null; }
+    else if (pd.t === "occ") occ = pd.to;
+    else if (pd.t === "unocc") occ = null;
+  }
+  return {owner, occ};
+}
+function paint(code) {
+  const r = regions[code], v = view(code), pd = !!pending[code];
+  r.el.setAttribute("fill", v.occ ? (pd ? "url(#stripesP)" : "url(#stripes)") : ccol(v.owner));
+  r.el.classList.toggle("pend", pd);
+}
+for (const c in regions) paint(c);
+
+// ── правки, отмена ──
+function opFor(code) {
+  const r = regions[code];
+  if (tool === "erase") return mode === "occ" ? {t: "unocc"} : {t: "free"};
+  if (!who) return null;
+  if (mode === "own") return who === r.a0 && !base.own[code] ? {t: "free"} : {t: "own", to: who};
+  return {t: "occ", to: who};
+}
+function isNoop(code, op) {
+  const cur = view(code);
+  if (op.t === "own") return cur.owner === op.to && !cur.occ;
+  if (op.t === "free") return cur.owner === regions[code].a0 && !cur.occ;
+  if (op.t === "occ") return cur.occ === op.to;
+  if (op.t === "unocc") return !cur.occ;
+}
+let stroke = null;   // изменения текущего мазка: code -> предыдущее pending
+function apply(code) {
+  const op = opFor(code);
+  if (!op) { needWho(); return; }
+  if (isNoop(code, op)) return;
+  if (stroke && !(code in stroke)) stroke[code] = pending[code] ? Object.assign({}, pending[code]) : null;
+  // правка, совпадающая с исходным состоянием базы, — просто снимаем pending
+  pending[code] = op;
+  const b = {owner: base.own[code] || regions[code].a0, occ: base.occ[code] || null}, v = view(code);
+  if (v.owner === b.owner && v.occ === b.occ) delete pending[code];
+  paint(code);
+}
+function beginStroke() { stroke = {}; }
+function endStroke() {
+  const changed = stroke && Object.keys(stroke).length;
+  if (changed) { history.push(stroke); future = []; save(); }
+  stroke = null; ui();
+  if (changed) { selOutline(); buildLabels(); }
+}
+function undo() {
+  const s = history.pop(); if (!s) return;
+  const redo = {};
+  for (const c in s) { redo[c] = pending[c] ? Object.assign({}, pending[c]) : null;
+    if (s[c]) pending[c] = s[c]; else delete pending[c]; paint(c); }
+  future.push(redo); save(); ui(); selOutline(); buildLabels();
+}
+function redoF() {
+  const s = future.pop(); if (!s) return;
+  const back = {};
+  for (const c in s) { back[c] = pending[c] ? Object.assign({}, pending[c]) : null;
+    if (s[c]) pending[c] = s[c]; else delete pending[c]; paint(c); }
+  history.push(back); save(); ui(); selOutline(); buildLabels();
+}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(pending)); } catch (e) {} }
+try { const saved = JSON.parse(localStorage.getItem(KEY) || "null");
+  if (saved && Object.keys(saved).length) { pending = saved; for (const c in pending) if (regions[c]) paint(c); else delete pending[c]; } } catch (e) {}
+
+// ── интерфейс ──
+function ui() {
+  const n = Object.keys(pending).length;
+  $("cnt").textContent = n;
+  $("send").disabled = !n; $("reset").disabled = !n;
+  $("undo").disabled = !history.length; $("redo").disabled = !future.length;
+  const agg = {};
+  for (const c in pending) {
+    const p = pending[c], key = p.t + "|" + (p.to || "") + "|" + regions[c].a0;
+    agg[key] = (agg[key] || 0) + 1;
+  }
+  const lab = {own: "→", occ: "оккупирует", free: "возврат", unocc: "снята оккупация"};
+  const rows = Object.entries(agg).sort((a, b) => b[1] - a[1]).slice(0, 12).map(([k, v]) => {
+    const [t, to, from] = k.split("|");
+    const txt = t === "own" ? `${cname(from)} → <b>${cname(to)}</b>`
+      : t === "occ" ? `<b>${cname(to)}</b> оккупирует ${cname(from)}`
+      : `${cname(from)}: ${lab[t]}`;
+    return `<div class="chg"><span>${txt}</span><b>${v}</b></div>`;
+  });
+  $("summary").innerHTML = rows.length ? rows.join("") : '<div class="hint">Пока ничего не изменено.</div>';
+  $("whoTitle").textContent = mode === "occ" ? "Оккупант" : "Кому передать";
+  $("modeHint").textContent = mode === "occ"
+    ? "Красная штриховка — область временно занята, владелец прежний (до мира)."
+    : "Область навсегда переходит к выбранной стране.";
+  $("toolHint").textContent = tool === "hand" ? "Зажмите и тяните карту. Двойной клик — приблизить." :
+    tool === "brush" ? "Зажмите и ведите по карте." :
+    tool === "erase" ? (mode === "occ" ? "Снимает оккупацию." : "Возвращает области исходной стране.") :
+    "Клик по стране — красит все её области.";
+}
+function seg(id, attr, val) { for (const b of $(id).children) b.classList.toggle("on", b.dataset[attr] === val); }
+$("modeSeg").onclick = e => { const b = e.target.closest("button"); if (!b) return;
+  mode = b.dataset.mode; seg("modeSeg", "mode", mode);
+  $("modeSeg").querySelector('[data-mode="occ"]').classList.toggle("occ", mode === "occ"); ui(); selOutline(); };
+function setTool(t) { tool = t; seg("toolSeg", "tool", t); svg.style.cursor = t === "hand" ? "grab" : ""; ui(); }
+$("toolSeg").onclick = e => { const b = e.target.closest("button"); if (b) setTool(b.dataset.tool); };
+function setSize(s) { size = s; seg("sizes", "s", String(s)); }
+$("sizes").onclick = e => { const b = e.target.closest("button"); if (b) setSize(+b.dataset.s); };
+
+function whoList() {
+  const q = $("whoSearch").value.trim().toLowerCase();
+  const items = Object.entries(D.active).filter(([a3, [n]]) => !q || n.toLowerCase().includes(q))
+    .sort((a, b) => a[1][0].localeCompare(b[1][0], "ru"));
+  $("whoList").innerHTML = items.length ? items.map(([a3, [n, c]]) =>
+    `<div class="item ${a3 === who ? "on" : ""}" data-a3="${a3}"><i class="sw" style="background:${c}"></i>${n}<small>${(byCountry[a3] || []).length} обл.</small></div>`).join("")
+    : '<div class="item" style="cursor:default;color:var(--muted)">Нет зарегистрированных стран</div>';
+}
+$("whoSearch").oninput = whoList;
+$("whoList").onclick = e => { const it = e.target.closest(".item"); if (it && it.dataset.a3) { who = it.dataset.a3; whoList();
+  if (tool === "hand") setTool("brush"); selOutline(); } };
+function needWho() { toast(mode === "occ" ? "Сначала выберите оккупанта слева." : "Сначала выберите, кому передать область.", "err"); }
+
+// ── поиск и зум к объекту ──
+$("find").oninput = () => {
+  const q = $("find").value.trim().toLowerCase(), box = $("findList");
+  if (q.length < 2) { box.style.display = "none"; return; }
+  const out = [];
+  for (const a3 in G.countries) if (G.countries[a3][0].toLowerCase().includes(q)) out.push(["c", a3, G.countries[a3][0], "страна"]);
+  for (const c in regions) if (regions[c].name.toLowerCase().includes(q)) out.push(["r", c, regions[c].name, cname(regions[c].a0)]);
+  box.innerHTML = out.slice(0, 30).map(([k, id, n, s]) => `<div class="item" data-k="${k}" data-id="${id}">${n}<small>${s}</small></div>`).join("")
+    || '<div class="item" style="cursor:default;color:var(--muted)">Ничего не найдено</div>';
+  box.style.display = "block";
+};
+$("findList").onclick = e => { const it = e.target.closest(".item"); if (!it || !it.dataset.id) return;
+  const els = it.dataset.k === "c" ? (byCountry[it.dataset.id] || []).map(c => regions[c].el) : [regions[it.dataset.id].el];
+  focusEls(els); if (it.dataset.k === "r") flash(it.dataset.id); };
+function focusEls(els) {
+  if (!els.length) return;
+  let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+  for (const el of els) { const b = el.getBBox(); x0 = Math.min(x0, b.x); y0 = Math.min(y0, b.y); x1 = Math.max(x1, b.x + b.width); y1 = Math.max(y1, b.y + b.height); }
+  const pad = Math.max(x1 - x0, y1 - y0) * .25 + 20;
+  setView(x0 - pad, y0 - pad, x1 - x0 + 2 * pad, y1 - y0 + 2 * pad);
+}
+function flash(code) { const h = $("hov"); h.setAttribute("d", regions[code].el.getAttribute("d")); }
+
+// ── вид: плавный пан/зум (анимация к цели, инерция, один рендер на кадр) ──
+const svg = $("map");
+let vb = {x: 0, y: 0, w: G.w, h: G.h}, goal = null, vel = {x: 0, y: 0}, raf = 0, idleT = null, dragging = false;
+function aspect() { const r = svg.getBoundingClientRect(); return r.width / Math.max(1, r.height); }
+function fitBox(x, y, w, h) {
+  const ar = aspect();
+  if (w / h > ar) { const nh = w / ar; y -= (nh - h) / 2; h = nh; } else { const nw = h * ar; x -= (nw - w) / 2; w = nw; }
+  const nw2 = Math.min(Math.max(w, 30), G.w * 1.6); x += (w - nw2) / 2; y += (h - nw2 / ar) / 2; w = nw2; h = w / ar;
+  // не уводить карту за край: центр вида остаётся над картой
+  const cx = Math.min(Math.max(x + w / 2, 0), G.w), cy = Math.min(Math.max(y + h / 2, 0), G.h);
+  return {x: cx - w / 2, y: cy - h / 2, w, h};
+}
+function render() { svg.setAttribute("viewBox", `${vb.x} ${vb.y} ${vb.w} ${vb.h}`); labels(); }
+function moving() { svg.classList.add("moving"); clearTimeout(idleT);
+  idleT = setTimeout(() => { svg.classList.remove("moving"); labels(); }, 140); }
+function tick() {
+  raf = 0; let again = false;
+  if (goal) {
+    const k = 0.24;
+    for (const key of ["x", "y", "w", "h"]) vb[key] += (goal[key] - vb[key]) * k;
+    if (Math.abs(goal.w - vb.w) < goal.w * 0.002 && Math.abs(goal.x - vb.x) < goal.w * 0.002) { vb = goal; goal = null; }
+    else again = true;
+  }
+  if (!dragging && !goal && (Math.abs(vel.x) + Math.abs(vel.y)) > vb.w * 0.0004) {
+    vb.x += vel.x; vb.y += vel.y; vel.x *= 0.9; vel.y *= 0.9; again = true;
+    const b = fitBox(vb.x, vb.y, vb.w, vb.h); vb.x = b.x; vb.y = b.y;
+  }
+  render();
+  if (again) { moving(); raf = requestAnimationFrame(tick); }
+}
+function kick() { moving(); if (!raf) raf = requestAnimationFrame(tick); }
+function setView(x, y, w, h, instant) {
+  const b = fitBox(x, y, w, h); vel = {x: 0, y: 0};
+  if (instant) { vb = b; goal = null; render(); return; }
+  goal = b; kick();
+}
+function fit(instant) { setView(-G.w * .02, -G.h * .02, G.w * 1.04, G.h * 1.04, instant); }
+function toMap(ev) { const r = svg.getBoundingClientRect(); return {x: vb.x + (ev.clientX - r.left) / r.width * vb.w, y: vb.y + (ev.clientY - r.top) / r.height * vb.h}; }
+function zoomAt(f, cx, cy) {   // масштаб вокруг точки; копится от текущей цели — колесо не «дёргает»
+  const b = goal || vb;
+  setView(cx - (cx - b.x) * f, cy - (cy - b.y) * f, b.w * f, b.h * f);
+}
+svg.addEventListener("wheel", e => {
+  e.preventDefault();
+  const r = svg.getBoundingClientRect();
+  // тачпад: прокрутка двумя пальцами = сдвиг; щипок (ctrlKey) и колесо мыши = масштаб
+  const trackpad = !e.ctrlKey && (Math.abs(e.deltaX) > 0 || (e.deltaMode === 0 && Math.abs(e.deltaY) < 50 && !Number.isInteger(e.deltaY)));
+  if (trackpad) {
+    goal = null; vel = {x: 0, y: 0};
+    const b = fitBox(vb.x + e.deltaX / r.width * vb.w, vb.y + e.deltaY / r.height * vb.h, vb.w, vb.h);
+    vb.x = b.x; vb.y = b.y; kick(); return;
+  }
+  const dy = e.deltaMode === 1 ? e.deltaY * 33 : e.deltaY;
+  const p = toMap(e); zoomAt(Math.pow(1.0018, e.ctrlKey ? dy * 4 : dy), p.x, p.y);
+}, {passive: false});
+function panBy(dx, dy) { const b = goal || vb; setView(b.x + dx * b.w, b.y + dy * b.h, b.w, b.h); }
+svg.addEventListener("dblclick", e => { if (tool === "hand") { const p = toMap(e); zoomAt(e.shiftKey ? 1.8 : .5, p.x, p.y); } });
+$("zin").onclick = () => zoomAt(.6, vb.x + vb.w / 2, vb.y + vb.h / 2);
+$("zout").onclick = () => zoomAt(1.6, vb.x + vb.w / 2, vb.y + vb.h / 2);
+$("zfit").onclick = () => fit();
+window.addEventListener("resize", () => setView(vb.x, vb.y, vb.w, vb.h, true));
+
+// ── подписи зарегистрированных стран (появляются, когда страна достаточно крупная на экране) ──
+const lblG = $("lbls"), LBL = [];
+function buildLabels() {
+  lblG.innerHTML = ""; LBL.length = 0;
+  for (const a3 in D.active) {
+    const codes = (byCountry[a3] || []).filter(c => view(c).owner === a3);
+    if (!codes.length) continue;
+    let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9, best = null, bestA = -1;
+    for (const c of codes) { const b = regions[c].el.getBBox();
+      if (b.width > G.w / 3) continue;   // область «через 180°» (Чукотка) — рамка во весь мир, не годится
+      const a = b.width * b.height;
+      x0 = Math.min(x0, b.x); y0 = Math.min(y0, b.y); x1 = Math.max(x1, b.x + b.width); y1 = Math.max(y1, b.y + b.height);
+      if (a > bestA) { bestA = a; best = b; } }
+    if (!best) continue;
+    const t = document.createElementNS(NS, "text"); t.setAttribute("class", "lbl"); t.textContent = cname(a3);
+    lblG.appendChild(t);
+    // якорь — центр самой крупной области (у России — не в океане между Калининградом и Чукоткой)
+    LBL.push({el: t, cx: best.x + best.width / 2, cy: best.y + best.height / 2, w: Math.max(best.width * 1.6, Math.min(x1 - x0, best.width * 3)), n: cname(a3).length});
+  }
+  labels();
+}
+function labels() {
+  const fs = vb.w / 70;   // ~ одинаковый экранный размер
+  for (const L of LBL) {
+    const show = L.w > fs * L.n * 0.62;
+    L.el.style.display = show ? "" : "none";
+    if (show) { L.el.setAttribute("x", L.cx); L.el.setAttribute("y", L.cy); L.el.setAttribute("font-size", fs);
+      L.el.setAttribute("stroke-width", fs * .22); }
+  }
+}
+
+// ── подсветка выбранной страны (кисть) ──
+function selOutline() {
+  const d = who ? Object.keys(regions).filter(c => view(c).owner === who).map(c => regions[c].el.getAttribute("d")).join("") : "";
+  $("sel").setAttribute("d", d);
+  const chip = $("whoChip");
+  chip.style.display = who ? "flex" : "none";
+  if (who) { $("whoDot").style.background = ccol(who); $("whoName").textContent = cname(who);
+    $("whoMode").textContent = mode === "occ" ? "Оккупант:" : "Кисть:"; }
+}
+
+// ── кисть: области под кругом курсора ──
+const RAD = {1: 0, 2: 14, 3: 30};
+function codesAt(ev, out) {
+  return codesAtXY(ev.clientX, ev.clientY, out);
+}
+function codesAtXY(X, Y, out) {
+  out = out || new Set(); const r = RAD[size];
+  const pts = [[0, 0]];
+  if (r) for (let a = 0; a < 12; a++) { pts.push([Math.cos(a * Math.PI / 6) * r, Math.sin(a * Math.PI / 6) * r]);
+    pts.push([Math.cos(a * Math.PI / 6) * r / 2, Math.sin(a * Math.PI / 6) * r / 2]); }
+  for (const [dx, dy] of pts) {
+    const el = document.elementFromPoint(X + dx, Y + dy);
+    if (el && el.dataset && el.dataset.c) out.add(el.dataset.c);
+  }
+  return out;
+}
+let painting = false, panning = false, space = false, last = null, lastPaint = null, lastT = 0;
+function paintAlong(e) {   // все точки между прошлым и текущим положением курсора
+  const out = new Set();
+  if (lastPaint) {
+    const dx = e.clientX - lastPaint.x, dy = e.clientY - lastPaint.y, dist = Math.hypot(dx, dy);
+    const step = Math.max(3, (RAD[size] || 4) * .6), n = Math.min(60, Math.ceil(dist / step));
+    for (let i = 1; i < n; i++) codesAtXY(lastPaint.x + dx * i / n, lastPaint.y + dy * i / n, out);
+  }
+  codesAt(e, out); lastPaint = {x: e.clientX, y: e.clientY};
+  for (const c of out) apply(c);
+}
+svg.addEventListener("contextmenu", e => e.preventDefault());
+svg.addEventListener("pointerdown", e => {
+  if (e.button === 2 || e.button === 1 || space || (e.button === 0 && tool === "hand")) {
+    panning = true; dragging = true; goal = null; vel = {x: 0, y: 0};
+    last = {x: e.clientX, y: e.clientY}; lastT = performance.now();
+    svg.setPointerCapture(e.pointerId); svg.style.cursor = "grabbing"; return; }
+  if (e.button !== 0) return;
+  const t = e.target.dataset && e.target.dataset.c;
+  beginStroke();
+  if (tool === "fill" || e.shiftKey) { if (t) for (const c of byCountry[regions[t].a0] || []) apply(c); endStroke(); return; }
+  painting = true; lastPaint = null; paintAlong(e);
+});
+svg.addEventListener("pointermove", e => {
+  if (panning) { const r = svg.getBoundingClientRect(), now = performance.now();
+    const mx = -(e.clientX - last.x) / r.width * vb.w, my = -(e.clientY - last.y) / r.height * vb.h;
+    const b = fitBox(vb.x + mx, vb.y + my, vb.w, vb.h); vb.x = b.x; vb.y = b.y;
+    const dt = Math.max(8, now - lastT); vel = {x: mx * 16 / dt, y: my * 16 / dt};   // скорость на кадр — для инерции
+    last = {x: e.clientX, y: e.clientY}; lastT = now; kick(); return; }
+  if (painting) paintAlong(e);
+  hoverLater(e);
+});
+window.addEventListener("pointerup", () => { if (painting) { painting = false; lastPaint = null; endStroke(); }
+  if (panning) { svg.style.cursor = tool === "hand" || space ? "grab" : "";
+    if (performance.now() - lastT > 90) vel = {x: 0, y: 0};   // остановился перед отпусканием — без инерции
+    dragging = false; kick(); }
+  panning = false; });
+
+// подсказка и курсор-кисть (не чаще раза за кадр)
+const tip = $("tip"), cur = $("cursor"), mainEl = $("main");
+let hovEv = null, hovRaf = 0;
+function hoverLater(e) { hovEv = e; if (!hovRaf) hovRaf = requestAnimationFrame(() => { hovRaf = 0; if (hovEv) hover(hovEv); }); }
+function hover(e) {
+  const mr = mainEl.getBoundingClientRect();
+  const d = RAD[size] * 2 || 10;
+  cur.style.display = tool === "fill" || tool === "hand" || panning || space ? "none" : "block";
+  Object.assign(cur.style, {left: e.clientX - mr.left + "px", top: e.clientY - mr.top + "px", width: d + "px", height: d + "px",
+    borderColor: tool === "erase" ? "#ffb0a8" : "#ffffffd0",
+    backgroundColor: tool === "brush" && who ? ccol(who) + "55" : "transparent"});
+  const t = e.target.dataset && e.target.dataset.c;
+  if (!t) { tip.style.display = "none"; $("hov").setAttribute("d", ""); return; }
+  const r = regions[t], v = view(t);
+  $("hov").setAttribute("d", tool === "fill" || e.shiftKey ? (byCountry[r.a0] || []).map(c => regions[c].el.getAttribute("d")).join("") : r.el.getAttribute("d"));
+  tip.innerHTML = `<b>${r.name}</b><div class="row">Страна: <span>${cname(r.a0)}</span></div>` +
+    (v.owner !== r.a0 ? `<div class="row">Владелец: <span>${cname(v.owner)}</span></div>` : "") +
+    (v.occ ? `<div class="row">Оккупант: <span style="color:#ffb0a8">${cname(v.occ)}</span></div>` : "") +
+    (pending[t] ? `<div class="row" style="color:#fff">● несохранённая правка</div>` : "");
+  tip.style.display = "block";
+  let x = e.clientX - mr.left + 16, y = e.clientY - mr.top + 16;
+  if (x + 220 > mr.width) x -= 240;
+  if (y + 110 > mr.height) y -= 120;
+  tip.style.left = x + "px"; tip.style.top = y + "px";
+}
+svg.addEventListener("pointerleave", () => { tip.style.display = "none"; cur.style.display = "none"; });
+
+// ── клавиатура ──
+window.addEventListener("keydown", e => {
+  if (e.target.tagName === "INPUT") return;
+  const k = e.key.toLowerCase();
+  if ((e.ctrlKey || e.metaKey) && k === "z") { e.preventDefault(); e.shiftKey ? redoF() : undo(); return; }
+  if ((e.ctrlKey || e.metaKey) && k === "y") { e.preventDefault(); redoF(); return; }
+  if (k === " ") { space = true; svg.style.cursor = "grab"; e.preventDefault(); }
+  if (k === "h" || k === "р") setTool("hand");
+  const step = e.shiftKey ? .25 : .1;
+  if (k === "arrowleft" || k === "a" || k === "ф") { panBy(-step, 0); e.preventDefault(); }
+  if (k === "arrowright" || k === "d" || k === "в") { panBy(step, 0); e.preventDefault(); }
+  if (k === "arrowup" || k === "w" || k === "ц") { panBy(0, -step); e.preventDefault(); }
+  if (k === "arrowdown" || k === "s" || k === "ы") { panBy(0, step); e.preventDefault(); }
+  if (k === "=" || k === "+") zoomAt(.7, vb.x + vb.w / 2, vb.y + vb.h / 2);
+  if (k === "-") zoomAt(1.4, vb.x + vb.w / 2, vb.y + vb.h / 2);
+  if (k === "b" || k === "и") setTool("brush");
+  if (k === "e" || k === "у") setTool("erase");
+  if (k === "f" || k === "а") setTool("fill");
+  if (k === "1" || k === "2" || k === "3") setSize(+k);
+});
+window.addEventListener("keyup", e => { if (e.key === " ") { space = false; svg.style.cursor = ""; } });
+
+// ── сообщения ──
+let tt = null;
+function toast(msg, kind) { const t = $("toast"); t.innerHTML = msg; t.className = "toast show " + (kind || "");
+  clearTimeout(tt); tt = setTimeout(() => t.className = "toast", 4200); }
+function modal(title, text, acts) {
+  $("mTitle").textContent = title; $("mText").innerHTML = text;
+  $("mActs").innerHTML = ""; for (const [label, cls, fn] of acts) { const b = document.createElement("button");
+    b.className = "btn " + (cls || ""); b.textContent = label; b.onclick = () => { $("modal").style.display = "none"; fn && fn(); }; $("mActs").appendChild(b); }
+  $("modal").style.display = "grid";
+}
+$("reset").onclick = () => modal("Сбросить все правки?", "Несохранённые изменения на карте будут удалены.", [
+  ["Отмена", "", null],
+  ["Сбросить", "primary", () => { const s = {}; for (const c in pending) s[c] = pending[c];
+    pending = {}; for (const c in s) paint(c); history.push(s); future = []; save(); ui(); }]]);
+$("undo").onclick = undo; $("redo").onclick = redoF;
+
+// ── отправка в бота через вебхук служебного канала ──
+function payload() {
+  return JSON.stringify({secret: D.secret, generated: D.generated,
+    ops: Object.entries(pending).map(([r, p]) => ({r, t: p.t, to: p.to || null}))});
+}
+async function send() {
+  const n = Object.keys(pending).length; if (!n) return;
+  const btn = $("send"); btn.disabled = true; btn.lastChild.textContent = "Отправляю…";
+  try {
+    const fd = new FormData();
+    fd.append("payload_json", JSON.stringify({content: `Правки карты: ${n}`, username: "Редактор карты"}));
+    fd.append("files[0]", new Blob([payload()], {type: "application/json"}), "map-edit.json");
+    const res = await fetch(D.webhook + "?wait=true", {method: "POST", body: fd});
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    for (const c in pending) { const p = pending[c];
+      if (p.t === "own") { base.own[c] = p.to; delete base.occ[c]; }
+      else if (p.t === "free") { delete base.own[c]; delete base.occ[c]; }
+      else if (p.t === "occ") base.occ[c] = p.to; else delete base.occ[c]; }
+    const done = Object.keys(pending); pending = {}; history = []; future = [];
+    for (const c of done) paint(c);
+    save(); ui(); selOutline(); buildLabels();
+    toast(`<b>Отправлено: ${n} правок.</b><br>Бот применит их и обновит карту в Discord в течение минуты.`, "ok");
+  } catch (e) {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([payload()], {type: "application/json"})); a.download = "map-edit.json"; a.click();
+    modal("Не удалось отправить автоматически",
+      "Похоже, нет интернета или вебхук устарел. Я скачал файл <b>map-edit.json</b> — перетащите его в служебный канал редактора карты в Discord, бот применит правки так же.<br><br>Если ошибка повторяется — получите свежий файл: <b>!карта-редактор</b>.",
+      [["Понятно", "primary", null]]);
+  } finally { btn.lastChild.textContent = "Отправить в бота"; ui(); }
+}
+$("send").onclick = send;
+
+whoList(); ui(); svg.style.cursor = "grab";
+requestAnimationFrame(() => { fit(true); buildLabels(); selOutline(); requestAnimationFrame(() => svg.classList.add("ready")); });
+})();
+</script>
+</body>
+</html>
