@@ -8,7 +8,7 @@
 <link rel="icon" href="tree/brand/avatar.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Inter:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#070d18; --glass:rgba(13,23,40,.74); --glass2:rgba(18,31,52,.92); --line:rgba(96,170,255,.22); --line2:rgba(120,190,255,.38);
@@ -155,6 +155,51 @@ button{font:inherit;color:inherit}
 .pbtns{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .pbtns .btn{padding:20px 10px;font-size:17px;touch-action:none}
 
+/* ═══════════ ЭПОХА 1936 — «ночной штаб 1936»: тот же тёмно-синий Nova Order, неон → латунь и золото ═══════════ */
+body.e36{--bg:#0a1322;--glass:rgba(18,31,50,.92);--glass2:rgba(22,37,60,.96);--line:rgba(205,165,95,.30);--line2:rgba(228,188,112,.52);
+  --ink:#efe4c8;--mute:#a99a7c;--acc:#f0c35e;--acc2:#d49a3a;--good:#a8d08a;--bad:#d0593f;--warn:#e8b04a;
+  background:radial-gradient(ellipse at 50% -10%,#1a2c47 0%,#0d182a 45%,#080f1b 100%) fixed}
+body.e36 #stars,body.e36 #planet{display:none}
+body.e36::before{content:"";position:fixed;left:50%;top:-30vh;width:160vh;height:160vh;translate:-50% 0;z-index:0;pointer-events:none;opacity:.5;
+  background:repeating-conic-gradient(from 0deg,rgba(240,195,94,.045) 0 3deg,transparent 3deg 9deg);
+  -webkit-mask-image:radial-gradient(circle,#000 0,transparent 60%);mask-image:radial-gradient(circle,#000 0,transparent 60%)}
+body.e36 .card{border-radius:10px;backdrop-filter:none;-webkit-backdrop-filter:none;
+  background:radial-gradient(circle at 9px 9px,#c9a463 0 1.6px,transparent 2.4px),radial-gradient(circle at calc(100% - 9px) 9px,#c9a463 0 1.6px,transparent 2.4px),
+    radial-gradient(circle at 9px calc(100% - 9px),#c9a463 0 1.6px,transparent 2.4px),radial-gradient(circle at calc(100% - 9px) calc(100% - 9px),#c9a463 0 1.6px,transparent 2.4px),
+    linear-gradient(180deg,#172a44,#0f1c2f);
+  box-shadow:0 18px 44px rgba(0,0,0,.55),inset 0 0 0 1px rgba(240,195,94,.06),inset 0 1px 0 rgba(255,236,190,.06)}
+body.e36 .top img{box-shadow:0 0 0 2px rgba(228,188,112,.55),0 0 22px rgba(240,195,94,.25)}
+body.e36 .kicker{color:var(--acc);letter-spacing:.2em}
+body.e36 .title{font-family:Oswald,sans-serif;font-weight:700;font-size:27px;letter-spacing:.06em;text-transform:uppercase;
+  background:linear-gradient(90deg,#fff3cc,#e2b45c);-webkit-background-clip:text;background-clip:text;color:transparent}
+body.e36 .task .ico{background:linear-gradient(145deg,rgba(240,195,94,.18),rgba(212,154,58,.06));border-radius:50%}
+body.e36 .task .ico svg{stroke:var(--acc)}
+body.e36 .task b{font-family:Oswald;font-weight:600;letter-spacing:.04em;text-transform:uppercase;font-size:17px}
+body.e36 .chipc span{background:rgba(240,195,94,.08);border-radius:4px;font-family:Oswald;letter-spacing:.06em;text-transform:uppercase;font-weight:600}
+body.e36 .ringt .fg{stroke:var(--acc);filter:drop-shadow(0 0 5px rgba(240,195,94,.55))}
+body.e36 .ringt.low .fg{stroke:var(--bad);filter:drop-shadow(0 0 6px rgba(208,89,63,.8))}
+body.e36 .ringt b,body.e36 .hud .v,body.e36 .hub b,body.e36 .result .big{font-family:Oswald;font-weight:700;letter-spacing:.03em}
+body.e36 .hud .v{font-size:24px}
+body.e36 .timebar i{box-shadow:0 0 10px rgba(240,195,94,.45)}
+body.e36 .stage::before{background:conic-gradient(from var(--a),transparent 0 70%,rgba(240,195,94,.85) 80%,rgba(212,154,58,.85) 88%,transparent 95%);border-radius:11px}
+body.e36 .btn{border-radius:8px;font:700 15px Oswald,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#1c1408;
+  background:linear-gradient(180deg,#f3cf74,#c8913a);box-shadow:0 6px 18px rgba(240,195,94,.22),inset 0 1px 0 rgba(255,245,210,.6),inset 0 -2px 0 rgba(90,60,20,.35)}
+body.e36 .btn.ghost{background:rgba(240,195,94,.06);color:var(--ink);border:1px solid var(--line);box-shadow:none}
+body.e36 .pipe-bg{stroke:#131d2c}
+body.e36 .pipe{stroke:#6e5a38}
+body.e36 .full .pipe{stroke:#f0c35e;filter:drop-shadow(0 0 7px rgba(240,195,94,.75))}
+body.e36 .full .flow{stroke:#fff3cc}
+body.e36 .cell{stroke:rgba(205,165,95,.10)}
+body.e36 .full .cell{stroke:rgba(240,195,94,.35)}
+body.e36 .tile:active .cell{fill:rgba(240,195,94,.12)}
+body.e36 .port{fill:#0f1b2c}
+body.e36 #simon button{border-radius:50%;box-shadow:inset 0 -10px 22px rgba(0,0,0,.45),inset 0 3px 0 rgba(255,240,200,.35),0 0 0 6px #2a2216,0 0 0 8px #8a6d3e}
+body.e36 #sStatus{color:var(--acc);font-family:Oswald;letter-spacing:.08em;text-transform:uppercase}
+body.e36 .ring{background:radial-gradient(circle,rgba(168,208,138,.22),transparent 70%)}
+body.e36 .ring::after{border-color:rgba(168,208,138,.5)}
+body.e36 .ring.bad{background:radial-gradient(circle,rgba(208,89,63,.24),transparent 70%)}
+body.e36 .ring.bad::after{border-color:rgba(208,89,63,.5)}
+
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 </style>
 </head>
@@ -245,6 +290,22 @@ let TASK=null,HOOK=(location.hash||'').slice(1);
 const SHOT=new URLSearchParams(location.search).get('shot');   // витрина для скриншотов
 try{const p=new URLSearchParams(location.search).get('t');
   if(p){TASK=JSON.parse(decodeURIComponent(escape(atob(p.replace(/-/g,'+').replace(/_/g,'/')))))}}catch(e){TASK=null}
+// эпоха 1936 (бот добавляет &era=1936): «ночной штаб 1936» — латунь, золото, бакелит на тёмно-синем
+const ERA36=new URLSearchParams(location.search).get('era')==='1936';
+const C=ERA36?{ok:'#a8d08a',flow:'#f0c35e',flow2:'#d49a3a',text:'#efe4c8',red:'#d0593f',yel:'#e8b04a',p2:'#0f1b2c',idle:'#6e5a38',
+  hot:'#fff3cc',vio:'#7f95bf',steel:'#3e3220',tick:'#3a3022',bad:'#d0593f',idle2:'#55462c',dark2:'#2a2216',p1:'#1a2b42',p3:'#15233a',
+  screw:'#8a6d3e',screw2:'#e0c080',shadow:'#05090f',off:'#2f2a20',chrome1:'#f2d58e',chrome3:'#a8803f',face1:'#f3ead2',face2:'#d8c8a0',
+  track:'#cbb98f',needle:'#a8281f',needle2:'#7a1e18',hub:'#2b241a',grill:'rgba(230,190,120,.07)',pstroke:'rgba(205,165,95,.5)',
+  wires:[['#c8553d','красный'],['#e3a93b','жёлтый'],['#e9dcbc','белый'],['#6f86b0','синий'],['#7fae6a','зелёный']],
+  pads:[['#c8553d'],['#e3a93b'],['#7fae6a'],['#6f86b0']]}
+ :{ok:'#5be3a6',flow:'#4fd1e8',flow2:'#5aa8ff',text:'#e2ecf8',red:'#ff5d6c',yel:'#ffc35a',p2:'#0b1626',idle:'#3a5272',
+  hot:'#e8fdff',vio:'#7d8cff',steel:'#1b2b44',tick:'#6f87a8',bad:'#ff6b6b',idle2:'#2b4060',dark2:'#1a2a40',p1:'#13233a',p3:'#101e33',
+  screw:'#2c4363',screw2:'#5a7699',shadow:'#05090f',off:'#26364d',chrome1:'#5d7799',chrome3:'#3c5578',face1:'#132440',face2:'#08111f',
+  track:'#16243a',needle:'#e2ecf8',needle2:'#a9bdd6',hub:'#0c1a2e',grill:'rgba(120,180,255,.07)',pstroke:'rgba(96,170,255,.28)',
+  wires:[['#ff5d6c','красный'],['#ffc35a','жёлтый'],['#4fd1e8','бирюзовый'],['#7d8cff','синий'],['#5be3a6','зелёный']],
+  pads:[['#ff5d6c'],['#ffc35a'],['#4fd1e8'],['#7d8cff']]};
+if(ERA36){document.body.classList.add('e36');const k=document.querySelector('.kicker');if(k)k.textContent='NOVA ORDER · ТЕХНИЧЕСКИЙ ОТДЕЛ · 1936';
+  document.querySelector('meta[name=theme-color]').content='#0a1322'}
 if(HOOK&&!/^https:\/\/(discord|discordapp)\.com\/api\/webhooks\//.test(decodeURIComponent(HOOK)))HOOK='';
 
 // ═══════════ таймер / итог ═══════════
@@ -259,13 +320,13 @@ function startTimer(sec,cb){clearInterval(timer);tLeft=tTotal=sec;onTimeout=cb;$
 function stopTimer(){clearInterval(timer);$('ringT').classList.remove('low')}
 function overlay(html){$('ovBox').innerHTML=html;$('ov').classList.add('on')}
 function closeOv(){$('ov').classList.remove('on')}
-const ICON_OK='<div class="ring"><svg width="58" height="58" viewBox="0 0 24 24" fill="none" stroke="#5be3a6" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>';
-const ICON_BAD='<div class="ring bad"><svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#ff6b6b" stroke-width="2.6" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>';
+const ICON_OK=`<div class="ring"><svg width="58" height="58" viewBox="0 0 24 24" fill="none" stroke="${C.ok}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>`;
+const ICON_BAD=`<div class="ring bad"><svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="${C.bad}" stroke-width="2.6" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>`;
 const IC_RETRY='<svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>';
 
 // конфетти при победе
 function confetti(){const c=$('confetti'),g=c.getContext('2d'),D=Math.min(2,devicePixelRatio||1);c.width=innerWidth*D;c.height=innerHeight*D;
-  const cols=['#4fd1e8','#5aa8ff','#5be3a6','#ffc35a','#e2ecf8'],P=Array.from({length:140},()=>({x:c.width/2,y:c.height*.42,
+  const cols=[C.flow,C.flow2,C.ok,C.yel,C.text],P=Array.from({length:140},()=>({x:c.width/2,y:c.height*.42,
     vx:(Math.random()-.5)*16*D,vy:(-Math.random()*15-4)*D,r:(Math.random()*5+3)*D,a:Math.random()*6,va:(Math.random()-.5)*.3,col:cols[Math.random()*5|0]}));
   const t0=performance.now();
   (function f(t){const k=(t-t0)/2200;g.clearRect(0,0,c.width,c.height);if(k>1)return;
@@ -335,12 +396,12 @@ function pipesGame(){
   function render(){
     const {full,ok}=flow();
     let h=`<svg id="pipes" viewBox="0 0 ${W} ${W}">`;
-    h+=`<defs><linearGradient id="pg" x1="0" x2="1"><stop offset="0" stop-color="#4fd1e8"/><stop offset="1" stop-color="#5aa8ff"/></linearGradient>
+    h+=`<defs><linearGradient id="pg" x1="0" x2="1"><stop offset="0" stop-color="${C.flow}"/><stop offset="1" stop-color="${C.flow2}"/></linearGradient>
       <linearGradient id="cellg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="rgba(255,255,255,.06)"/><stop offset="1" stop-color="rgba(255,255,255,.015)"/></linearGradient></defs>`;
     // вход/выход
     const iy=PAD+inR*S+S/2,oy=PAD+outR*S+S/2;
-    h+=`<path d="M0 ${iy} H${PAD+4}" stroke="#4fd1e8" stroke-width="12" stroke-linecap="round" style="filter:drop-shadow(0 0 6px #4fd1e8)"/>`;
-    h+=`<path d="M${W-PAD-4} ${oy} H${W}" stroke="${ok?'#5be3a6':'#3a5272'}" stroke-width="12" stroke-linecap="round" ${ok?'style="filter:drop-shadow(0 0 8px #5be3a6)"':''}/>`;
+    h+=`<path d="M0 ${iy} H${PAD+4}" stroke="${C.flow}" stroke-width="12" stroke-linecap="round" style="filter:drop-shadow(0 0 6px ${C.flow})"/>`;
+    h+=`<path d="M${W-PAD-4} ${oy} H${W}" stroke="${ok?C.ok:C.idle}" stroke-width="12" stroke-linecap="round" ${ok?`style="filter:drop-shadow(0 0 8px ${C.ok})"`:''}/>`;
     for(let r=0;r<N;r++)for(let c=0;c<N;c++){
       const g=grid[r][c],x=PAD+c*S,y=PAD+r*S,isF=full.has(r+','+c);
       const segs=SHAPES[g.s].map(d=>{const [dr,dc]=DIRS[d];return `M${S/2} ${S/2} L${S/2+dc*S/2} ${S/2+dr*S/2}`}).join(' ');
@@ -349,10 +410,10 @@ function pipesGame(){
         <g class="rot" style="transform:rotate(${g.r*90}deg)">
           <rect width="${S}" height="${S}" fill="none" stroke="none"/>
           <path class="pipe-bg" d="${segs}"/><path class="pipe" d="${segs}"/>${isF?`<path class="flow" d="${segs}"/>`:''}
-          <circle cx="${S/2}" cy="${S/2}" r="10" fill="${isF?'#4fd1e8':'#2b4060'}" ${isF?'style="filter:drop-shadow(0 0 6px #4fd1e8)"':''}/>
-          <circle cx="${S/2}" cy="${S/2}" r="4" fill="${isF?'#e8fdff':'#1a2a40'}"/>
+          <circle cx="${S/2}" cy="${S/2}" r="10" fill="${isF?C.flow:C.idle2}" ${isF?`style="filter:drop-shadow(0 0 6px ${C.flow})"`:''}/>
+          <circle cx="${S/2}" cy="${S/2}" r="4" fill="${isF?C.hot:C.dark2}"/>
         </g></g>`}
-    h+=`<circle class="port pulse" cx="${PAD/2}" cy="${iy}" r="9"/><circle class="port ${ok?'':'pulse'}" cx="${W-PAD/2}" cy="${oy}" r="9" style="stroke:${ok?'#5be3a6':'#5aa8ff'}"/>`;
+    h+=`<circle class="port pulse" cx="${PAD/2}" cy="${iy}" r="9"/><circle class="port ${ok?'':'pulse'}" cx="${W-PAD/2}" cy="${oy}" r="9" style="stroke:${ok?C.ok:C.flow2}"/>`;
     h+='</svg>';
     $('stage').innerHTML=h;
     $('hMoves').textContent=moves+' / '+(minMoves+MOVES_EXTRA);
@@ -371,7 +432,7 @@ function pipesGame(){
 
 // ═══════════ РАСПРЕДЩИТОК (тянуть провода к клеммам того же цвета) ═══════════
 function wiresGame(){
-  const COLORS=[['#ff5d6c','красный'],['#ffc35a','жёлтый'],['#4fd1e8','бирюзовый'],['#7d8cff','синий'],['#5be3a6','зелёный']];
+  const COLORS=C.wires;
   const N=5,TIME=30,W=500,H=520,LX=70,RX=430,TOP=70,STEP=(H-TOP*2)/(N-1);
   const left=[...Array(N).keys()].sort(()=>Math.random()-.5), right=[...Array(N).keys()].sort(()=>Math.random()-.5);
   const done=new Map();let drag=null,fin=false,spark=null;
@@ -380,14 +441,14 @@ function wiresGame(){
   function y(i){return TOP+i*STEP}
   function render(cur){
     let h=`<svg id="wires" viewBox="0 0 ${W} ${H}" style="width:100%;display:block;touch-action:none;user-select:none">`;
-    h+=`<defs><linearGradient id="panel" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#13233a"/><stop offset=".5" stop-color="#0b1626"/><stop offset="1" stop-color="#101e33"/></linearGradient>
-      <pattern id="grill" width="10" height="10" patternUnits="userSpaceOnUse"><circle cx="5" cy="5" r="1.2" fill="rgba(120,180,255,.07)"/></pattern></defs>`;
-    h+=`<rect x="20" y="20" width="${W-40}" height="${H-40}" rx="24" fill="url(#panel)" stroke="rgba(96,170,255,.28)" stroke-width="2"/>`;
+    h+=`<defs><linearGradient id="panel" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${C.p1}"/><stop offset=".5" stop-color="${C.p2}"/><stop offset="1" stop-color="${C.p3}"/></linearGradient>
+      <pattern id="grill" width="10" height="10" patternUnits="userSpaceOnUse"><circle cx="5" cy="5" r="1.2" fill="${C.grill}"/></pattern></defs>`;
+    h+=`<rect x="20" y="20" width="${W-40}" height="${H-40}" rx="24" fill="url(#panel)" stroke="${C.pstroke}" stroke-width="2"/>`;
     h+=`<rect x="110" y="40" width="${W-220}" height="${H-80}" rx="14" fill="url(#grill)"/>`;
     // винты по углам
-    for(const [cx,cy] of [[42,42],[W-42,42],[42,H-42],[W-42,H-42]])h+=`<circle cx="${cx}" cy="${cy}" r="8" fill="#1b2b44" stroke="#2c4363"/><path d="M${cx-4} ${cy-4}l8 8" stroke="#5a7699" stroke-width="2"/>`;
+    for(const [cx,cy] of [[42,42],[W-42,42],[42,H-42],[W-42,H-42]])h+=`<circle cx="${cx}" cy="${cy}" r="8" fill="${C.steel}" stroke="${C.screw}"/><path d="M${cx-4} ${cy-4}l8 8" stroke="${C.screw2}" stroke-width="2"/>`;
     for(const [li,ri] of done){const c=COLORS[left[li]][0];
-      h+=`<path d="M${LX} ${y(li)} C ${W/2} ${y(li)}, ${W/2} ${y(ri)}, ${RX} ${y(ri)}" stroke="#05090f" stroke-width="20" fill="none" stroke-linecap="round" opacity=".55"/>`+
+      h+=`<path d="M${LX} ${y(li)} C ${W/2} ${y(li)}, ${W/2} ${y(ri)}, ${RX} ${y(ri)}" stroke="${C.shadow}" stroke-width="20" fill="none" stroke-linecap="round" opacity=".55"/>`+
          `<path d="M${LX} ${y(li)} C ${W/2} ${y(li)}, ${W/2} ${y(ri)}, ${RX} ${y(ri)}" stroke="${c}" stroke-width="14" fill="none" stroke-linecap="round" style="filter:drop-shadow(0 0 8px ${c})"/>`+
          `<path d="M${LX} ${y(li)} C ${W/2} ${y(li)}, ${W/2} ${y(ri)}, ${RX} ${y(ri)}" stroke="rgba(255,255,255,.45)" stroke-width="3" fill="none" stroke-linecap="round" stroke-dasharray="2 14"><animate attributeName="stroke-dashoffset" from="0" to="-32" dur=".8s" repeatCount="indefinite"/></path>`}
     if(cur){const c=COLORS[left[cur.li]][0];
@@ -395,12 +456,12 @@ function wiresGame(){
          `<circle cx="${cur.x}" cy="${cur.y}" r="11" fill="${c}"/>`}
     for(let i=0;i<N;i++){const c=COLORS[left[i]][0],on=done.has(i);
       h+=`<rect x="20" y="${y(i)-14}" width="${LX-20}" height="28" rx="7" fill="${c}"/><rect x="20" y="${y(i)-14}" width="${LX-20}" height="9" rx="5" fill="rgba(255,255,255,.25)"/>`+
-         `<circle cx="${LX}" cy="${y(i)}" r="17" fill="#0b1626" stroke="${c}" stroke-width="5" data-l="${i}"/>`+
-         `<circle cx="${LX}" cy="${y(i)}" r="5" fill="${on?'#e8fdff':c}" opacity="${on?1:.6}"/>`}
+         `<circle cx="${LX}" cy="${y(i)}" r="17" fill="${C.p2}" stroke="${c}" stroke-width="5" data-l="${i}"/>`+
+         `<circle cx="${LX}" cy="${y(i)}" r="5" fill="${on?C.hot:c}" opacity="${on?1:.6}"/>`}
     for(let i=0;i<N;i++){const c=COLORS[right[i]][0],on=[...done.values()].includes(i);
       h+=`<rect x="${RX}" y="${y(i)-14}" width="${W-20-RX}" height="28" rx="7" fill="${c}" opacity="${on?1:.5}"/>`+
-         `<circle cx="${RX}" cy="${y(i)}" r="17" fill="${on?c:'#0b1626'}" stroke="${c}" stroke-width="5" ${on?`style="filter:drop-shadow(0 0 10px ${c})"`:''}/>`+
-         `<circle cx="${W-36}" cy="${y(i)-22}" r="4" fill="${on?'#5be3a6':'#26364d'}" ${on?'style="filter:drop-shadow(0 0 5px #5be3a6)"':''}/>`}
+         `<circle cx="${RX}" cy="${y(i)}" r="17" fill="${on?c:C.p2}" stroke="${c}" stroke-width="5" ${on?`style="filter:drop-shadow(0 0 10px ${c})"`:''}/>`+
+         `<circle cx="${W-36}" cy="${y(i)-22}" r="4" fill="${on?C.ok:C.off}" ${on?`style="filter:drop-shadow(0 0 5px ${C.ok})"`:''}/>`}
     if(spark){const s=spark;for(let k=0;k<10;k++){const a=k/10*6.283;h+=`<line x1="${s.x}" y1="${s.y}" x2="${s.x+Math.cos(a)*30}" y2="${s.y+Math.sin(a)*30}" stroke="${s.c}" stroke-width="3" stroke-linecap="round" opacity=".9"><animate attributeName="opacity" from="1" to="0" dur=".45s" fill="freeze"/></line>`}}
     h+='</svg>';$('stage').innerHTML=h;$('hMoves').textContent=done.size+' / '+N;
     const svg=$('wires');
@@ -424,7 +485,7 @@ function simonGame(){
   const MY=GEN;
   const SVGS=['<svg viewBox="0 0 24 24"><path d="M12 3 22 20H2z"/></svg>','<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg>',
     '<svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="2"/></svg>','<svg viewBox="0 0 24 24"><path d="M12 2 22 12 12 22 2 12z"/></svg>'];
-  const PADS=[['#ff5d6c'],['#ffc35a'],['#4fd1e8'],['#7d8cff']];
+  const PADS=C.pads;
   const ROUNDS=5;let seq=[],pos=0,round=0,busy=true,fin=false;let ac=null;
   $('hMovesL').textContent='раунд';$('hint').textContent='Смотрите, какие кнопки загораются, и нажмите их в том же порядке.';
   function beep(i){try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator(),g=ac.createGain();
@@ -455,22 +516,22 @@ function pressureGame(){
   const TIME=45,ZONE=[58,74];let p=40,v=0,hold=0,prog=0,fin=false,raf;
   $('hMovesL').textContent='стабилизация';$('hint').textContent='Держите «Подкачать» или «Сбросить», чтобы стрелка оставалась в зелёной зоне, пока шкала не заполнится.';
   $('stage').innerHTML=`<svg viewBox="0 0 400 290" style="width:100%;display:block">
-      <defs><linearGradient id="arc" x1="0" x2="1"><stop offset="0" stop-color="#5aa8ff"/><stop offset=".55" stop-color="#5be3a6"/><stop offset="1" stop-color="#ff5d6c"/></linearGradient>
-        <linearGradient id="chrome" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5d7799"/><stop offset=".5" stop-color="#1b2b44"/><stop offset="1" stop-color="#3c5578"/></linearGradient>
-        <radialGradient id="face" cx="50%" cy="80%" r="70%"><stop offset="0" stop-color="#132440"/><stop offset="1" stop-color="#08111f"/></radialGradient></defs>
+      <defs><linearGradient id="arc" x1="0" x2="1"><stop offset="0" stop-color="${C.flow2}"/><stop offset=".55" stop-color="${C.ok}"/><stop offset="1" stop-color="${C.red}"/></linearGradient>
+        <linearGradient id="chrome" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${C.chrome1}"/><stop offset=".5" stop-color="${C.steel}"/><stop offset="1" stop-color="${C.chrome3}"/></linearGradient>
+        <radialGradient id="face" cx="50%" cy="80%" r="70%"><stop offset="0" stop-color="${C.face1}"/><stop offset="1" stop-color="${C.face2}"/></radialGradient></defs>
       <path d="M28 222 A172 172 0 0 1 372 222" stroke="url(#chrome)" stroke-width="10" fill="none" stroke-linecap="round"/>
       <path d="M42 222 A158 158 0 0 1 358 222 Z" fill="url(#face)"/>
-      <path d="M50 220 A150 150 0 0 1 350 220" stroke="#16243a" stroke-width="30" fill="none" stroke-linecap="round"/>
+      <path d="M50 220 A150 150 0 0 1 350 220" stroke="${C.track}" stroke-width="30" fill="none" stroke-linecap="round"/>
       <path d="M50 220 A150 150 0 0 1 350 220" stroke="url(#arc)" stroke-width="4" fill="none" opacity=".55"/>
-      <path id="zone" fill="none" stroke="#5be3a6" stroke-width="30" stroke-linecap="butt" opacity=".9" style="filter:drop-shadow(0 0 12px #5be3a6)"/>
+      <path id="zone" fill="none" stroke="${C.ok}" stroke-width="30" stroke-linecap="butt" opacity=".9" style="filter:drop-shadow(0 0 12px ${C.ok})"/>
       ${[...Array(21).keys()].map(i=>{const a=Math.PI*(1-i/20),big=i%2===0,r1=128,r2=big?110:118,x1=200+r1*Math.cos(a),y1=220-r1*Math.sin(a),x2=200+r2*Math.cos(a),y2=220-r2*Math.sin(a);
-        const lbl=big?`<text x="${200+96*Math.cos(a)}" y="${224-96*Math.sin(a)}" text-anchor="middle" font-family="Inter" font-weight="700" font-size="11" fill="#6f87a8">${i*5}</text>`:'';
-        return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${big?'#6f87a8':'#3a5272'}" stroke-width="${big?3:2}"/>`+lbl}).join('')}
-      <g id="needle" style="filter:drop-shadow(0 3px 4px rgba(0,0,0,.7))"><path d="M195 222 L200 86 L205 222 Z" fill="#e2ecf8"/><path d="M200 86 L205 222 L200 222Z" fill="#a9bdd6"/></g>
-      <circle cx="200" cy="220" r="18" fill="url(#chrome)"/><circle cx="200" cy="220" r="11" fill="#0c1a2e" stroke="#4fd1e8" stroke-width="3"/>
-      <text id="pv" x="200" y="282" text-anchor="middle" font-family="Russo One" font-size="30" fill="#e2ecf8">40</text>
+        const lbl=big?`<text x="${200+96*Math.cos(a)}" y="${224-96*Math.sin(a)}" text-anchor="middle" font-family="Inter" font-weight="700" font-size="11" fill="${C.tick}">${i*5}</text>`:'';
+        return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${big?C.tick:C.idle}" stroke-width="${big?3:2}"/>`+lbl}).join('')}
+      <g id="needle" style="filter:drop-shadow(0 3px 4px rgba(0,0,0,.7))"><path d="M195 222 L200 86 L205 222 Z" fill="${C.needle}"/><path d="M200 86 L205 222 L200 222Z" fill="${C.needle2}"/></g>
+      <circle cx="200" cy="220" r="18" fill="url(#chrome)"/><circle cx="200" cy="220" r="11" fill="${C.hub}" stroke="${C.flow}" stroke-width="3"/>
+      <text id="pv" x="200" y="282" text-anchor="middle" font-family="Russo One" font-size="30" fill="${C.text}">40</text>
     </svg>
-    <div class="timebar" style="height:12px;margin:8px 4px 14px"><i id="prog" style="width:0;background:linear-gradient(90deg,#5be3a6,#4fd1e8)"></i></div>
+    <div class="timebar" style="height:12px;margin:8px 4px 14px"><i id="prog" style="width:0;background:linear-gradient(90deg,${C.ok},${C.flow})"></i></div>
     <div class="pbtns">
       <button class="btn ghost" id="bDown"><svg viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6"/></svg>Сбросить</button>
       <button class="btn" id="bUp"><svg viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></svg>Подкачать</button></div>`;
@@ -487,7 +548,7 @@ function pressureGame(){
     const inZone=p>=ZONE[0]&&p<=ZONE[1];
     if(!SHOT)prog=Math.max(0,Math.min(100,prog+(inZone?14:-9)*dt));
     $('needle').setAttribute('transform',`rotate(${(p-50)*1.8} 200 220)`);$('pv').textContent=Math.round(p);
-    $('pv').setAttribute('fill',inZone?'#5be3a6':p>ZONE[1]?'#ff5d6c':'#e2ecf8');$('prog').style.width=prog+'%';
+    $('pv').setAttribute('fill',inZone?C.ok:p>ZONE[1]?C.red:C.text);$('prog').style.width=prog+'%';
     $('hMoves').textContent=Math.round(prog)+'%';
     if(p>=99&&!fin){fin=true;lose('Перегрев! Сработал аварийный клапан.');return}
     if(prog>=100&&!fin){fin=true;setTimeout(()=>win({game:'pressure',time:Math.round(tTotal-tLeft)}),300);return}
