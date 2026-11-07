@@ -230,7 +230,8 @@ $("sub").textContent = D.guild + (D.era ? " · " + D.era : "") + " · состо
 // ── построение карты ──
 const regsG = $("regs"), ctryG = $("ctry");
 const frag = document.createDocumentFragment();
-for (const [code, a0, name, d] of G.regions) {
+for (const [code, a0m, name, d] of G.regions) {
+  const a0 = (D.base && D.base[code]) || a0m;   // исходный владелец по эпохе (1936: Украина → СССР и т.п.)
   const p = document.createElementNS(NS, "path");
   p.setAttribute("d", d); p.setAttribute("class", "r"); p.dataset.c = code;
   regions[code] = {a0, name, el: p};
@@ -367,8 +368,10 @@ function whoList() {
   const q = $("whoSearch").value.trim().toLowerCase();
   const items = Object.entries(D.active).filter(([a3, [n]]) => !q || n.toLowerCase().includes(q))
     .sort((a, b) => a[1][0].localeCompare(b[1][0], "ru"));
+  const held = {};
+  for (const c in regions) { const o = view(c).owner; held[o] = (held[o] || 0) + 1; }
   $("whoList").innerHTML = items.length ? items.map(([a3, [n, c]]) =>
-    `<div class="item ${a3 === who ? "on" : ""}" data-a3="${a3}"><i class="sw" style="background:${c}"></i>${n}<small>${(byCountry[a3] || []).length} обл.</small></div>`).join("")
+    `<div class="item ${a3 === who ? "on" : ""}" data-a3="${a3}"><i class="sw" style="background:${c}"></i>${n}<small>${held[a3] || 0} обл.</small></div>`).join("")
     : '<div class="item" style="cursor:default;color:var(--muted)">Нет зарегистрированных стран</div>';
 }
 $("whoSearch").oninput = whoList;
@@ -381,7 +384,7 @@ $("find").oninput = () => {
   const q = $("find").value.trim().toLowerCase(), box = $("findList");
   if (q.length < 2) { box.style.display = "none"; return; }
   const out = [];
-  for (const a3 in G.countries) if (G.countries[a3][0].toLowerCase().includes(q)) out.push(["c", a3, G.countries[a3][0], "страна"]);
+  for (const a3 in G.countries) if (byCountry[a3] && G.countries[a3][0].toLowerCase().includes(q)) out.push(["c", a3, G.countries[a3][0], "страна"]);
   for (const c in regions) if (regions[c].name.toLowerCase().includes(q)) out.push(["r", c, regions[c].name, cname(regions[c].a0)]);
   box.innerHTML = out.slice(0, 30).map(([k, id, n, s]) => `<div class="item" data-k="${k}" data-id="${id}">${n}<small>${s}</small></div>`).join("")
     || '<div class="item" style="cursor:default;color:var(--muted)">Ничего не найдено</div>';
