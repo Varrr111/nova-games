@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<title>Nova Order · Дерево достижений</title>
+<title>Nova Destiny · Дерево достижений</title>
 <meta name="theme-color" content="#090f1a">
 <link rel="icon" href="brand/avatar.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -183,7 +183,7 @@
 <header class="glass">
   <img src="brand/avatar.png" alt="">
   <div style="min-width:0;flex:1">
-    <div class="kick">NOVA ORDER · ЛЕТОПИСЬ ВАЙПА</div>
+    <div class="kick">NOVA DESTINY · ЛЕТОПИСЬ ВАЙПА</div>
     <h1 id="title">Дерево достижений</h1>
     <div class="sub" id="subtitle"></div>
     <div class="prog" id="prog"><div class="bar"><b id="barfill"></b></div><span id="progtxt"></span></div>
@@ -333,7 +333,7 @@ const achs = T.nodes.filter(n => kind(n) === 'node');
 
 // ── шапка ──
 $('#title').textContent = P ? P.t : 'Дерево достижений';
-$('#subtitle').textContent = P ? P.s : 'Nova Order';
+$('#subtitle').textContent = P ? P.s : 'Nova Destiny';
 const gotN = achs.filter(n => isGot(n.key)).length + 1, total = achs.length + 1;
 $('#progtxt').textContent = mode === 'w' ? `открыто ${gotN} из ${total}` : `${gotN} / ${total}`;
 setTimeout(() => $('#barfill').style.width = (100 * gotN / total) + '%', 50);

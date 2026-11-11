@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#070d18">
-<title>Nova Order · Ремонт</title>
+<title>Nova Destiny · Ремонт</title>
 <link rel="icon" href="tree/brand/avatar.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -155,7 +155,7 @@ button{font:inherit;color:inherit}
 .pbtns{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .pbtns .btn{padding:20px 10px;font-size:17px;touch-action:none}
 
-/* ═══════════ ЭПОХА 1936 — «ночной штаб 1936»: тот же тёмно-синий Nova Order, неон → латунь и золото ═══════════ */
+/* ═══════════ ЭПОХА 1936 — «ночной штаб 1936»: тот же тёмно-синий Nova Destiny, неон → латунь и золото ═══════════ */
 body.e36{--bg:#0a1322;--glass:rgba(18,31,50,.92);--glass2:rgba(22,37,60,.96);--line:rgba(205,165,95,.30);--line2:rgba(228,188,112,.52);
   --ink:#efe4c8;--mute:#a99a7c;--acc:#f0c35e;--acc2:#d49a3a;--good:#a8d08a;--bad:#d0593f;--warn:#e8b04a;
   background:radial-gradient(ellipse at 50% -10%,#1a2c47 0%,#0d182a 45%,#080f1b 100%) fixed}
@@ -212,7 +212,7 @@ body.e36 .ring.bad::after{border-color:rgba(208,89,63,.5)}
 <div class="wrap">
   <div class="top in">
     <img src="tree/brand/avatar.png" alt="">
-    <div><div class="kicker">NOVA ORDER · ТЕХОБСЛУЖИВАНИЕ</div><div class="title" id="gTitle">Ремонт завода</div></div>
+    <div><div class="kicker">NOVA DESTINY · ТЕХОБСЛУЖИВАНИЕ</div><div class="title" id="gTitle">Ремонт завода</div></div>
   </div>
   <div class="card task in" style="--d:.08s">
     <div class="ico" id="tIco"></div>
@@ -304,7 +304,7 @@ const C=ERA36?{ok:'#a8d08a',flow:'#f0c35e',flow2:'#d49a3a',text:'#efe4c8',red:'#
   track:'#16243a',needle:'#e2ecf8',needle2:'#a9bdd6',hub:'#0c1a2e',grill:'rgba(120,180,255,.07)',pstroke:'rgba(96,170,255,.28)',
   wires:[['#ff5d6c','красный'],['#ffc35a','жёлтый'],['#4fd1e8','бирюзовый'],['#7d8cff','синий'],['#5be3a6','зелёный']],
   pads:[['#ff5d6c'],['#ffc35a'],['#4fd1e8'],['#7d8cff']]};
-if(ERA36){document.body.classList.add('e36');const k=document.querySelector('.kicker');if(k)k.textContent='NOVA ORDER · ТЕХНИЧЕСКИЙ ОТДЕЛ · 1936';
+if(ERA36){document.body.classList.add('e36');const k=document.querySelector('.kicker');if(k)k.textContent='NOVA DESTINY · ТЕХНИЧЕСКИЙ ОТДЕЛ · 1936';
   document.querySelector('meta[name=theme-color]').content='#0a1322'}
 if(HOOK&&!/^https:\/\/(discord|discordapp)\.com\/api\/webhooks\//.test(decodeURIComponent(HOOK)))HOOK='';
 
@@ -339,7 +339,7 @@ async function win(stats){
   overlay(`${ICON_OK}<div class="big">Починено!</div><p id="sendSt">Отправляю отчёт в штаб…</p>`);
   let ok=false;
   try{const fd=new FormData();
-    fd.append('payload_json',JSON.stringify({username:'Мастерская Nova Order',content:'REPAIR '+JSON.stringify({t:TASK,r:stats})}));
+    fd.append('payload_json',JSON.stringify({username:'Мастерская Nova Destiny',content:'REPAIR '+JSON.stringify({t:TASK,r:stats})}));
     // no-cors: запрос доходит до Discord в любом случае, ответ читать не нужно (бот подтвердит в ЛС)
     await fetch(decodeURIComponent(HOOK),{method:'POST',body:fd,mode:'no-cors'});ok=true}catch(e){ok=false}
   $('sendSt').innerHTML=ok?`<b>${TASK.l}</b> снова работает на 100%.<br>Бот пришлёт подтверждение в ЛС — можно вернуться в Discord.`
