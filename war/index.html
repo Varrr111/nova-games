@@ -64,6 +64,13 @@ header{grid-column:1/3;background:var(--panel);display:flex;align-items:center;g
 .lbl{fill:var(--ink);font:600 12px "Golos Text";text-anchor:middle;paint-order:stroke;stroke:var(--edge);stroke-width:3.2px;pointer-events:none}
 .lbl.cap{font-weight:800}
 .lbl.fightl{fill:var(--warn);font-weight:700;font-size:11.5px}
+/* приближение (--zr < 1): подписи не растут вместе с картой, названия стран исчезают */
+.lbl{font-size:calc(12px * var(--zr, 1));stroke-width:calc(3.2px * var(--zr, 1))}
+.lbl.fightl{font-size:calc(11.5px * var(--zr, 1))}
+.zlbl{font-size:calc(11px * var(--zr, 1))}
+#gNames{transition:opacity .25s}
+svg.zin #gNames{opacity:0}
+svg.zin2 #gLbl text{opacity:.85}
 .radius{fill:rgba(90,147,234,.06);stroke:var(--a2);stroke-width:1.3;stroke-dasharray:3 4;vector-effect:non-scaling-stroke;pointer-events:none}
 .mv{fill:none;stroke:var(--a2);stroke-width:2.6;stroke-dasharray:7 5;vector-effect:non-scaling-stroke;pointer-events:none}
 .mv.atk{stroke:#e8edf4}
@@ -621,15 +628,21 @@ function locXY(loc) {
 // ───────── вид (панорама и масштаб) ─────────
 let VB = {x: 0, y: 0, w: 1000, h: 700};
 let reliefRaf = 0;
+let VB0w = 0;   // ширина вида «весь театр» — от неё считаем приближение
 function applyVB() {
   $("svg").setAttribute("viewBox", `${VB.x} ${VB.y} ${VB.w} ${VB.h}`);
+  // приближение: подписи столиц и боёв держат экранный размер, названия стран прячутся (не загораживают карту)
+  const zr = Math.min(1, VB.w / (VB0w || (typeof PRJ !== "undefined" && PRJ.w) || VB.w));
+  $("svg").style.setProperty("--zr", zr.toFixed(3));
+  $("svg").classList.toggle("zin", zr < .45);
+  $("svg").classList.toggle("zin2", zr < .2);
   cancelAnimationFrame(reliefRaf); reliefRaf = requestAnimationFrame(() => { if (S) drawRelief(); });
 }
 function fit() {
   const box = $("map").getBoundingClientRect(), ar = box.width / Math.max(1, box.height);
   let w = PRJ.w, h = PRJ.h;
   if (w / h > ar) h = w / ar; else w = h * ar;
-  VB = {x: (PRJ.w - w) / 2, y: (PRJ.h - h) / 2, w, h}; applyVB();
+  VB = {x: (PRJ.w - w) / 2, y: (PRJ.h - h) / 2, w, h}; VB0w = w; applyVB();
 }
 function zoomAt(f, cx, cy) {
   const nw = Math.min(Math.max(PRJ.w * 3, 360 * PRJ.k * PRJ.s * 1.05), Math.max(PRJ.w / 12, VB.w * f)), k = nw / VB.w;
@@ -732,15 +745,15 @@ function drawMap() {
   h = "";
   for (const [c, rid] of Object.entries(S.capitals || {})) {
     const xy = locXY("R:" + rid); if (!xy) continue;
-    h += `<circle cx="${xy[0]}" cy="${xy[1]}" r="3.2" fill="#e8edf4" stroke="#0e1520" stroke-width="1.5"/><text class="lbl cap" x="${xy[0]}" y="${xy[1] - 14}">★ ${esc(S.rname[rid] || "")}</text>`;
+    h += `<circle cx="${xy[0]}" cy="${xy[1]}" r="3.2" fill="#e8edf4" stroke="#0e1520" stroke-width="1.5"/><text class="lbl cap" x="${xy[0]}" y="${xy[1]}" dy="-1.15em">★ ${esc(S.rname[rid] || "")}</text>`;
   }
   for (const [rid, r] of Object.entries(S.regions)) {
     if (r[4] < 0) continue; const xy = locXY("R:" + rid); if (!xy) continue;
-    h += `<text class="lbl fightl" x="${xy[0]}" y="${xy[1] + 34}">${esc(S.rname[rid])} · штурм ${r[4]}%</text>`;
+    h += `<text class="lbl fightl" x="${xy[0]}" y="${xy[1]}" dy="2.95em">${esc(S.rname[rid])} · штурм ${r[4]}%</text>`;
   }
   if (tab === "sea") for (const zid of Object.keys(S.zones)) {
     const z = SEAS[zid]; if (!z) continue; const [x, y] = P(z[2][0], z[2][1]);
-    h += `<text class="zlbl" x="${x}" y="${y + 30}">${esc(z[0])}</text>`;
+    h += `<text class="zlbl" x="${x}" y="${y}" dy="2.7em">${esc(z[0])}</text>`;
   }
   lb.innerHTML = h;
   drawBorders(); drawNames(); drawRelief();
