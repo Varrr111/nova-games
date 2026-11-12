@@ -628,12 +628,14 @@ function locXY(loc) {
 // ───────── вид (панорама и масштаб) ─────────
 let VB = {x: 0, y: 0, w: 1000, h: 700};
 let reliefRaf = 0;
-let VB0w = 0;   // ширина вида «весь театр» — от неё считаем приближение
+let VB0w = 0;
+function zoomRatio() { return Math.min(1, VB.w / (VB0w || (typeof PRJ !== "undefined" && PRJ.w) || VB.w)); }   // <1 — карта приближена
 function applyVB() {
   $("svg").setAttribute("viewBox", `${VB.x} ${VB.y} ${VB.w} ${VB.h}`);
   // приближение: подписи столиц и боёв держат экранный размер, названия стран прячутся (не загораживают карту)
-  const zr = Math.min(1, VB.w / (VB0w || (typeof PRJ !== "undefined" && PRJ.w) || VB.w));
+  const zr = zoomRatio();
   $("svg").style.setProperty("--zr", zr.toFixed(3));
+  document.querySelectorAll("#gLbl .capdot").forEach(c => c.setAttribute("r", (3.2 * zr).toFixed(2)));   // точка столицы не раздувается
   $("svg").classList.toggle("zin", zr < .45);
   $("svg").classList.toggle("zin2", zr < .2);
   cancelAnimationFrame(reliefRaf); reliefRaf = requestAnimationFrame(() => { if (S) drawRelief(); });
@@ -745,7 +747,7 @@ function drawMap() {
   h = "";
   for (const [c, rid] of Object.entries(S.capitals || {})) {
     const xy = locXY("R:" + rid); if (!xy) continue;
-    h += `<circle cx="${xy[0]}" cy="${xy[1]}" r="3.2" fill="#e8edf4" stroke="#0e1520" stroke-width="1.5"/><text class="lbl cap" x="${xy[0]}" y="${xy[1]}" dy="-1.15em">★ ${esc(S.rname[rid] || "")}</text>`;
+    h += `<circle class="capdot" cx="${xy[0]}" cy="${xy[1]}" r="${(3.2 * zoomRatio()).toFixed(2)}" fill="#e8edf4" stroke="#0e1520" stroke-width="1.5" vector-effect="non-scaling-stroke"/><text class="lbl cap" x="${xy[0]}" y="${xy[1]}" dy="-1.15em">★ ${esc(S.rname[rid] || "")}</text>`;
   }
   for (const [rid, r] of Object.entries(S.regions)) {
     if (r[4] < 0) continue; const xy = locXY("R:" + rid); if (!xy) continue;
