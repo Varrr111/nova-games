@@ -1007,7 +1007,7 @@ function chooseOrder(t, need, dom) {
   const txt = {region: "Нажмите на область — куда идти или кого атаковать", own: "Нажмите на свою соседнюю область для отхода",
     fleet: "Нажмите на свой флот в соседней морской зоне", coast: "Нажмите на прибрежную область для высадки",
     zone: "Нажмите на морскую зону, куда плыть", zcoast: "Нажмите на прибрежную область для обстрела",
-    air: "Нажмите на цель в пределах радиуса", airopt: "Нажмите на область для прикрытия (или ещё раз «Прикрытие» — над базой)",
+    air: (sel && sel.d === "missile" && sel.as) ? "Нажмите на цель в пределах радиуса — область или морскую зону с флотом врага" : "Нажмите на цель в пределах радиуса", airopt: "Нажмите на область для прикрытия (или ещё раз «Прикрытие» — над базой)",
     ownair: "Нажмите на свою область для новой базы"}[need];
   setHint(txt);
   if (need === "airopt") { const b = document.querySelector('#orderBox button[data-o="cover"]'); b && (b.onclick = () => { setOrder(sel, {t: "cover"}); }); }
@@ -1051,7 +1051,9 @@ function validTarget(id, kind) {
     case "coast": { const f = S.units.find(x => x.id === u.loc.slice(2)); return kind === "R" && f && (S.zones[f.loc]?.coast || []).includes(id); }
     case "zone": return kind === "Z" && id !== u.loc;
     case "zcoast": return kind === "R" && (S.zones[u.loc]?.coast || []).includes(id);
-    case "air": case "airopt": return kind === "R" && kmBetween(u.loc, "R:" + id) <= u.rkm;
+    case "air": case "airopt":
+      if (kind === "Z") return u.d === "missile" && !!u.as && kmBetween(u.loc, id) <= u.rkm;   // удар по флоту — противокорабельные
+      return kind === "R" && kmBetween(u.loc, "R:" + id) <= u.rkm;
     case "ownair": return kind === "R" && mySide(id);
   }
   return false;
